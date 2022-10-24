@@ -1,0 +1,39 @@
+# This is the main "Door of Doors" config file.
+# Add your details below, rename this file "config.ini"
+
+# You'll need to be signed-up/approached for each door server, of course:
+#   Goldmine info: https://goldminebbs.com
+#   BBSLink info: https://bbslink.net/
+
+# Main program is ./door-of-doors
+
+# For Gold Mine to work, you'll also need:
+#   ./goldmine-connect
+
+# For BBSLink:
+#   ./bbslink.sh
+
+##                                 
+## General config                   
+##                                      
+
+title = "Door of Doors" # Menu title
+sysop = "aLPHA"         # Your handle
+name = "Alpha Complex"  # Your BBS name
+
+##
+## Door Servers
+##
+
+[goldmine]
+host = "165.232.153.209"    # Don't change
+port = "513"                # Don't change
+tag = "XX"                  # Replace "XX" with 2-3 characters, unique abbreviation for your BBS
+enabled = true
+
+[bbslink]
+host = "games.bbslink.net"  # Don't change
+syscode = " "					   
+authcode = " "				 		
+schemecode = " "	
+enabled = true
