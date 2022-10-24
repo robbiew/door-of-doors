@@ -7,19 +7,17 @@
 
 # Main program is ./door-of-doors
 
-# For Gold Mine to work, you'll also need:
+# For Gold Mine to work, you'll also need this in the same directory:
 #   ./goldmine-connect
 
-# For BBSLink:
+# For BBSLink, be sure this file is there as well:
 #   ./bbslink.sh
 
 ##                                 
 ## General config                   
 ##                                      
 
-title = "Door of Doors" # Menu title
-sysop = "aLPHA"         # Your handle
-name = "Alpha Complex"  # Your BBS name
+title = "aLPHA's Door of Doors"     # Menu title, change if you want!
 
 ##
 ## Door Servers

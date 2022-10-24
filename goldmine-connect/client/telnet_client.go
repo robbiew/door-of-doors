@@ -12,6 +12,16 @@ import (
 	"time"
 )
 
+// Options interface defines which settings should be provided to the client.
+type Options interface {
+	Host() string
+	Port() uint64
+	Timeout() time.Duration
+	Name() string
+	Xtrn() string
+	Tag() string
+}
+
 const defaultBufferSize = 4096
 
 // TelnetClient represents a TCP client which is responsible for writing input data and printing response.
@@ -138,7 +148,7 @@ func (t *TelnetClient) readServerData(connection *net.TCPConn, received chan<- [
 }
 
 func (t *TelnetClient) assertEOF(error error) {
-	if "EOF" != error.Error() {
+	if error.Error() != "EOF" {
 		log.Fatalf("Error occured while operating on TCP socket: %v\n", error)
 	}
 }
