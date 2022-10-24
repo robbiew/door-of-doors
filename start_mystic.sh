@@ -1,4 +1,4 @@
 #!/bin/sh
 
-cd /Users/robbie/godir/door-of-doors
-./door-of-doors -path /Users/robbie/mystic/temp$1/
+cd /mystic/doors/door-of-doors
+./door-of-doors -path /mystic/temp$1/
