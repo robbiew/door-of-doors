@@ -18,17 +18,37 @@ var (
 )
 
 // launches external program (goldmine-connect)
-func goGoldmine(un string, host string, port string, tag string) {
+func goGoldmine(un string, host string, port string, tag string, xtrn string) {
 	prg := "./goldmine-connect"
 	arg1 := host
 	arg2 := port
 	arg3 := un
 	arg4 := tag
-	arg5 := "lord"
+	arg5 := xtrn
 
 	gd.ClearScreen()
 
 	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2+" "+arg3+" "+arg4+" "+arg5)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run() // add error checking
+
+}
+
+func goBbsLink(host string, sys string, auth string, scheme string, door string, un string) {
+
+	prg := "./bbslink.sh"
+	arg1 := host
+	arg2 := sys
+	arg3 := auth
+	arg4 := scheme
+	arg5 := door
+	arg6 := un
+
+	gd.ClearScreen()
+
+	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2+" "+arg3+" "+arg4+" "+arg5+" "+arg6)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -62,6 +82,7 @@ func main() {
 	// Get door32.sys, h, w as user object
 	u := gd.Initialize(dropPath)
 	c := gd.ConfGoldMine("./config.ini")
+	b := gd.ConfBbsLink("./config.ini")
 
 	gd.ClearScreen()
 	gd.MoveCursor(0, 0)
@@ -102,6 +123,8 @@ func main() {
 		gd.MoveCursor(0, 3)
 
 		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"Q"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Quit\r\n")
+		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"G"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Gold Mine LORD test\r\n")
+		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"B"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"BBSLink LORD test\r\n")
 
 		fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
 
@@ -109,8 +132,11 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		if string(char) == "t" || string(char) == "T" {
-			goGoldmine(u.Alias, c.Host, c.Port, c.Tag)
+		if string(char) == "b" || string(char) == "B" {
+			goBbsLink(b.Host, b.Sys, b.Auth, b.Scheme, "lord", b.Un)
+		}
+		if string(char) == "g" || string(char) == "G" {
+			goGoldmine(u.Alias, c.Host, c.Port, c.Tag, "lord")
 		}
 		if string(char) == "q" || string(char) == "Q" || key == keyboard.KeyEsc {
 			break

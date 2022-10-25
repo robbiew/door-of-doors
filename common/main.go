@@ -125,6 +125,7 @@ type User struct {
 	TimeLeft  int
 	Emulation int
 	NodeNum   int
+	UserNum   int
 	H         int
 	W         int
 	ModalH    int
@@ -135,6 +136,15 @@ type GoldMine struct {
 	Host string
 	Port string
 	Tag  string
+}
+
+type BbsLink struct {
+	Host   string
+	Sys    string
+	Auth   string
+	Scheme string
+	Door   string
+	Un     string
 }
 
 func ConfGoldMine(path string) GoldMine {
@@ -158,10 +168,33 @@ func ConfGoldMine(path string) GoldMine {
 	return c
 }
 
+func ConfBbsLink(path string) BbsLink {
+
+	cfg, err := ini.Load(path)
+	if err != nil {
+		fmt.Printf("Fail to read CONFIG file: %v", err)
+		os.Exit(1)
+	}
+
+	host := cfg.Section("bbslink").Key("host").String()
+	sys := cfg.Section("bbslink").Key("syscode").String()
+	auth := cfg.Section("bbslink").Key("authcode").String()
+	scheme := cfg.Section("bbslink").Key("schemecode").String()
+
+	b := BbsLink{
+		Host:   host,
+		Sys:    sys,
+		Auth:   auth,
+		Scheme: scheme,
+	}
+
+	return b
+}
+
 // Get info from the Drop File, h, w
 func Initialize(path string) User {
 
-	alias, timeLeft, emulation, nodeNum := DropFileData(path)
+	alias, timeLeft, emulation, nodeNum, userNum := DropFileData(path)
 	h, w := GetTermSize()
 
 	if h%2 == 0 {
@@ -181,6 +214,7 @@ func Initialize(path string) User {
 		TimeLeft:  timeLeft,
 		Emulation: emulation,
 		NodeNum:   nodeNum,
+		UserNum:   userNum,
 		H:         h,
 		W:         w,
 		ModalH:    modalH,
@@ -307,12 +341,13 @@ func RestoreScreen() {
 	fmt.Print(Esc + "?47l")
 }
 
-func DropFileData(path string) (string, int, int, int) {
+func DropFileData(path string) (string, int, int, int, int) {
 	// path needs to include trailing slash!
 	var dropAlias string
 	var dropTimeLeft string
 	var dropEmulation string
 	var nodeNum string
+	var userNum string
 
 	file, err := os.Open(strings.ToLower(path + "door32.sys"))
 	if err != nil {
@@ -331,6 +366,9 @@ func DropFileData(path string) (string, int, int, int) {
 
 	count := 0
 	for _, line := range text {
+		if count == 4 {
+			userNum = line
+		}
 		if count == 6 {
 			dropAlias = line
 		}
@@ -366,7 +404,12 @@ func DropFileData(path string) (string, int, int, int) {
 		log.Fatal(err)
 	}
 
-	return dropAlias, timeInt, emuInt, nodeInt
+	userNumInt, err := strconv.Atoi(userNum) // return as int
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return dropAlias, timeInt, emuInt, nodeInt, userNumInt
 }
 
 /*
@@ -437,7 +480,7 @@ func PrintAnsi(artfile string, delay int, height int) {
 	i := 1
 
 	for s.Scan() {
-		fmt.Fprintf(os.Stdout, s.Text())
+		fmt.Println(s.Text())
 		time.Sleep(time.Duration(delay) * time.Millisecond)
 		if i < height {
 			fmt.Fprintf(os.Stdout, "\r\n")
