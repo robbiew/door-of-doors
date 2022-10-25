@@ -36,19 +36,15 @@ func goGoldmine(un string, host string, port string, tag string, xtrn string) {
 
 }
 
-func goBbsLink(host string, sys string, auth string, scheme string, door string, un string) {
+func goBbsLink(door string, un int) {
 
 	prg := "./bbslink.sh"
-	arg1 := host
-	arg2 := sys
-	arg3 := auth
-	arg4 := scheme
-	arg5 := door
-	arg6 := un
+	arg1 := door
+	arg2 := fmt.Sprint(un)
 
 	gd.ClearScreen()
 
-	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2+" "+arg3+" "+arg4+" "+arg5+" "+arg6)
+	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2)
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
@@ -82,7 +78,6 @@ func main() {
 	// Get door32.sys, h, w as user object
 	u := gd.Initialize(dropPath)
 	c := gd.ConfGoldMine("./config.ini")
-	b := gd.ConfBbsLink("./config.ini")
 
 	gd.ClearScreen()
 	gd.MoveCursor(0, 0)
@@ -133,7 +128,7 @@ func main() {
 			panic(err)
 		}
 		if string(char) == "b" || string(char) == "B" {
-			goBbsLink(b.Host, b.Sys, b.Auth, b.Scheme, "lord", b.Un)
+			goBbsLink("lord", u.UserNum)
 		}
 		if string(char) == "g" || string(char) == "G" {
 			goGoldmine(u.Alias, c.Host, c.Port, c.Tag, "lord")

@@ -138,15 +138,6 @@ type GoldMine struct {
 	Tag  string
 }
 
-type BbsLink struct {
-	Host   string
-	Sys    string
-	Auth   string
-	Scheme string
-	Door   string
-	Un     string
-}
-
 func ConfGoldMine(path string) GoldMine {
 
 	cfg, err := ini.Load(path)
@@ -166,29 +157,6 @@ func ConfGoldMine(path string) GoldMine {
 	}
 
 	return c
-}
-
-func ConfBbsLink(path string) BbsLink {
-
-	cfg, err := ini.Load(path)
-	if err != nil {
-		fmt.Printf("Fail to read CONFIG file: %v", err)
-		os.Exit(1)
-	}
-
-	host := cfg.Section("bbslink").Key("host").String()
-	sys := cfg.Section("bbslink").Key("syscode").String()
-	auth := cfg.Section("bbslink").Key("authcode").String()
-	scheme := cfg.Section("bbslink").Key("schemecode").String()
-
-	b := BbsLink{
-		Host:   host,
-		Sys:    sys,
-		Auth:   auth,
-		Scheme: scheme,
-	}
-
-	return b
 }
 
 // Get info from the Drop File, h, w
@@ -413,10 +381,10 @@ func DropFileData(path string) (string, int, int, int, int) {
 }
 
 /*
-	Get the terminal size
-	- Send a cursor position that we know is way too large
-	- Terminal sends back the largest row + col size
-	- Read in the result
+Get the terminal size
+- Send a cursor position that we know is way too large
+- Terminal sends back the largest row + col size
+- Read in the result
 */
 func GetTermSize() (int, int) {
 	// Set the terminal to raw mode so we aren't waiting for CLRF rom user (to be undone with `-raw`)
