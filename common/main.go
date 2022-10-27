@@ -406,7 +406,12 @@ func GetTermSize() (int, int) {
 }
 
 func PrintAnsi(artfile string, delay int, height int) {
-	noSauce := TrimStringFromSauce(artfile) // strip off the SAUCE metadata
+
+	b, err := os.ReadFile(artfile) // just pass the file name
+	if err != nil {
+		fmt.Print(err)
+	}
+	noSauce := TrimStringFromSauce(string(b)) // strip off the SAUCE metadata
 	s := bufio.NewScanner(strings.NewReader(string(noSauce)))
 
 	i := 1
@@ -463,8 +468,8 @@ func PrintAnsiLoc(artfile string, x int, y int) {
 }
 
 // Print text at an X, Y location
-func PrintStringLoc(text string, x int, y int) {
-	fmt.Fprintf(os.Stdout, Esc+strconv.Itoa(y)+";"+strconv.Itoa(x)+"f"+text)
+func PrintStringLoc(text string, x int, y int, fg string, bg string) {
+	fmt.Fprintf(os.Stdout, Reset+Esc+strconv.Itoa(y)+";"+strconv.Itoa(x)+"f"+bg+fg+text+Reset)
 
 }
 
@@ -630,10 +635,12 @@ func PrintPipeColor(text string, defaultTint string) string {
 	return tint
 }
 
-func HeaderBar(w int) {
+func HeaderBar(w int, alias string, timeLeft int) {
 	if w == 80 {
 		MoveCursor(0, 0)
-		fmt.Fprintf(os.Stdout, BgCyan+"                                                                                "+Reset)
+		PrintAnsi("art/main-header.ans", 0, 4)
+		PrintStringLoc(alias, 30, 2, WhiteHi, BgBlue)
+		PrintStringLoc(fmt.Sprint(timeLeft)+" mins", 30, 3, WhiteHi, BgBlue)
 
 	}
 	if w > 80 {

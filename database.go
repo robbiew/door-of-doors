@@ -11,6 +11,14 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
+type CategoryList struct {
+	DoorId       string
+	DoorCode     string
+	DoorTitle    string
+	CategoryName string
+	ServerName   string
+}
+
 func initDb() {
 
 	if _, err := os.Stat("./data.db"); errors.Is(err, fs.ErrNotExist) {
@@ -23,22 +31,22 @@ func initDb() {
 		file.Close()
 		fmt.Println("data.db doesn't exist - created")
 
-		sqliteDatabase, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
-		defer sqliteDatabase.Close()                          // Defer Closing the database
-		createDoorTable(sqliteDatabase)                       // Create Database Tables
-		createCategoryTable(sqliteDatabase)
-		createServerTable(sqliteDatabase)
+		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+		defer db.Close()                          // Defer Closing the database
+		createDoorsTable(db)                      // Create Database Tables
+		createCategoriesTable(db)
+		createServersTable(db)
 
-		insertCategory(sqliteDatabase, "RPGs: Medieval & Fantasy")
+		insertCategory(db, "RPGs: Medieval & Fantasy")
 
-		insertServer(sqliteDatabase, "Gold Mine")
-		insertServer(sqliteDatabase, "BBS Link")
-		insertServer(sqliteDatabase, "Door Party")
+		insertServer(db, "Gold Mine")
+		insertServer(db, "BBS Link")
+		insertServer(db, "Door Party")
 
 		// INSERT RECORDS
-		insertDoor(sqliteDatabase, "LORD", "Legend of the Red Dragon", 1, 1)
-		insertDoor(sqliteDatabase, "LORD", "Legend of the Red Dragon", 1, 2)
-		insertDoor(sqliteDatabase, "LORD", "Legend of the Red Dragon", 1, 3)
+		insertDoor(db, "LORD", "Legend of the Red Dragon", 1, 1)
+		insertDoor(db, "LORD", "Legend of the Red Dragon", 1, 2)
+		insertDoor(db, "LORD", "Legend of the Red Dragon", 1, 3)
 
 		// DISPLAY INSERTED RECORDS
 
@@ -49,107 +57,134 @@ func initDb() {
 
 }
 
-func createDoorTable(db *sql.DB) {
-	createDoorTableSQL := `CREATE TABLE door (
+func createDoorsTable(db *sql.DB) {
+	createDoorsTableSQL := `CREATE TABLE doors (
 		"idDoor" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
 		"code" TEXT NOT NULL,
-		"name" TEXT NOT NULL,
-		"category" integer NOT NULL,
-        "server" integer NOT NULL		
+		"title" TEXT NOT NULL,
+		"categoryId" integer NOT NULL,
+        "serverId" integer NOT NULL		
 	  );` // SQL Statement for Create Table
 
-	fmt.Println("Create door table...")
-	statement, err := db.Prepare(createDoorTableSQL) // Prepare SQL Statement
+	fmt.Println("Create doors table...")
+	statement, err := db.Prepare(createDoorsTableSQL) // Prepare SQL Statement
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	fmt.Println("door table created")
+	fmt.Println("doors table created")
 }
 
-func createCategoryTable(db *sql.DB) {
-	createCategoryTableSQL := `CREATE TABLE category (
+func createCategoriesTable(db *sql.DB) {
+	createCategoriesTableSQL := `CREATE TABLE categories (
 		"idCategory" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
-		"name" TEXT NOT NULL
+		"categoryName" TEXT NOT NULL
 	  );` // SQL Statement for Create Table
 
-	fmt.Println("Create category table...")
-	statement, err := db.Prepare(createCategoryTableSQL) // Prepare SQL Statement
+	fmt.Println("Create categories table...")
+	statement, err := db.Prepare(createCategoriesTableSQL) // Prepare SQL Statement
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	fmt.Println("category table created")
+	fmt.Println("categories table created")
 }
 
-func createServerTable(db *sql.DB) {
-	createServerTableSQL := `CREATE TABLE server (
+func createServersTable(db *sql.DB) {
+	createServersTableSQL := `CREATE TABLE servers (
 		"idServer" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
-		"name" TEXT NOT NULL
+		"serverName" TEXT NOT NULL
 	  );` // SQL Statement for Create Table
 
-	fmt.Println("Create server table...")
-	statement, err := db.Prepare(createServerTableSQL) // Prepare SQL Statement
+	fmt.Println("Create servers table...")
+	statement, err := db.Prepare(createServersTableSQL) // Prepare SQL Statement
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	fmt.Println("server table created")
+	fmt.Println("servers table created")
 }
 
 // We are passing db reference connection from main to our method with other parameters
-func insertDoor(db *sql.DB, code string, name string, category int, server int) {
+func insertDoor(db *sql.DB, code string, title string, category int, server int) {
 	fmt.Println("Inserting door record ...")
-	insertDoorSQL := `INSERT INTO door(code, name, category, server) VALUES (?, ?, ?, ?)`
+	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, serverId) VALUES (?, ?, ?, ?)`
 	statement, err := db.Prepare(insertDoorSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	_, err = statement.Exec(code, name, category, server)
+	_, err = statement.Exec(code, title, category, server)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 }
 
 // We are passing db reference connection from main to our method with other parameters
-func insertCategory(db *sql.DB, name string) {
+func insertCategory(db *sql.DB, categoryName string) {
 	fmt.Println("Inserting category record ...")
-	insertCategorySQL := `INSERT INTO category(name) VALUES (?)`
+	insertCategorySQL := `INSERT INTO categories(categoryName) VALUES (?)`
 	statement, err := db.Prepare(insertCategorySQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	_, err = statement.Exec(name)
+	_, err = statement.Exec(categoryName)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 }
 
-func insertServer(db *sql.DB, name string) {
+func insertServer(db *sql.DB, serverName string) {
 	fmt.Println("Inserting server record ...")
-	insertServerSQL := `INSERT INTO server(name) VALUES (?)`
+	insertServerSQL := `INSERT INTO servers(serverName) VALUES (?)`
 	statement, err := db.Prepare(insertServerSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	_, err = statement.Exec(name)
+	_, err = statement.Exec(serverName)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 }
 
-func displayDoors(db *sql.DB) {
-	row, err := db.Query("SELECT * FROM door ORDER BY idDoor")
+func doorsByCategory(db *sql.DB) []CategoryList {
+
+	rows, err := db.Query(`
+    
+    SELECT
+        idDoor,
+        doors.title AS title, 
+        doors.code AS code, 
+        categories.categoryName AS categoryName,
+        servers.serverName AS serverName
+    FROM 
+        doors
+    INNER JOIN categories ON categories.idCategory = doors.categoryId  
+    INNER JOIN servers ON servers.idServer = doors.serverId
+    WHERE
+        doors.categoryId = 1;
+
+  `)
+
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer row.Close()
-	for row.Next() { // Iterate and fetch the records from result cursor
+	defer rows.Close()
+
+	var categoryList []CategoryList
+	for rows.Next() {
+
+		var title string
 		var idDoor int
-		var name string
-		var server int
-		var category int
-		row.Scan(&idDoor, &name, &category, &server)
-		fmt.Println(idDoor, name, category, server)
+		var code string
+		var categoryName string
+		var serverName string
+
+		err := rows.Scan(&idDoor, &title, &code, &categoryName, &serverName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		categoryList = append(categoryList, CategoryList{DoorId: fmt.Sprint(idDoor), DoorTitle: title, CategoryName: categoryName, DoorCode: code, ServerName: serverName})
 	}
+	return categoryList
 }

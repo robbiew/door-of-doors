@@ -65,20 +65,22 @@ func main() {
 	for {
 
 		gd.MoveCursor(0, 0)
-		gd.HeaderBar(u.W)
-
-		gd.MoveCursor(0, 0)
+		gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
+		fmt.Println(gd.Reset)
 
 		// A Test Menu
-		gd.MoveCursor(0, 3)
+		gd.MoveCursor(0, 6)
 
 		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"Q"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Quit\r\n")
 		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"G"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Gold Mine LORD test\r\n")
 		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"B"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"BBSLink LORD test\r\n")
 		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"D"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Door Party LORD test\r\n")
-		sqliteDatabase, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
-		defer sqliteDatabase.Close()                          // Defer Closing the database
-		displayDoors(sqliteDatabase)
+
+		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+		defer db.Close()                          // Defer Closing the database
+		keys := doorsByCategory(db)
+		fmt.Println(keys)
+
 		fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
 
 		char, key, err := keyboard.GetKey()
