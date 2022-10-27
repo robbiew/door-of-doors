@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	_ "embed"
 	"flag"
 	"fmt"
@@ -34,10 +35,11 @@ func init() {
 	}
 	dropPath = *pathPtr
 
+	initDb()
+
 }
 
 func main() {
-
 	// Get door32.sys, h, w as user object
 	u := gd.Initialize(dropPath)
 	c := GetConfig()
@@ -70,11 +72,13 @@ func main() {
 		// A Test Menu
 		gd.MoveCursor(0, 3)
 
-		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"Q"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Quit\r\n")
-		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"G"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Gold Mine LORD test\r\n")
-		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"B"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"BBSLink LORD test\r\n")
-		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"D"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Door Party LORD test\r\n")
-
+		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"Q"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Quit\r\n")
+		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"G"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Gold Mine LORD test\r\n")
+		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"B"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"BBSLink LORD test\r\n")
+		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"D"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Door Party LORD test\r\n")
+		sqliteDatabase, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+		defer sqliteDatabase.Close()                          // Defer Closing the database
+		displayDoors(sqliteDatabase)
 		fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
 
 		char, key, err := keyboard.GetKey()
