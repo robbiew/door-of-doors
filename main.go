@@ -5,52 +5,15 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"os/exec"
 	"time"
 
 	"github.com/eiannone/keyboard"
 	gd "github.com/robbiew/door-of-doors/common"
-	"github.com/robbiew/door-of-doors/timeout"
 )
 
 var (
 	dropPath string
 )
-
-// launches external program (goldmine-connect)
-func goGoldmine(un string, host string, port string, tag string, xtrn string) {
-	prg := "./goldmine-connect"
-	arg1 := host
-	arg2 := port
-	arg3 := un
-	arg4 := tag
-	arg5 := xtrn
-
-	gd.ClearScreen()
-
-	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2+" "+arg3+" "+arg4+" "+arg5)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	_ = cmd.Run() // add error checking
-
-}
-
-func goBbsLink(door string, un int) {
-
-	prg := "./bbslink.sh"
-	arg1 := door
-	arg2 := fmt.Sprint(un)
-
-	gd.ClearScreen()
-
-	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	_ = cmd.Run() // add error checking
-
-}
 
 func init() {
 
@@ -77,7 +40,7 @@ func main() {
 
 	// Get door32.sys, h, w as user object
 	u := gd.Initialize(dropPath)
-	c := gd.ConfGoldMine("./config.ini")
+	c := GetConfig()
 
 	gd.ClearScreen()
 	gd.MoveCursor(0, 0)
@@ -89,8 +52,6 @@ func main() {
 		os.Exit(0)
 	}
 
-	timeout.StartTimer(u.TimeLeft)
-
 	// A reliable keyboard library to detect key presses
 	if err := keyboard.Open(); err != nil {
 		fmt.Println(err)
@@ -100,19 +61,11 @@ func main() {
 	}()
 
 	for {
-		timeout.StartTimer(timeout.UpdatedTime)
 
 		gd.MoveCursor(0, 0)
 		gd.HeaderBar(u.W)
 
 		gd.MoveCursor(0, 0)
-		if timeout.Warning {
-
-			fmt.Printf(gd.BgCyan+gd.RedHi+"Almost out of time! %v mins"+gd.Reset, u.TimeLeft)
-		} else {
-
-			fmt.Printf(gd.BgCyan+gd.CyanHi+"Time Left: %v mins"+gd.Reset, u.TimeLeft)
-		}
 
 		// A Test Menu
 		gd.MoveCursor(0, 3)
@@ -120,6 +73,7 @@ func main() {
 		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"Q"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Quit\r\n")
 		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"G"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Gold Mine LORD test\r\n")
 		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"B"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"BBSLink LORD test\r\n")
+		fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"D"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Door Party LORD test\r\n")
 
 		fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
 
@@ -128,11 +82,15 @@ func main() {
 			panic(err)
 		}
 		if string(char) == "b" || string(char) == "B" {
-			goBbsLink("lord", u.UserNum)
+			BbsLink("lord", u.UserNum, c.BL_Script)
 		}
 		if string(char) == "g" || string(char) == "G" {
-			goGoldmine(u.Alias, c.Host, c.Port, c.Tag, "lord")
+			GoldMine(u.Alias, c.GM_Tag, "lord", c.GM_Host, c.GM_Port, c.GM_script)
 		}
+		if string(char) == "d" || string(char) == "D" {
+			DoorParty("lord", u.Alias, c.DP_Script)
+		}
+
 		if string(char) == "q" || string(char) == "Q" || key == keyboard.KeyEsc {
 			break
 		}

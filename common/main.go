@@ -13,8 +13,6 @@ import (
 	"unicode/utf8"
 
 	"github.com/eiannone/keyboard"
-	"github.com/robbiew/door-of-doors/timeout"
-	"gopkg.in/ini.v1"
 )
 
 // CREDIT TO https://github.com/k0kubun/go-ansi for some of these sequences.
@@ -132,33 +130,6 @@ type User struct {
 	ModalW    int
 }
 
-type GoldMine struct {
-	Host string
-	Port string
-	Tag  string
-}
-
-func ConfGoldMine(path string) GoldMine {
-
-	cfg, err := ini.Load(path)
-	if err != nil {
-		fmt.Printf("Fail to read CONFIG file: %v", err)
-		os.Exit(1)
-	}
-
-	host := cfg.Section("goldmine").Key("host").String()
-	port := cfg.Section("goldmine").Key("port").String()
-	tag := cfg.Section("goldmine").Key("tag").String()
-
-	c := GoldMine{
-		Host: host,
-		Port: port,
-		Tag:  tag,
-	}
-
-	return c
-}
-
 // Get info from the Drop File, h, w
 func Initialize(path string) User {
 
@@ -187,13 +158,6 @@ func Initialize(path string) User {
 		W:         w,
 		ModalH:    modalH,
 		ModalW:    modalW,
-	}
-	return u
-}
-
-func UpdateTime() User {
-	u := User{
-		TimeLeft: timeout.UpdatedTime,
 	}
 	return u
 }
