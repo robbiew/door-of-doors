@@ -232,6 +232,10 @@ func MoveCursor(x int, y int) {
 	fmt.Printf(Esc+"%d;%df", y, x)
 }
 
+func EraseToLeft() {
+	fmt.Println(EraseLeft)
+}
+
 // Erase the screen
 func ClearScreen() {
 	fmt.Println(EraseScreen)

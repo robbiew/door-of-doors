@@ -17,6 +17,7 @@ import (
 
 var (
 	dropPath string
+	menuKeys []rune
 )
 
 func init() {
@@ -92,62 +93,64 @@ func main() {
 	// keys := doorsByCategory(db, 1)
 	// fmt.Println(keys)
 
+	gd.MoveCursor(0, 0)
+	gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
+	fmt.Println(gd.Reset)
+
+	// fd 0 is stdin
+	state, err := term.MakeRaw(0)
+	if err != nil {
+		log.Fatalln("setting stdin to raw:", err)
+	}
+	defer func() {
+		if err := term.Restore(0, state); err != nil {
+			log.Println("warning, failed to restore terminal:", err)
+		}
+	}()
+
+	gd.MoveCursor(2, 23)
+	fmt.Print("-> ")
+	in := bufio.NewReader(os.Stdin)
+
 	for {
 
-		gd.MoveCursor(0, 0)
-		gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
-		fmt.Println(gd.Reset)
-
-		gd.MoveCursor(2, 23)
-
-		fmt.Print("-> ")
-
-		// fd 0 is stdin
-		state, err := term.MakeRaw(0)
+		r, _, err := in.ReadRune()
 		if err != nil {
-			log.Fatalln("setting stdin to raw:", err)
+			log.Println("stdin:", err)
+			break
 		}
-		defer func() {
-			if err := term.Restore(0, state); err != nil {
-				log.Println("warning, failed to restore terminal:", err)
-			}
-		}()
-
-		in := bufio.NewReader(os.Stdin)
-		for {
-			gd.MoveCursor(0, 0)
-			gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
-			fmt.Println(gd.Reset)
-
-			gd.MoveCursor(2, 23)
-
-			fmt.Print("-> ")
-			r, _, err := in.ReadRune()
-			if err != nil {
-				log.Println("stdin:", err)
-				break
-			}
-			// fmt.Printf("read rune %q\r\n", r)
-			if r == 'q' || r == 'Q' {
-				term.Restore(0, state)
-				os.Exit(0)
-				continue
-			}
-			if unicode.IsDigit(r) {
-				fmt.Printf("number: %q       ", r)
-				continue
-
-			}
+		// fmt.Printf("read rune %q\r\n", r)
+		if r == 'q' || r == 'Q' {
+			term.Restore(0, state)
+			os.Exit(0)
 			continue
 		}
+		if unicode.IsDigit(r) {
+			if len(menuKeys) <= 1 {
+				gd.MoveCursor(5, 23)
+				fmt.Printf("     ")
+				gd.MoveCursor(5, 23)
+				menuKeys = append(menuKeys, r)
+				s := string(menuKeys)
+				fmt.Printf("%v", s)
+				gd.MoveCursor(6, 23)
+			}
+			if len(menuKeys)+1 == 2 {
+				menuKeys = append(menuKeys, r)
+				s := string(menuKeys)
+				gd.MoveCursor(5, 23)
+				fmt.Printf("     ")
+				gd.MoveCursor(5, 23)
+				fmt.Printf("%v", s)
+				time.Sleep(1 * time.Second)
+				menuKeys = nil
+				gd.MoveCursor(5, 23)
+				fmt.Printf("     ")
+				continue
+			}
 
-		// inputs = append(inputs, string(xxx)
-		// if len(inputs) > 2 {
-		// 	break
-		// }
-
-		// fmt.Println("Your number is:", i)
-
+		}
+		continue
 	}
 
 	// for i := 0; i < len(categories); i++ {
