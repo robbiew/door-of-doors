@@ -12,6 +12,11 @@ import (
 )
 
 type CategoryList struct {
+	CategoryId   string
+	CategoryName string
+}
+
+type DoorsList struct {
 	DoorId       string
 	DoorCode     string
 	DoorTitle    string
@@ -20,7 +25,6 @@ type CategoryList struct {
 }
 
 func initDb() {
-
 	if _, err := os.Stat("./data.db"); errors.Is(err, fs.ErrNotExist) {
 		fmt.Print(err.Error())
 
@@ -33,28 +37,11 @@ func initDb() {
 
 		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 		defer db.Close()                          // Defer Closing the database
-		createDoorsTable(db)                      // Create Database Tables
-		createCategoriesTable(db)
-		createServersTable(db)
 
-		insertCategory(db, "RPGs: Medieval & Fantasy")
-
-		insertServer(db, "Gold Mine")
-		insertServer(db, "BBS Link")
-		insertServer(db, "Door Party")
-
-		// INSERT RECORDS
-		insertDoor(db, "LORD", "Legend of the Red Dragon", 1, 1)
-		insertDoor(db, "LORD", "Legend of the Red Dragon", 1, 2)
-		insertDoor(db, "LORD", "Legend of the Red Dragon", 1, 3)
-
-		// DISPLAY INSERTED RECORDS
-
-	} else {
-		fmt.Print("database file already exists - skipping")
-
+		// Create all tables, insert records
+		createTables(db)
 	}
-
+	// database exists, so do nothing
 }
 
 func createDoorsTable(db *sql.DB) {
@@ -63,7 +50,8 @@ func createDoorsTable(db *sql.DB) {
 		"code" TEXT NOT NULL,
 		"title" TEXT NOT NULL,
 		"categoryId" integer NOT NULL,
-        "serverId" integer NOT NULL		
+        "serverId" integer NOT NULL,
+        "isMature" integer NOT NULL		
 	  );` // SQL Statement for Create Table
 
 	fmt.Println("Create doors table...")
@@ -78,7 +66,8 @@ func createDoorsTable(db *sql.DB) {
 func createCategoriesTable(db *sql.DB) {
 	createCategoriesTableSQL := `CREATE TABLE categories (
 		"idCategory" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
-		"categoryName" TEXT NOT NULL
+		"categoryName" TEXT NOT NULL,
+        "isMature" integer NOT NULL
 	  );` // SQL Statement for Create Table
 
 	fmt.Println("Create categories table...")
@@ -105,29 +94,27 @@ func createServersTable(db *sql.DB) {
 	fmt.Println("servers table created")
 }
 
-// We are passing db reference connection from main to our method with other parameters
-func insertDoor(db *sql.DB, code string, title string, category int, server int) {
+func insertDoor(db *sql.DB, code string, title string, category int, server int, isMature int) {
 	fmt.Println("Inserting door record ...")
-	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, serverId) VALUES (?, ?, ?, ?)`
+	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, serverId, isMature) VALUES (?, ?, ?, ?, ?)`
 	statement, err := db.Prepare(insertDoorSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	_, err = statement.Exec(code, title, category, server)
+	_, err = statement.Exec(code, title, category, server, isMature)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 }
 
-// We are passing db reference connection from main to our method with other parameters
-func insertCategory(db *sql.DB, categoryName string) {
+func insertCategory(db *sql.DB, categoryName string, isMature int) {
 	fmt.Println("Inserting category record ...")
-	insertCategorySQL := `INSERT INTO categories(categoryName) VALUES (?)`
+	insertCategorySQL := `INSERT INTO categories(categoryName, isMature) VALUES (?, ?)`
 	statement, err := db.Prepare(insertCategorySQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
-	_, err = statement.Exec(categoryName)
+	_, err = statement.Exec(categoryName, isMature)
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
@@ -146,10 +133,38 @@ func insertServer(db *sql.DB, serverName string) {
 	}
 }
 
-func doorsByCategory(db *sql.DB) []CategoryList {
-
+func doorCategories(db *sql.DB) []CategoryList {
 	rows, err := db.Query(`
-    
+    SELECT
+        idCategory,
+        categoryName
+    FROM 
+        categories
+  `)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var categoryList []CategoryList
+	for rows.Next() {
+
+		var idCategory int
+		var categoryName string
+
+		err := rows.Scan(&idCategory, &categoryName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		categoryList = append(categoryList, CategoryList{CategoryId: fmt.Sprint(idCategory), CategoryName: categoryName})
+	}
+	return categoryList
+
+}
+
+func doorsByCategory(db *sql.DB, cat int) []DoorsList {
+	rows, err := db.Query(`
     SELECT
         idDoor,
         doors.title AS title, 
@@ -161,16 +176,15 @@ func doorsByCategory(db *sql.DB) []CategoryList {
     INNER JOIN categories ON categories.idCategory = doors.categoryId  
     INNER JOIN servers ON servers.idServer = doors.serverId
     WHERE
-        doors.categoryId = 1;
-
-  `)
+        doors.categoryId = ?
+  `, cat)
 
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer rows.Close()
 
-	var categoryList []CategoryList
+	var doorsList []DoorsList
 	for rows.Next() {
 
 		var title string
@@ -184,7 +198,7 @@ func doorsByCategory(db *sql.DB) []CategoryList {
 			log.Fatal(err)
 		}
 
-		categoryList = append(categoryList, CategoryList{DoorId: fmt.Sprint(idDoor), DoorTitle: title, CategoryName: categoryName, DoorCode: code, ServerName: serverName})
+		doorsList = append(doorsList, DoorsList{DoorId: fmt.Sprint(idDoor), DoorTitle: title, CategoryName: categoryName, DoorCode: code, ServerName: serverName})
 	}
-	return categoryList
+	return doorsList
 }

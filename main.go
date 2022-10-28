@@ -5,11 +5,12 @@ import (
 	_ "embed"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"time"
 
-	"github.com/eiannone/keyboard"
 	gd "github.com/robbiew/door-of-doors/common"
+	"github.com/robbiew/door-of-doors/go-input"
 )
 
 var (
@@ -42,7 +43,7 @@ func init() {
 func main() {
 	// Get door32.sys, h, w as user object
 	u := gd.Initialize(dropPath)
-	c := GetConfig()
+	// c := GetConfig()
 
 	gd.ClearScreen()
 	gd.MoveCursor(0, 0)
@@ -54,53 +55,66 @@ func main() {
 		os.Exit(0)
 	}
 
-	// A reliable keyboard library to detect key presses
-	if err := keyboard.Open(); err != nil {
-		fmt.Println(err)
+	gd.MoveCursor(0, 0)
+	gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
+	fmt.Println(gd.Reset)
+
+	// Categories menu
+	gd.MoveCursor(0, 6)
+	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+	// defer db.Close()                          // Defer Closing the database
+
+	categories := doorCategories(db)
+	for i := 0; i < len(categories); i++ {
+		fmt.Printf("[%d] %s\n", i, categories[i].CategoryName)
 	}
-	defer func() {
-		_ = keyboard.Close()
-	}()
+
+	// keys := doorsByCategory(db, 1)
+	// fmt.Println(keys)
+
+	fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
 
 	for {
 
-		gd.MoveCursor(0, 0)
-		gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
-		fmt.Println(gd.Reset)
+		ui := &input.UI{
+			Writer: os.Stdout,
+			Reader: os.Stdin,
+		}
 
-		// A Test Menu
-		gd.MoveCursor(0, 6)
+		query := "Which language do you prefer to use?"
+		lang, err := ui.Select(query, []string{"go", "Go", "golang"}, &input.Options{
 
-		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"Q"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Quit\r\n")
-		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"G"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Gold Mine LORD test\r\n")
-		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"B"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"BBSLink LORD test\r\n")
-		// fmt.Fprintf(os.Stdout, gd.Cyan+"["+gd.YellowHi+"D"+gd.Cyan+"] "+gd.Reset+gd.Magenta+"Door Party LORD test\r\n")
-
-		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
-		defer db.Close()                          // Defer Closing the database
-		keys := doorsByCategory(db)
-		fmt.Println(keys)
-
-		fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
-
-		char, key, err := keyboard.GetKey()
+			Loop: true,
+		})
 		if err != nil {
-			panic(err)
-		}
-		if string(char) == "b" || string(char) == "B" {
-			BbsLink("lord", u.UserNum, c.BL_Script)
-		}
-		if string(char) == "g" || string(char) == "G" {
-			GoldMine(u.Alias, c.GM_Tag, "lord", c.GM_Host, c.GM_Port, c.GM_script)
-		}
-		if string(char) == "d" || string(char) == "D" {
-			DoorParty("lord", u.Alias, c.DP_Script)
+			log.Fatal(err)
 		}
 
-		if string(char) == "q" || string(char) == "Q" || key == keyboard.KeyEsc {
-			break
-		}
-		gd.ClearScreen()
-		continue
+		log.Printf("Answer is %s\n", lang)
 	}
+
+	// for i := 0; i < len(categories); i++ {
+	// 	if string(char) == categories[i].CategoryId {
+
+	// 		fmt.Println("pressed")
+	// 		gd.Pause()
+	// 	}
+
+	// }
+	// if string(char) == "b" || string(char) == "B" {
+	// 	BbsLink("lord", u.UserNum, c.BL_Script)
+	// }
+	// if string(char) == "g" || string(char) == "G" {
+	// 	GoldMine(u.Alias, c.GM_Tag, "lord", c.GM_Host, c.GM_Port, c.GM_script)
+	// }
+	// if string(char) == "d" || string(char) == "D" {
+	// 	DoorParty("lord", u.Alias, c.DP_Script)
+	// }
+
+	// if string(char) == "q" || string(char) == "Q" || key == keyboard.KeyEsc {
+	// 	break
+	// }
+	// gd.ClearScreen()
+	// continue
+
 }

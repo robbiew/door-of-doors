@@ -164,6 +164,13 @@ func Initialize(path string) User {
 
 // Continue Y/N
 func Continue() bool {
+	// A reliable keyboard library to detect key presses
+	if err := keyboard.Open(); err != nil {
+		fmt.Println(err)
+	}
+	defer func() {
+		_ = keyboard.Close()
+	}()
 
 	char, key, err := keyboard.GetKey()
 	if err != nil {
@@ -199,12 +206,25 @@ func TruncateText(s string, max int) string {
 
 // Wait for a key press
 func Pause() {
-
-	fmt.Fprintf(os.Stdout, "\r\nPrEsS a KeY")
-	_, _, err := keyboard.GetKey()
-	if err != nil {
-		panic(err)
+	// A reliable keyboard library to detect key presses
+	if err := keyboard.Open(); err != nil {
+		fmt.Println(err)
 	}
+	defer func() {
+		_ = keyboard.Close()
+	}()
+
+	for {
+
+		fmt.Fprintf(os.Stdout, "\r\nPrEsS a KeY")
+		_, _, err := keyboard.GetKey()
+		if err != nil {
+			panic(err)
+
+		}
+		continue
+	}
+
 }
 
 // Move cursor to X, Y location
