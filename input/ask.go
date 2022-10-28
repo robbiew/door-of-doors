@@ -87,3 +87,4 @@ func (i *UI) Ask(query string, opts *Options) (string, error) {
 	fmt.Fprintf(i.Writer, "\n")
 
 	return resultStr, resultErr
+}

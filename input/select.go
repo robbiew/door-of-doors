@@ -3,7 +3,10 @@ package input
 import (
 	"bytes"
 	"fmt"
+	"os"
 	"strconv"
+
+	gd "github.com/robbiew/door-of-doors/common"
 )
 
 // Select asks the user to select a item from the given list by the number.
@@ -42,14 +45,30 @@ func (i *UI) Select(query string, list []string, opts *Options) (string, error) 
 	}
 
 	// Construct the query & display it to user
-	var buf bytes.Buffer
-	buf.WriteString(fmt.Sprintf("%s\n\n", query))
+	// var buf bytes.Buffer
+	gd.MoveCursor(2, 6)
+	fmt.Println(fmt.Sprintf(gd.WhiteHi+"%s\n\n"+gd.Reset, query))
+
+	count := 1
+	yLoc1 := 8
+	yLoc2 := 8
 	for i, item := range list {
-		buf.WriteString(fmt.Sprintf("%d. %s\n", i+1, item))
+		if count < 13 {
+			gd.MoveCursor(2, yLoc1)
+			fmt.Fprintf(os.Stdout, gd.Cyan+" %d. %s\n"+gd.Reset, i+1, item)
+			yLoc1++
+		}
+		if count > 13 {
+			gd.MoveCursor(40, yLoc2)
+			fmt.Fprintf(os.Stdout, gd.Cyan+" %d. %s\n"+gd.Reset, i+1, item)
+			yLoc2++
+		}
+		count++
+
 	}
 
-	buf.WriteString("\n")
-	fmt.Fprintf(i.Writer, buf.String())
+	// buf.WriteString("\n")
+	// fmt.Fprintf(i.Writer, buf.String())
 
 	// resultStr and resultErr are return val of this function
 	var resultStr string
@@ -58,7 +77,8 @@ func (i *UI) Select(query string, list []string, opts *Options) (string, error) 
 
 		// Construct the asking line to input
 		var buf bytes.Buffer
-		buf.WriteString("Enter a number")
+		gd.MoveCursor(2, 22)
+		buf.WriteString(gd.CyanHi + "Enter a number" + gd.Reset)
 
 		// Add default val if provided
 		if defaultIndex >= 0 && !opts.HideDefault {
@@ -87,8 +107,13 @@ func (i *UI) Select(query string, list []string, opts *Options) (string, error) 
 				break
 			}
 
-			fmt.Fprintf(i.Writer, "Input must not be empty. Answer by a number.\n\n")
+			fmt.Fprintf(i.Writer, "Input must not be empty. Answer by a number.")
+
 			continue
+		}
+
+		if line == "q" || line == "Q" {
+			os.Exit(0)
 		}
 
 		// Convert user input string to int val

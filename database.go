@@ -133,7 +133,7 @@ func insertServer(db *sql.DB, serverName string) {
 	}
 }
 
-func doorCategories(db *sql.DB) []CategoryList {
+func categoryList(db *sql.DB) []CategoryList {
 	rows, err := db.Query(`
     SELECT
         idCategory,

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"database/sql"
 	_ "embed"
 	"flag"
@@ -8,9 +9,10 @@ import (
 	"log"
 	"os"
 	"time"
+	"unicode"
 
 	gd "github.com/robbiew/door-of-doors/common"
-	"github.com/robbiew/door-of-doors/go-input"
+	"golang.org/x/term"
 )
 
 var (
@@ -46,7 +48,6 @@ func main() {
 	// c := GetConfig()
 
 	gd.ClearScreen()
-	gd.MoveCursor(0, 0)
 
 	// Exit if no ANSI capabilities (sorry!)
 	if u.Emulation != 1 {
@@ -60,37 +61,93 @@ func main() {
 	fmt.Println(gd.Reset)
 
 	// Categories menu
-	gd.MoveCursor(0, 6)
-	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
-	// defer db.Close()                          // Defer Closing the database
 
-	categories := doorCategories(db)
-	for i := 0; i < len(categories); i++ {
-		fmt.Printf("[%d] %s\n", i, categories[i].CategoryName)
+	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+	// defer db.Close()
+
+	gd.MoveCursor(2, 6)
+	fmt.Println("Select a Category:")
+
+	count := 0
+	yLoc1 := 8
+	yLoc2 := 8
+
+	gd.MoveCursor(2, 8)
+	categories := categoryList(db)
+	for i := 1; i < len(categories); i++ {
+
+		if count < 10 {
+			gd.MoveCursor(2, yLoc1)
+			fmt.Printf("[%d] %s\n", i, categories[i].CategoryName)
+			yLoc1++
+		}
+		if count > 10 {
+			gd.MoveCursor(40, yLoc2)
+			fmt.Printf("[%d] %s\n", i, categories[i].CategoryName)
+			yLoc2++
+		}
+		count++
 	}
 
 	// keys := doorsByCategory(db, 1)
 	// fmt.Println(keys)
 
-	fmt.Fprintf(os.Stdout, gd.Reset+"\r\nCommand? ")
-
 	for {
 
-		ui := &input.UI{
-			Writer: os.Stdout,
-			Reader: os.Stdin,
-		}
+		gd.MoveCursor(0, 0)
+		gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
+		fmt.Println(gd.Reset)
 
-		query := "Which language do you prefer to use?"
-		lang, err := ui.Select(query, []string{"go", "Go", "golang"}, &input.Options{
+		gd.MoveCursor(2, 23)
 
-			Loop: true,
-		})
+		fmt.Print("-> ")
+
+		// fd 0 is stdin
+		state, err := term.MakeRaw(0)
 		if err != nil {
-			log.Fatal(err)
+			log.Fatalln("setting stdin to raw:", err)
+		}
+		defer func() {
+			if err := term.Restore(0, state); err != nil {
+				log.Println("warning, failed to restore terminal:", err)
+			}
+		}()
+
+		in := bufio.NewReader(os.Stdin)
+		for {
+			gd.MoveCursor(0, 0)
+			gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
+			fmt.Println(gd.Reset)
+
+			gd.MoveCursor(2, 23)
+
+			fmt.Print("-> ")
+			r, _, err := in.ReadRune()
+			if err != nil {
+				log.Println("stdin:", err)
+				break
+			}
+			// fmt.Printf("read rune %q\r\n", r)
+			if r == 'q' || r == 'Q' {
+				term.Restore(0, state)
+				os.Exit(0)
+				continue
+			}
+			if unicode.IsDigit(r) {
+				fmt.Printf("number: %q       ", r)
+				continue
+
+			}
+			continue
 		}
 
-		log.Printf("Answer is %s\n", lang)
+		// inputs = append(inputs, string(xxx)
+		// if len(inputs) > 2 {
+		// 	break
+		// }
+
+		// fmt.Println("Your number is:", i)
+
 	}
 
 	// for i := 0; i < len(categories); i++ {
