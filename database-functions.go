@@ -17,11 +17,7 @@ type CategoryList struct {
 }
 
 type DoorsList struct {
-	DoorId       string
-	DoorCode     string
-	DoorTitle    string
-	CategoryName string
-	ServerName   string
+	DoorTitle string
 }
 
 func initDb() {
@@ -165,18 +161,12 @@ func categoryList(db *sql.DB) []CategoryList {
 
 func doorsByCategory(db *sql.DB, cat int) []DoorsList {
 	rows, err := db.Query(`
-    SELECT
-        idDoor,
-        doors.title AS title, 
-        doors.code AS code, 
-        categories.categoryName AS categoryName,
-        servers.serverName AS serverName
+    SELECT DISTINCT
+        title as DoorTitle
     FROM 
-        doors
-    INNER JOIN categories ON categories.idCategory = doors.categoryId  
-    INNER JOIN servers ON servers.idServer = doors.serverId
+        doors 
     WHERE
-        doors.categoryId = ?
+        categoryId = ?
   `, cat)
 
 	if err != nil {
@@ -187,18 +177,14 @@ func doorsByCategory(db *sql.DB, cat int) []DoorsList {
 	var doorsList []DoorsList
 	for rows.Next() {
 
-		var title string
-		var idDoor int
-		var code string
-		var categoryName string
-		var serverName string
+		var DoorTitle string
 
-		err := rows.Scan(&idDoor, &title, &code, &categoryName, &serverName)
+		err := rows.Scan(&DoorTitle)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		doorsList = append(doorsList, DoorsList{DoorId: fmt.Sprint(idDoor), DoorTitle: title, CategoryName: categoryName, DoorCode: code, ServerName: serverName})
+		doorsList = append(doorsList, DoorsList{DoorTitle: DoorTitle})
 	}
 	return doorsList
 }
