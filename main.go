@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"time"
 	"unicode"
 
@@ -113,42 +114,91 @@ func main() {
 	in := bufio.NewReader(os.Stdin)
 
 	for {
-
 		r, _, err := in.ReadRune()
 		if err != nil {
 			log.Println("stdin:", err)
 			break
 		}
-		// fmt.Printf("read rune %q\r\n", r)
 		if r == 'q' || r == 'Q' {
 			term.Restore(0, state)
 			os.Exit(0)
 			continue
 		}
-		if unicode.IsDigit(r) {
-			if len(menuKeys) <= 1 {
-				gd.MoveCursor(5, 23)
-				fmt.Printf("     ")
-				gd.MoveCursor(5, 23)
-				menuKeys = append(menuKeys, r)
-				s := string(menuKeys)
-				fmt.Printf("%v", s)
-				gd.MoveCursor(6, 23)
-			}
-			if len(menuKeys)+1 == 2 {
-				menuKeys = append(menuKeys, r)
-				s := string(menuKeys)
-				gd.MoveCursor(5, 23)
-				fmt.Printf("     ")
-				gd.MoveCursor(5, 23)
-				fmt.Printf("%v", s)
-				time.Sleep(1 * time.Second)
-				menuKeys = nil
-				gd.MoveCursor(5, 23)
-				fmt.Printf("     ")
-				continue
-			}
+		// User hit return on a single digit number in the list, let's load a category
+		if r == '\n' || r == '\r' {
 
+			s := string(menuKeys)
+			i, err := strconv.Atoi(s)
+			if err != nil {
+				panic(err)
+			}
+			gd.MoveCursor(5, 23)
+			fmt.Printf("View Category %v...", s)
+			menuKeys = nil
+			time.Sleep(1 * time.Second)
+			gd.MoveCursor(5, 23)
+			fmt.Printf("                   ")
+			gd.MoveCursor(5, 23)
+			// show list
+			categoryDoorList(db, i)
+			continue
+		}
+		// Make sure it's a number greater than 0, otherwise don't respond
+		if unicode.IsDigit(r) {
+			if int(r-'0') != 0 {
+				if len(menuKeys) <= 0 {
+					menuKeys = append(menuKeys, r)
+					s := string(menuKeys)
+					gd.MoveCursor(5, 23)
+					fmt.Printf("%v", s)
+					continue
+				}
+			}
+			// we collect a key press in raw mode, save it to a slice, then print the slice
+			if len(menuKeys) == 1 {
+				menuKeys = append(menuKeys, r)
+				s := string(menuKeys)
+				i, err := strconv.Atoi(s)
+				if err != nil {
+					panic(err)
+				}
+				// User entered a number greater than what's in the list
+				if i > len(categories)-1 {
+					menuKeys = append(menuKeys, r)
+					gd.MoveCursor(5, 23)
+					s := string(menuKeys)
+					fmt.Printf("%v", s)
+					gd.MoveCursor(5, 23)
+					fmt.Printf("     ")
+					gd.MoveCursor(5, 23)
+					fmt.Printf(gd.Red+"Select from 1 to %v"+gd.Reset, len(categories)-1)
+					time.Sleep(1 * time.Second)
+					gd.MoveCursor(5, 23)
+					fmt.Printf("                               ")
+					gd.MoveCursor(5, 23)
+					// wipe the slice so it starts over
+					menuKeys = nil
+					continue
+					// second key, it's valid, so load the category list!
+				} else {
+					gd.MoveCursor(5, 23)
+					fmt.Printf("     ")
+					gd.MoveCursor(5, 23)
+					fmt.Printf("%v", s)
+					gd.MoveCursor(5, 23)
+					time.Sleep(100 * time.Millisecond)
+					fmt.Printf("View Category %v...", s)
+					menuKeys = nil
+					time.Sleep(1 * time.Second)
+					gd.MoveCursor(5, 23)
+					fmt.Printf("                   ")
+					gd.MoveCursor(5, 23)
+					// show list
+					categoryDoorList(db, i)
+					continue
+				}
+			}
+			continue
 		}
 		continue
 	}
@@ -176,5 +226,13 @@ func main() {
 	// }
 	// gd.ClearScreen()
 	// continue
+
+}
+
+func categoryDoorList(db *sql.DB, cat int) {
+	gd.ClearScreen()
+
+	keys := doorsByCategory(db, cat+1)
+	fmt.Println(keys)
 
 }

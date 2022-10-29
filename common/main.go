@@ -11,8 +11,6 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
-
-	"github.com/eiannone/keyboard"
 )
 
 // CREDIT TO https://github.com/k0kubun/go-ansi for some of these sequences.
@@ -163,33 +161,33 @@ func Initialize(path string) User {
 }
 
 // Continue Y/N
-func Continue() bool {
-	// A reliable keyboard library to detect key presses
-	if err := keyboard.Open(); err != nil {
-		fmt.Println(err)
-	}
-	defer func() {
-		_ = keyboard.Close()
-	}()
+// func Continue() bool {
+// 	// A reliable keyboard library to detect key presses
+// 	if err := keyboard.Open(); err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	defer func() {
+// 		_ = keyboard.Close()
+// 	}()
 
-	char, key, err := keyboard.GetKey()
-	if err != nil {
-		panic(err)
-	}
-	var x bool
-	if string(char) == "Y" || string(char) == "y" || key == keyboard.KeyEnter {
-		x = true
-	}
-	if string(char) == "N" || string(char) == "n" || key == keyboard.KeyEsc {
-		x = false
-	}
-	return x
-}
+// 	char, key, err := keyboard.GetKey()
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	var x bool
+// 	if string(char) == "Y" || string(char) == "y" || key == keyboard.KeyEnter {
+// 		x = true
+// 	}
+// 	if string(char) == "N" || string(char) == "n" || key == keyboard.KeyEsc {
+// 		x = false
+// 	}
+// 	return x
+// }
 
-func Modal(artPath string, text string, l int) {
-	AbsCenterArt(artPath, 33)
-	AbsCenterText(text, l, BgCyan)
-}
+// func Modal(artPath string, text string, l int) {
+// 	AbsCenterArt(artPath, 33)
+// 	AbsCenterText(text, l, BgCyan)
+// }
 
 func TruncateText(s string, max int) string {
 	if len(s) > max {
@@ -205,27 +203,27 @@ func TruncateText(s string, max int) string {
 }
 
 // Wait for a key press
-func Pause() {
-	// A reliable keyboard library to detect key presses
-	if err := keyboard.Open(); err != nil {
-		fmt.Println(err)
-	}
-	defer func() {
-		_ = keyboard.Close()
-	}()
+// func Pause() {
+// 	// A reliable keyboard library to detect key presses
+// 	if err := keyboard.Open(); err != nil {
+// 		fmt.Println(err)
+// 	}
+// 	defer func() {
+// 		_ = keyboard.Close()
+// 	}()
 
-	for {
+// 	for {
 
-		fmt.Fprintf(os.Stdout, "\r\nPrEsS a KeY")
-		_, _, err := keyboard.GetKey()
-		if err != nil {
-			panic(err)
+// 		fmt.Fprintf(os.Stdout, "\r\nPrEsS a KeY")
+// 		_, _, err := keyboard.GetKey()
+// 		if err != nil {
+// 			panic(err)
 
-		}
-		continue
-	}
+// 		}
+// 		continue
+// 	}
 
-}
+// }
 
 // Move cursor to X, Y location
 func MoveCursor(x int, y int) {
@@ -503,22 +501,22 @@ func CenterText(s string, w int) {
 }
 
 // Horizontally and Vertically center some text.
-func AbsCenterText(s string, l int, c string) {
-	centerY := modalH / 2
-	halfLen := l / 2
-	centerX := (modalW - modalW/2) - halfLen
-	MoveCursor(centerX, centerY)
-	fmt.Fprintf(os.Stdout, WhiteHi+c+s+Reset)
-	result := Continue()
-	if result {
-		fmt.Fprintf(os.Stdout, BgCyan+CyanHi+" Yes"+Reset)
-		time.Sleep(1 * time.Second)
-	}
-	if !result {
-		fmt.Fprintf(os.Stdout, BgCyan+CyanHi+" No"+Reset)
-		time.Sleep(1 * time.Second)
-	}
-}
+// func AbsCenterText(s string, l int, c string) {
+// 	centerY := modalH / 2
+// 	halfLen := l / 2
+// 	centerX := (modalW - modalW/2) - halfLen
+// 	MoveCursor(centerX, centerY)
+// 	fmt.Fprintf(os.Stdout, WhiteHi+c+s+Reset)
+// 	result := Continue()
+// 	if result {
+// 		fmt.Fprintf(os.Stdout, BgCyan+CyanHi+" Yes"+Reset)
+// 		time.Sleep(1 * time.Second)
+// 	}
+// 	if !result {
+// 		fmt.Fprintf(os.Stdout, BgCyan+CyanHi+" No"+Reset)
+// 		time.Sleep(1 * time.Second)
+// 	}
+// }
 
 func AbsCenterArt(artfile string, l int) {
 	artY := (modalH / 2) - 2
