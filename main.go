@@ -17,8 +17,10 @@ import (
 )
 
 var (
-	dropPath string
-	menuKeys []rune
+	dropPath   string
+	menuKeys   []rune
+	categories []CategoryList
+	currTab    int
 )
 
 func init() {
@@ -39,15 +41,93 @@ func init() {
 		}
 	}
 	dropPath = *pathPtr
-
+	currTab = 0
 	initDb()
+
+}
+
+func header(w int, tab int) {
+	if w == 80 {
+		if tab == 0 {
+			gd.PrintAnsiLoc("art/tab1.ans", 0, 1)
+			fmt.Printf(gd.Reset)
+			gd.MoveCursor(70, 2)
+			fmt.Printf(gd.BgBlue + gd.BlueHi + " [Q] Quit " + gd.Reset)
+		}
+	}
+	if w > 80 {
+		fmt.Fprintf(os.Stdout, " ")
+	}
+}
+
+func catHeader(w int, cat int) {
+
+	if w == 80 {
+		fn := fmt.Sprint(cat)
+		gd.PrintAnsiLoc("art/"+fn+".ans", 0, 1)
+		fmt.Printf(gd.Reset)
+		gd.MoveCursor(70, 2)
+		fmt.Printf(gd.BgRed + gd.RedHi + " [Q] Quit " + gd.Reset)
+	}
+	if w > 80 {
+		fmt.Fprintf(os.Stdout, " ")
+	}
+
+}
+
+func prompt(w int, alias string, timeLeft int, color string) {
+	if w == 80 {
+		gd.PrintStringLoc(alias+" - "+fmt.Sprint(timeLeft)+" mins left"+gd.Reset, 3, 23, gd.BlackHi, gd.BgBlack)
+		gd.MoveCursor(3, 24)
+		if color == "blue" {
+			gd.PrintAnsi("art/prompt-blue.ans", 0, 1)
+			gd.MoveCursor(6, 24)
+			fmt.Printf(gd.BgBlue + "  " + gd.Reset)
+			gd.MoveCursor(6, 24)
+		}
+		if color == "red" {
+			gd.PrintAnsi("art/prompt-red.ans", 0, 1)
+			gd.MoveCursor(6, 24)
+			fmt.Printf(gd.BgRed + "  " + gd.Reset)
+			gd.MoveCursor(6, 24)
+		}
+	}
+	if w > 80 {
+		fmt.Fprintf(os.Stdout, " ")
+	}
+}
+
+func catMenu(db *sql.DB, w int, alias string, tleft int) {
+	count := 0
+	yLoc1 := 8
+	yLoc2 := 8
+	xLoc1 := 2
+	xLoc2 := 34
+
+	categories = categoryList(db)
+	for i := 0; i < len(categories); i++ {
+
+		if count < 14 {
+			gd.MoveCursor(xLoc1, yLoc1)
+			fmt.Printf(gd.BlackHi+"["+gd.White+"%d"+gd.BlackHi+"]"+gd.Reset+gd.BlueHi+" %s\n"+gd.Reset, i+1, categories[i].CategoryName)
+			yLoc1++
+		}
+		if count >= 14 {
+			gd.MoveCursor(xLoc2, yLoc2)
+			fmt.Printf(gd.BlackHi+"["+gd.White+"%d"+gd.BlackHi+"]"+gd.Reset+gd.BlueHi+" %s\n"+gd.Reset, i+1, categories[i].CategoryName)
+			yLoc2++
+		}
+		count++
+	}
+	gd.MoveCursor(3, 24)
+	prompt(w, alias, tleft, "blue")
 
 }
 
 func main() {
 	// Get door32.sys, h, w as user object
 	u := gd.Initialize(dropPath)
-	// c := GetConfig()
+	c := GetConfig()
 
 	gd.ClearScreen()
 
@@ -58,42 +138,8 @@ func main() {
 		os.Exit(0)
 	}
 
-	gd.MoveCursor(0, 0)
-	gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
-	fmt.Println(gd.Reset)
-
 	// Categories menu
-
 	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
-	// defer db.Close()
-
-	gd.MoveCursor(2, 6)
-	fmt.Println("Select a Category:")
-
-	count := 0
-	yLoc1 := 8
-	yLoc2 := 8
-
-	gd.MoveCursor(2, 8)
-	categories := categoryList(db)
-	for i := 0; i < len(categories); i++ {
-
-		if count < 10 {
-			gd.MoveCursor(2, yLoc1)
-			fmt.Printf("[%d] %s\n", i+1, categories[i].CategoryName)
-			yLoc1++
-		}
-		if count >= 10 {
-			gd.MoveCursor(40, yLoc2)
-			fmt.Printf("[%d] %s\n", i+1, categories[i].CategoryName)
-			yLoc2++
-		}
-		count++
-	}
-
-	gd.MoveCursor(0, 0)
-	gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
-	fmt.Println(gd.Reset)
 
 	// fd 0 is stdin
 	state, err := term.MakeRaw(0)
@@ -106,39 +152,17 @@ func main() {
 		}
 	}()
 
-	gd.MoveCursor(2, 23)
-	fmt.Print("-> ")
 	in := bufio.NewReader(os.Stdin)
 
 	for {
+		header(u.W, currTab)
+		gd.PrintStringLoc(" "+c.Menu_Title+" "+c.Version+" "+gd.Reset, 2, 2, gd.BlueHi, gd.BgBlue)
+		catMenu(db, u.W, u.Alias, u.TimeLeft)
 
-		gd.MoveCursor(2, 6)
-		fmt.Println("Select a Category:")
-
-		count := 0
-		yLoc1 := 8
-		yLoc2 := 8
-
-		gd.MoveCursor(2, 8)
-		categories := categoryList(db)
-		for i := 0; i < len(categories); i++ {
-
-			if count < 10 {
-				gd.MoveCursor(2, yLoc1)
-				fmt.Printf("[%d] %s\n", i+1, categories[i].CategoryName)
-				yLoc1++
-			}
-			if count >= 10 {
-				gd.MoveCursor(40, yLoc2)
-				fmt.Printf("[%d] %s\n", i+1, categories[i].CategoryName)
-				yLoc2++
-			}
-			count++
-		}
-
-		gd.MoveCursor(0, 0)
-		gd.HeaderBar(u.W, u.Alias, u.TimeLeft)
-		fmt.Println(gd.Reset)
+		// show anything typed in prompt so far
+		s := string(menuKeys)
+		gd.MoveCursor(6, 24)
+		fmt.Printf(gd.BgBlue+gd.BgBlueHi+"%v"+gd.Reset, s)
 
 		r, _, err := in.ReadRune()
 		if err != nil {
@@ -148,38 +172,48 @@ func main() {
 		if r == 'q' || r == 'Q' {
 			term.Restore(0, state)
 			os.Exit(0)
-			continue
 		}
-		// User hit return on a single digit number in the list, let's load a category
-		if r == '\n' || r == '\r' {
-
-			s := string(menuKeys)
-			i, err := strconv.Atoi(s)
-			if err != nil {
-				panic(err)
+		if r == '\b' {
+			if len(menuKeys) > 0 {
+				menuKeys = menuKeys[:len(menuKeys)-1]
 			}
-			gd.MoveCursor(5, 23)
-			fmt.Printf("View Category %v...", s)
-			menuKeys = nil
-			time.Sleep(1 * time.Second)
-			gd.MoveCursor(5, 23)
-			fmt.Printf("                   ")
-			gd.MoveCursor(5, 23)
-			// show list
-			categoryDoorList(db, i)
+			gd.MoveCursor(6, 24)
+
+		}
+
+		// User hit return on a single digit number in the list, let's load a category
+		if len(menuKeys) != 0 && r == '\n' || r == '\r' {
+			s := string(menuKeys)
+			if len(menuKeys) > 0 {
+				i, err := strconv.Atoi(s)
+				if err != nil {
+					fmt.Println(err)
+				}
+				menuKeys = nil
+				if i != 0 {
+					gd.MoveCursor(5, 24)
+					fmt.Printf("                   ")
+					gd.MoveCursor(5, 24)
+					// show list
+					gd.ClearScreen()
+					doorMenu(db, i, u.W, u.Alias, u.TimeLeft)
+				}
+			}
 			continue
 		}
+
 		// Make sure it's a number greater than 0, otherwise don't respond
 		if unicode.IsDigit(r) {
 			if int(r-'0') != 0 {
 				if len(menuKeys) <= 0 {
 					menuKeys = append(menuKeys, r)
 					s := string(menuKeys)
-					gd.MoveCursor(5, 23)
-					fmt.Printf("%v", s)
+					gd.MoveCursor(6, 24)
+					fmt.Printf(gd.BgBlue+gd.BgBlueHi+"%v"+gd.Reset, s)
 					continue
 				}
 			}
+
 			// we collect a key press in raw mode, save it to a slice, then print the slice
 			if len(menuKeys) == 1 {
 				menuKeys = append(menuKeys, r)
@@ -188,39 +222,39 @@ func main() {
 				if err != nil {
 					panic(err)
 				}
+
 				// User entered a number greater than what's in the list
 				if i > len(categories)-1 {
 					menuKeys = append(menuKeys, r)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					s := string(menuKeys)
-					fmt.Printf("%v", s)
-					gd.MoveCursor(5, 23)
+					fmt.Printf(gd.BgBlue+gd.BgBlueHi+"%v"+gd.Reset, s)
+					gd.MoveCursor(6, 24)
 					fmt.Printf("     ")
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					fmt.Printf(gd.Red+"Select from 1 to %v"+gd.Reset, len(categories)-1)
 					time.Sleep(1 * time.Second)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					fmt.Printf("                               ")
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					// wipe the slice so it starts over
 					menuKeys = nil
 					continue
-					// second key, it's valid, so load the category list!
+
 				} else {
-					gd.MoveCursor(5, 23)
+					// second key, it's valid, so load the category list!
+					gd.MoveCursor(6, 24)
 					fmt.Printf("     ")
-					gd.MoveCursor(5, 23)
-					fmt.Printf("%v", s)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
+					fmt.Printf(gd.BgBlue+gd.BgBlueHi+"%v"+gd.Reset, s)
 					time.Sleep(100 * time.Millisecond)
-					fmt.Printf("View Category %v...", s)
 					menuKeys = nil
-					time.Sleep(1 * time.Second)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					fmt.Printf("                   ")
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					// show list
-					categoryDoorList(db, i)
+					gd.ClearScreen()
+					doorMenu(db, i, u.W, u.Alias, u.TimeLeft)
 					continue
 				}
 			}
@@ -252,137 +286,5 @@ func main() {
 	// }
 	// gd.ClearScreen()
 	// continue
-
-}
-
-func categoryDoorList(db *sql.DB, cat int) {
-	gd.ClearScreen()
-
-	gd.MoveCursor(2, 6)
-	fmt.Println("Select a Game:")
-
-	count := 0
-	yLoc1 := 8
-	yLoc2 := 8
-
-	gd.MoveCursor(2, 8)
-	doorsList := doorsByCategory(db, cat)
-
-	// fmt.Println(doorsList)
-	for i := 0; i < len(doorsList); i++ {
-
-		if count < 10 {
-			gd.MoveCursor(2, yLoc1)
-			fmt.Printf("[%d] %s\n", i+1, doorsList[i].DoorTitle)
-			yLoc1++
-		}
-		if count >= 10 {
-			gd.MoveCursor(40, yLoc2)
-			fmt.Printf("[%d] %s\n", i+1, doorsList[i].DoorTitle)
-			yLoc2++
-		}
-		count++
-	}
-	// fd 0 is stdin
-	state, err := term.MakeRaw(0)
-	if err != nil {
-		log.Fatalln("setting stdin to raw:", err)
-	}
-	defer func() {
-		if err := term.Restore(0, state); err != nil {
-			log.Println("warning, failed to restore terminal:", err)
-		}
-	}()
-
-	gd.MoveCursor(2, 23)
-	fmt.Print("-> ")
-	in := bufio.NewReader(os.Stdin)
-	for {
-		r, _, err := in.ReadRune()
-		if err != nil {
-			log.Println("stdin:", err)
-			break
-		}
-		if r == 'q' || r == 'Q' {
-			break
-		}
-		// User hit return on a single digit number in the list, let's load a category
-		if r == '\n' || r == '\r' {
-
-			s := string(menuKeys)
-			i, err := strconv.Atoi(s)
-			if err != nil {
-				panic(err)
-			}
-			gd.MoveCursor(5, 23)
-			fmt.Printf("View Category %v...", s)
-			menuKeys = nil
-			time.Sleep(1 * time.Second)
-			gd.MoveCursor(5, 23)
-			fmt.Printf("                   ")
-			gd.MoveCursor(5, 23)
-			// show list
-			categoryDoorList(db, i)
-			continue
-		}
-		// Make sure it's a number greater than 0, otherwise don't respond
-		if unicode.IsDigit(r) {
-			if int(r-'0') != 0 {
-				if len(menuKeys) <= 0 {
-					menuKeys = append(menuKeys, r)
-					s := string(menuKeys)
-					gd.MoveCursor(5, 23)
-					fmt.Printf("%v", s)
-					continue
-				}
-			}
-			// we collect a key press in raw mode, save it to a slice, then print the slice
-			if len(menuKeys) == 1 {
-				menuKeys = append(menuKeys, r)
-				s := string(menuKeys)
-				i, err := strconv.Atoi(s)
-				if err != nil {
-					panic(err)
-				}
-				// User entered a number greater than what's in the list
-				if i > len(doorsList)-1 {
-					menuKeys = append(menuKeys, r)
-					gd.MoveCursor(5, 23)
-					s := string(menuKeys)
-					fmt.Printf("%v", s)
-					gd.MoveCursor(5, 23)
-					fmt.Printf("     ")
-					gd.MoveCursor(5, 23)
-					fmt.Printf(gd.Red+"Select from 1 to %v"+gd.Reset, len(doorsList)-1)
-					time.Sleep(1 * time.Second)
-					gd.MoveCursor(5, 23)
-					fmt.Printf("                               ")
-					gd.MoveCursor(5, 23)
-					// wipe the slice so it starts over
-					menuKeys = nil
-					continue
-					// second key, it's valid, so load the category list!
-				} else {
-					gd.MoveCursor(5, 23)
-					fmt.Printf("     ")
-					gd.MoveCursor(5, 23)
-					fmt.Printf("%v", s)
-					gd.MoveCursor(5, 23)
-					time.Sleep(100 * time.Millisecond)
-					fmt.Printf("View Category %v...", s)
-					menuKeys = nil
-					time.Sleep(1 * time.Second)
-					gd.MoveCursor(5, 23)
-					fmt.Printf("                   ")
-					gd.MoveCursor(5, 23)
-					// show list
-					categoryDoorList(db, i)
-					continue
-				}
-			}
-			continue
-		}
-		continue
-	}
 
 }

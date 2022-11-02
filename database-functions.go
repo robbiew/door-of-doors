@@ -22,14 +22,14 @@ type DoorsList struct {
 
 func initDb() {
 	if _, err := os.Stat("./data.db"); errors.Is(err, fs.ErrNotExist) {
-		fmt.Print(err.Error())
+		log.Print(err.Error())
 
 		file, err := os.Create("data.db") // Create SQLite file
 		if err != nil {
-			log.Fatal(err.Error())
+			log.Println(err.Error())
 		}
 		file.Close()
-		fmt.Println("data.db doesn't exist - created")
+		log.Println("data.db doesn't exist - created")
 
 		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 		defer db.Close()                          // Defer Closing the database
@@ -50,13 +50,13 @@ func createDoorsTable(db *sql.DB) {
         "isMature" integer NOT NULL		
 	  );` // SQL Statement for Create Table
 
-	fmt.Println("Create doors table...")
+	log.Println("Create doors table...")
 	statement, err := db.Prepare(createDoorsTableSQL) // Prepare SQL Statement
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Println(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	fmt.Println("doors table created")
+	log.Println("doors table created")
 }
 
 func createCategoriesTable(db *sql.DB) {
@@ -66,13 +66,13 @@ func createCategoriesTable(db *sql.DB) {
         "isMature" integer NOT NULL
 	  );` // SQL Statement for Create Table
 
-	fmt.Println("Create categories table...")
+	log.Println("Create categories table...")
 	statement, err := db.Prepare(createCategoriesTableSQL) // Prepare SQL Statement
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Println(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	fmt.Println("categories table created")
+	log.Println("categories table created")
 }
 
 func createServersTable(db *sql.DB) {
@@ -84,48 +84,48 @@ func createServersTable(db *sql.DB) {
 	fmt.Println("Create servers table...")
 	statement, err := db.Prepare(createServersTableSQL) // Prepare SQL Statement
 	if err != nil {
-		log.Fatal(err.Error())
+		log.Println(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	fmt.Println("servers table created")
+	log.Println("servers table created")
 }
 
 func insertDoor(db *sql.DB, code string, title string, category int, server int, isMature int) {
-	fmt.Println("Inserting door record ...")
+	log.Println("Inserting door record ...")
 	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, serverId, isMature) VALUES (?, ?, ?, ?, ?)`
 	statement, err := db.Prepare(insertDoorSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 	_, err = statement.Exec(code, title, category, server, isMature)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 }
 
 func insertCategory(db *sql.DB, categoryName string, isMature int) {
-	fmt.Println("Inserting category record ...")
+	log.Println("Inserting category record ...")
 	insertCategorySQL := `INSERT INTO categories(categoryName, isMature) VALUES (?, ?)`
 	statement, err := db.Prepare(insertCategorySQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 	_, err = statement.Exec(categoryName, isMature)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 }
 
 func insertServer(db *sql.DB, serverName string) {
-	fmt.Println("Inserting server record ...")
+	log.Println("Inserting server record ...")
 	insertServerSQL := `INSERT INTO servers(serverName) VALUES (?)`
 	statement, err := db.Prepare(insertServerSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 	_, err = statement.Exec(serverName)
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Println(err.Error())
 	}
 }
 
