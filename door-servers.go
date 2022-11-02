@@ -26,7 +26,7 @@ type DoorConfigs struct {
 	BL_Script  string
 }
 
-func GetConfig() DoorConfigs {
+func getConfig() DoorConfigs {
 
 	cfg, err := ini.Load("config.ini")
 	if err != nil {
@@ -70,7 +70,7 @@ func GetConfig() DoorConfigs {
 }
 
 // Launches a bash script that uses rlogin to connect to Door Party local server
-func DoorParty(door string, un string, script string) {
+func doorParty(door string, un string, script string) {
 	prg := script
 	arg1 := fmt.Sprint(un)
 	arg2 := door
@@ -85,7 +85,7 @@ func DoorParty(door string, un string, script string) {
 }
 
 // Launches a bash script that uses rlogin to connect to Gold Mine remote server
-func GoldMine(userName string, tag string, doorCode string, host string, port string, script string) {
+func goldMine(userName string, tag string, doorCode string, host string, port string, script string) {
 	prg := script
 	arg1 := userName
 	arg2 := tag
@@ -103,7 +103,7 @@ func GoldMine(userName string, tag string, doorCode string, host string, port st
 }
 
 // Launches a bash script that uses rlogin to connect to BBS Link server
-func BbsLink(door string, un int, script string) {
+func bbsLink(door string, un int, script string) {
 	prg := script
 	arg1 := door
 	arg2 := fmt.Sprint(un)

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	_ "embed"
 	"flag"
@@ -11,6 +10,7 @@ import (
 	"strconv"
 	"time"
 	"unicode"
+	"unicode/utf8"
 
 	gd "github.com/robbiew/door-of-doors/common"
 	"golang.org/x/term"
@@ -21,9 +21,13 @@ var (
 	menuKeys   []rune
 	categories []CategoryList
 	currTab    int
+	shortTimer *time.Timer
 )
 
 func init() {
+
+	// if user doesn't press a key in X seconds
+	gd.Idle = 240
 
 	// Use FLAG to get command line paramenters
 	pathPtr := flag.String("path", "", "path to door32.sys file")
@@ -46,7 +50,7 @@ func init() {
 
 }
 
-func header(w int, tab int) {
+func mainHeader(w int, tab int) {
 	if w == 80 {
 		if tab == 0 {
 			gd.PrintAnsiLoc("art/tab1.ans", 0, 1)
@@ -61,7 +65,6 @@ func header(w int, tab int) {
 }
 
 func catHeader(w int, cat int) {
-
 	if w == 80 {
 		fn := fmt.Sprint(cat)
 		gd.PrintAnsiLoc("art/"+fn+".ans", 0, 1)
@@ -97,51 +100,16 @@ func prompt(w int, alias string, timeLeft int, color string) {
 	}
 }
 
-func catMenu(db *sql.DB, w int, alias string, tleft int) {
-	count := 0
-	yLoc1 := 8
-	yLoc2 := 8
-	xLoc1 := 2
-	xLoc2 := 34
+// Main input loop
+func readWrapper(dataChan chan []byte, errorChan chan error) {
 
-	categories = categoryList(db)
-	for i := 0; i < len(categories); i++ {
-
-		if count < 14 {
-			gd.MoveCursor(xLoc1, yLoc1)
-			fmt.Printf(gd.BlackHi+"["+gd.White+"%d"+gd.BlackHi+"]"+gd.Reset+gd.BlueHi+" %s\n"+gd.Reset, i+1, categories[i].CategoryName)
-			yLoc1++
-		}
-		if count >= 14 {
-			gd.MoveCursor(xLoc2, yLoc2)
-			fmt.Printf(gd.BlackHi+"["+gd.White+"%d"+gd.BlackHi+"]"+gd.Reset+gd.BlueHi+" %s\n"+gd.Reset, i+1, categories[i].CategoryName)
-			yLoc2++
-		}
-		count++
-	}
-	gd.MoveCursor(3, 24)
-	prompt(w, alias, tleft, "blue")
-
-}
-
-func main() {
-	// Get door32.sys, h, w as user object
-	u := gd.Initialize(dropPath)
-	c := GetConfig()
-
-	gd.ClearScreen()
-
-	// Exit if no ANSI capabilities (sorry!)
-	if u.Emulation != 1 {
-		fmt.Println("Sorry, ANSI is required to use this...")
-		time.Sleep(time.Duration(2) * time.Second)
+	shortTimer = newTimer(gd.Idle, func() {
+		fmt.Println("\r\nYou've been idle for too long... exiting!")
+		time.Sleep(3 * time.Second)
 		os.Exit(0)
-	}
+	})
 
-	// Categories menu
-	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
-
-	// fd 0 is stdin
+	// fd 0 is stdin - set to raw mode so return doesn't have to be pressed
 	state, err := term.MakeRaw(0)
 	if err != nil {
 		log.Fatalln("setting stdin to raw:", err)
@@ -152,10 +120,72 @@ func main() {
 		}
 	}()
 
-	in := bufio.NewReader(os.Stdin)
+	buf := make([]byte, 1024)
+	reqLen, err := os.Stdin.Read(buf)
+	if err != nil {
+		errorChan <- err
+		return
+	}
+	dataChan <- buf[:reqLen]
+}
+
+// newTimer boots a user after being idle too long
+func newTimer(seconds int, action func()) *time.Timer {
+	timer := time.NewTimer(time.Second * time.Duration(seconds))
+
+	go func() {
+		<-timer.C
+		action()
+
+	}()
+	log.Println("time started...")
+	return timer
+}
+
+func main() {
+	errorChan := make(chan error)
+	dataChan := make(chan []byte)
+
+	state, err := term.MakeRaw(0)
+	if err != nil {
+		log.Fatalln("setting stdin to raw:", err)
+	}
+	defer func() {
+		if err := term.Restore(0, state); err != nil {
+			log.Println("warning, failed to restore terminal:", err)
+		}
+	}()
+
+	// Get door32.sys, h, w as user object
+	u := gd.Initialize(dropPath)
+	c := getConfig()
+
+	gd.ClearScreen()
+
+	// Exit if no ANSI capabilities (sorry!)
+	if u.Emulation != 1 {
+		fmt.Println("Sorry, ANSI is required to use this...")
+		time.Sleep(time.Duration(2) * time.Second)
+		os.Exit(0)
+	}
+
+	// Start the idle timer
+	shortTimer = newTimer(gd.Idle, func() {
+		fmt.Println("\r\nYou've been idle for too long... exiting!")
+		time.Sleep(3 * time.Second)
+		os.Exit(0)
+	})
+
+	// Categories menu
+	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 
 	for {
-		header(u.W, currTab)
+		shortTimer.Stop()
+		log.Println("time stopped...")
+
+		go readWrapper(dataChan, errorChan)
+
+		mainHeader(u.W, currTab)
 		gd.PrintStringLoc(" "+c.Menu_Title+" "+c.Version+" "+gd.Reset, 2, 2, gd.BlueHi, gd.BgBlue)
 		catMenu(db, u.W, u.Alias, u.TimeLeft)
 
@@ -164,11 +194,8 @@ func main() {
 		gd.MoveCursor(6, 24)
 		fmt.Printf(gd.BgBlue+gd.BgBlueHi+"%v"+gd.Reset, s)
 
-		r, _, err := in.ReadRune()
-		if err != nil {
-			log.Println("stdin:", err)
-			break
-		}
+		r, _ := utf8.DecodeRune(<-dataChan)
+
 		if r == 'q' || r == 'Q' {
 			term.Restore(0, state)
 			os.Exit(0)
@@ -196,7 +223,9 @@ func main() {
 					gd.MoveCursor(5, 24)
 					// show list
 					gd.ClearScreen()
-					doorMenu(db, i, u.W, u.Alias, u.TimeLeft)
+					shortTimer.Stop()
+					log.Println("time stopped...")
+					doorMenu(db, i, u.W, u.Alias, u.TimeLeft, dataChan, errorChan)
 				}
 			}
 			continue
@@ -232,7 +261,7 @@ func main() {
 					gd.MoveCursor(6, 24)
 					fmt.Printf("     ")
 					gd.MoveCursor(6, 24)
-					fmt.Printf(gd.Red+"Select from 1 to %v"+gd.Reset, len(categories)-1)
+					fmt.Printf(gd.Red+" Select from 1 to %v"+gd.Reset, len(categories))
 					time.Sleep(1 * time.Second)
 					gd.MoveCursor(6, 24)
 					fmt.Printf("                               ")
@@ -254,7 +283,9 @@ func main() {
 					gd.MoveCursor(6, 24)
 					// show list
 					gd.ClearScreen()
-					doorMenu(db, i, u.W, u.Alias, u.TimeLeft)
+					shortTimer.Stop()
+					log.Println("time stopped...")
+					doorMenu(db, i, u.W, u.Alias, u.TimeLeft, dataChan, errorChan)
 					continue
 				}
 			}

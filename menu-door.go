@@ -1,20 +1,18 @@
 package main
 
 import (
-	"bufio"
 	"database/sql"
 	"fmt"
 	"log"
-	"os"
 	"strconv"
 	"time"
 	"unicode"
+	"unicode/utf8"
 
 	gd "github.com/robbiew/door-of-doors/common"
-	"golang.org/x/term"
 )
 
-func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int) {
+func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int, dataChan chan []byte, errorChan chan error) {
 	count := 0
 	yLoc1 := 7
 	yLoc2 := 7
@@ -41,27 +39,23 @@ func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int) {
 		}
 		count++
 	}
+
 	gd.MoveCursor(3, 24)
 	prompt(w, alias, tleft, "red")
 
-	// fd 0 is stdin
-	state, err := term.MakeRaw(0)
-	if err != nil {
-		log.Fatalln("setting stdin to raw:", err)
-	}
-	defer func() {
-		if err := term.Restore(0, state); err != nil {
-			log.Println("warning, failed to restore terminal:", err)
-		}
-	}()
-
-	in := bufio.NewReader(os.Stdin)
 	for {
-		r, _, err := in.ReadRune()
-		if err != nil {
-			log.Println("stdin:", err)
-			break
-		}
+		shortTimer.Stop()
+		log.Println("time stopped...")
+
+		go readWrapper(dataChan, errorChan)
+
+		// show anything typed in prompt so far
+		s := string(menuKeys)
+		gd.MoveCursor(6, 24)
+		fmt.Printf(gd.BgRed+gd.BgRedHi+"%v"+gd.Reset, s)
+
+		r, _ := utf8.DecodeRune(<-dataChan)
+
 		if r == 'q' || r == 'Q' {
 			gd.ClearScreen()
 			break
@@ -71,14 +65,12 @@ func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int) {
 			if len(menuKeys) > 0 {
 				menuKeys = menuKeys[:len(menuKeys)-1]
 			}
-			log.Println("backscpace")
-			gd.MoveCursor(5, 23)
-			time.Sleep(time.Second * 1)
+			gd.MoveCursor(6, 24)
+
 		}
 
 		// User hit return on a single digit number in the list, let's load a category
 		if len(menuKeys) != 0 && r == '\n' || r == '\r' {
-
 			s := string(menuKeys)
 			if len(menuKeys) > 0 {
 				i, err := strconv.Atoi(s)
@@ -87,12 +79,14 @@ func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int) {
 				}
 				menuKeys = nil
 				if i != 0 {
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(5, 24)
 					fmt.Printf("                   ")
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(5, 24)
 					// show list
 					gd.ClearScreen()
-					// doorMenu(db, i, w, alias, tleft)
+					shortTimer.Stop()
+					log.Println("time stopped...")
+					// doorMenu(db, i, u.W, u.Alias, u.TimeLeft, dataChan, errorChan)
 				}
 			}
 			continue
@@ -104,11 +98,12 @@ func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int) {
 				if len(menuKeys) <= 0 {
 					menuKeys = append(menuKeys, r)
 					s := string(menuKeys)
-					gd.MoveCursor(5, 23)
-					fmt.Printf("%v", s)
+					gd.MoveCursor(6, 24)
+					fmt.Printf(gd.BgRed+gd.BgRedHi+"%v"+gd.Reset, s)
 					continue
 				}
 			}
+
 			// we collect a key press in raw mode, save it to a slice, then print the slice
 			if len(menuKeys) == 1 {
 				menuKeys = append(menuKeys, r)
@@ -121,36 +116,37 @@ func doorMenu(db *sql.DB, cat int, w int, alias string, tleft int) {
 				// User entered a number greater than what's in the list
 				if i > len(doorsList)-1 {
 					menuKeys = append(menuKeys, r)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					s := string(menuKeys)
 					fmt.Printf("%v", s)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					fmt.Printf("     ")
-					gd.MoveCursor(5, 23)
-					fmt.Printf(gd.Red+"Select from 1 to %v"+gd.Reset, len(doorsList)-1)
+					gd.MoveCursor(6, 24)
+					fmt.Printf(gd.RedHi+" Select from 1 to %v"+gd.Reset, len(doorsList))
 					time.Sleep(1 * time.Second)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					fmt.Printf("                               ")
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					// wipe the slice so it starts over
 					menuKeys = nil
 					continue
-					// second key, it's valid, so load the category list!
+
 				} else {
-					gd.MoveCursor(5, 23)
+					// second key, it's valid, so load the category list!
+					gd.MoveCursor(6, 24)
 					fmt.Printf("     ")
-					gd.MoveCursor(5, 23)
-					fmt.Printf("%v", s)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
+					fmt.Printf(gd.BgRed+gd.BgRedHi+"%v"+gd.Reset, s)
 					time.Sleep(100 * time.Millisecond)
-					fmt.Printf("View Category %v...", s)
 					menuKeys = nil
-					time.Sleep(1 * time.Second)
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					fmt.Printf("                   ")
-					gd.MoveCursor(5, 23)
+					gd.MoveCursor(6, 24)
 					// show list
-					// doorMenu(db, i)
+					gd.ClearScreen()
+					shortTimer.Stop()
+					log.Println("time stopped...")
+					// doorMenu(db, i, u.W, u.Alias, u.TimeLeft, dataChan, errorChan)
 					continue
 				}
 			}
