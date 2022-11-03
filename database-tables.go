@@ -43,8 +43,8 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "PISSORAM", "Piss-o-Rama", 1, 1, 0)
 	insertDoor(db, "GODFATHE", "Godfather of Crime", 1, 1, 0)
 
-	insertDoor(db, "LORD", "L.O.R.D", 11, 1, 0)
-	insertDoor(db, "LORD", "L.O.R.D II: New World", 11, 1, 0)
+	insertDoor(db, "LORD", "L.O.R.D.", 11, 1, 0)
+	insertDoor(db, "LORD", "L.O.R.D. II", 11, 1, 0)
 	insertDoor(db, "LORD", "The Beast's Domain", 11, 1, 0)
 	insertDoor(db, "LORD", "For Honour", 11, 1, 0)
 	insertDoor(db, "LORD", "Death Masters", 11, 1, 0)
@@ -58,13 +58,12 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "LORD", "Usurper", 11, 1, 0)
 	insertDoor(db, "LORD", "Adv. Maze II", 11, 1, 0)
 	insertDoor(db, "LORD", "Rise to Power", 11, 1, 0)
-	insertDoor(db, "LORD", "BladeNaster", 11, 1, 0)
+	insertDoor(db, "LORD", "BladeMaster", 11, 1, 0)
 	insertDoor(db, "LORD", "Crossroads", 11, 1, 0)
 	insertDoor(db, "LORD", "Tele-Arena", 11, 1, 0)
 
 	// BBS Link
-	insertDoor(db, "LORD", "L.O.R.D", 11, 2, 0)
+	insertDoor(db, "LORD", "L.O.R.D.", 11, 2, 0)
 	// Door Party
-	insertDoor(db, "LORD", "L.O.R.D", 11, 3, 0)
-
+	insertDoor(db, "LORD", "L.O.R.D.", 11, 3, 0)
 }

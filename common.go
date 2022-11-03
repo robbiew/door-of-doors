@@ -1,4 +1,4 @@
-package common
+package main
 
 import (
 	"bufio"
@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 	"unicode/utf8"
+
+	"gopkg.in/ini.v1"
 )
 
 // CREDIT TO https://github.com/k0kubun/go-ansi for some of these sequences.
@@ -114,37 +116,7 @@ const (
 	Reset = Esc + "0m"
 )
 
-var Idle int
-
-type User struct {
-	Alias     string
-	TimeLeft  int
-	Emulation int
-	NodeNum   int
-	UserNum   int
-	H         int
-	W         int
-	ModalH    int
-	ModalW    int
-}
-
-// Get info from the Drop File, h, w
-func Initialize(path string) User {
-
-	alias, timeLeft, emulation, nodeNum, userNum := DropFileData(path)
-	h, w := GetTermSize()
-
-	if h%2 == 0 {
-		modalH = h
-	} else {
-		modalH = h - 1
-	}
-
-	if w%2 == 0 {
-		modalW = w
-	} else {
-		modalW = w - 1
-	}
+func newUser(alias string, timeLeft int, emulation int, nodeNum int, userNum int, h int, w int) *User {
 
 	u := User{
 		Alias:     alias,
@@ -154,40 +126,124 @@ func Initialize(path string) User {
 		UserNum:   userNum,
 		H:         h,
 		W:         w,
-		ModalH:    modalH,
-		ModalW:    modalW,
 	}
-	return u
+	return &u
 }
 
-// Continue Y/N
-// func Continue() bool {
-// 	// A reliable keyboard library to detect key presses
-// 	if err := keyboard.Open(); err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	defer func() {
-// 		_ = keyboard.Close()
-// 	}()
+func getConfig(menu_title string, version string, gm_host string, gm_port string, gm_tag string, gm_enabled string, gm_script string, dp_script string, dp_enabled string, bl_script string, bl_enabled string) *DoorConfig {
 
-// 	char, key, err := keyboard.GetKey()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	var x bool
-// 	if string(char) == "Y" || string(char) == "y" || key == keyboard.KeyEnter {
-// 		x = true
-// 	}
-// 	if string(char) == "N" || string(char) == "n" || key == keyboard.KeyEsc {
-// 		x = false
-// 	}
-// 	return x
-// }
+	c := DoorConfig{
+		Menu_Title: menu_title,
+		Version:    version,
+		GM_Host:    gm_host,
+		GM_Port:    gm_port,
+		GM_Tag:     gm_tag,
+		GM_Enabled: gm_enabled,
+		GM_script:  gm_script,
 
-// func Modal(artPath string, text string, l int) {
-// 	AbsCenterArt(artPath, 33)
-// 	AbsCenterText(text, l, BgCyan)
-// }
+		DP_Script:  dp_script,
+		DP_Enabled: dp_enabled,
+
+		BL_Script:  bl_script,
+		BL_Enabled: bl_enabled,
+	}
+
+	return &c
+}
+
+// Get info from the Drop File, h, w
+func InitDrop(path string) {
+	alias, timeLeft, emulation, nodeNum, userNum := DropFileData(path)
+	h, w := GetTermSize()
+	u := User{alias, timeLeft, emulation, nodeNum, userNum, h, w}
+	U = &u
+
+}
+
+func InitIni() {
+	cfg, err := ini.Load("config.ini")
+	if err != nil {
+		fmt.Printf("Fail to read CONFIG file: %v", err)
+		os.Exit(1)
+	}
+
+	menu_title := cfg.Section("general").Key("title").String()
+	version := cfg.Section("general").Key("version").String()
+	gm_host := cfg.Section("goldmine").Key("host").String()
+	gm_port := cfg.Section("goldmine").Key("port").String()
+	gm_tag := cfg.Section("goldmine").Key("tag").String()
+	gm_enabled := cfg.Section("goldmine").Key("enabled").String()
+	gm_script := cfg.Section("goldmine").Key("script").String()
+	dp_script := cfg.Section("doorparty").Key("script").String()
+	dp_enabled := cfg.Section("doorparty").Key("enabled").String()
+	bl_script := cfg.Section("bbslink").Key("script").String()
+	bl_enabled := cfg.Section("bbslink").Key("enabled").String()
+
+	c := DoorConfig{menu_title, version, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
+	C = &c
+
+}
+
+func mainHeader(w int, tab int) {
+	if w == 80 {
+		if tab == 0 {
+			PrintAnsiLoc("art/tab1.ans", 0, 1)
+			MoveCursor(70, 2)
+			fmt.Printf(Reset + BgBlue + BlueHi + " [Q] Quit " + Reset)
+		}
+	}
+	if w > 80 {
+		fmt.Fprintf(os.Stdout, " ")
+	}
+}
+
+func catHeader(w int) {
+	if w == 80 {
+		fn := fmt.Sprint(currCat)
+		PrintAnsiLoc("art/"+fn+".ans", 0, 1)
+		MoveCursor(70, 2)
+		fmt.Printf(Reset + BgRed + RedHi + " [Q] Quit " + Reset)
+	}
+	if w > 80 {
+		fmt.Fprintf(os.Stdout, " ")
+	}
+
+}
+
+func prompt(color string) {
+	if U.W == 80 {
+		PrintStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+Reset, 3, 23, BlackHi, BgBlack)
+		MoveCursor(3, 24)
+		if color == "blue" {
+			PrintAnsi("art/prompt-blue.ans", 0, 1)
+			MoveCursor(6, 24)
+			fmt.Printf(BgBlue + "  " + Reset)
+			MoveCursor(6, 24)
+		}
+		if color == "red" {
+			PrintAnsi("art/prompt-red.ans", 0, 1)
+			MoveCursor(6, 24)
+			fmt.Printf(BgRed + "  " + Reset)
+			MoveCursor(6, 24)
+		}
+	}
+	if U.W > 80 {
+		fmt.Fprintf(os.Stdout, " ")
+	}
+}
+
+// newTimer boots a user after being idle too long
+func newTimer(seconds int, action func()) *time.Timer {
+	timer := time.NewTimer(time.Second * time.Duration(seconds))
+
+	go func() {
+		<-timer.C
+		action()
+
+	}()
+	log.Println("time started...")
+	return timer
+}
 
 func TruncateText(s string, max int) string {
 	if len(s) > max {
@@ -201,29 +257,6 @@ func TruncateText(s string, max int) string {
 	}
 	return s
 }
-
-// Wait for a key press
-// func Pause() {
-// 	// A reliable keyboard library to detect key presses
-// 	if err := keyboard.Open(); err != nil {
-// 		fmt.Println(err)
-// 	}
-// 	defer func() {
-// 		_ = keyboard.Close()
-// 	}()
-
-// 	for {
-
-// 		fmt.Fprintf(os.Stdout, "\r\nPrEsS a KeY")
-// 		_, _, err := keyboard.GetKey()
-// 		if err != nil {
-// 			panic(err)
-
-// 		}
-// 		continue
-// 	}
-
-// }
 
 // Move cursor to X, Y location
 func MoveCursor(x int, y int) {
@@ -424,11 +457,9 @@ func GetTermSize() (int, int) {
 
 		return h, w
 	}
-
 }
 
 func PrintAnsi(artfile string, delay int, height int) {
-
 	b, err := os.ReadFile(artfile) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
@@ -478,7 +509,6 @@ func TrimLastChar(s string) string {
 }
 
 func PrintAnsiLoc(artfile string, x int, y int) {
-
 	b, err := os.ReadFile(artfile) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
@@ -504,24 +534,6 @@ func CenterText(s string, w int) {
 	fmt.Fprintf(os.Stdout, (fmt.Sprintf("%[1]*s", -w, fmt.Sprintf("%[1]*s", (w+len(s))/2, s))))
 }
 
-// Horizontally and Vertically center some text.
-// func AbsCenterText(s string, l int, c string) {
-// 	centerY := modalH / 2
-// 	halfLen := l / 2
-// 	centerX := (modalW - modalW/2) - halfLen
-// 	MoveCursor(centerX, centerY)
-// 	fmt.Fprintf(os.Stdout, WhiteHi+c+s+Reset)
-// 	result := Continue()
-// 	if result {
-// 		fmt.Fprintf(os.Stdout, BgCyan+CyanHi+" Yes"+Reset)
-// 		time.Sleep(1 * time.Second)
-// 	}
-// 	if !result {
-// 		fmt.Fprintf(os.Stdout, BgCyan+CyanHi+" No"+Reset)
-// 		time.Sleep(1 * time.Second)
-// 	}
-// }
-
 func AbsCenterArt(artfile string, l int) {
 	artY := (modalH / 2) - 2
 	artLen := l / 2
@@ -539,7 +551,6 @@ func AbsCenterArt(artfile string, l int) {
 
 // Credit to @richorr
 func PipeColorToEscCode(ansiColor string) (string, bool) {
-
 	log.Println("checking string == " + ansiColor)
 
 	if len(strings.Trim(ansiColor, " ")) < 2 {

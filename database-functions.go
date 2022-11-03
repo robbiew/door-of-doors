@@ -159,7 +159,7 @@ func categoryList(db *sql.DB) []CategoryList {
 
 }
 
-func doorsByCategory(db *sql.DB, cat int) []DoorsList {
+func doorsByCategory(db *sql.DB) []DoorsList {
 	rows, err := db.Query(`
     SELECT DISTINCT
         title as DoorTitle
@@ -167,7 +167,7 @@ func doorsByCategory(db *sql.DB, cat int) []DoorsList {
         doors 
     WHERE
         categoryId = ?
-  `, cat)
+  `, currCat)
 
 	if err != nil {
 		log.Fatal(err)
