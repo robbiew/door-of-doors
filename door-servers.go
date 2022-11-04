@@ -7,10 +7,10 @@ import (
 )
 
 // Launches a bash script that uses rlogin to connect to Door Party local server
-func doorParty(door string, un string, script string) {
+func doorParty(doorCode string, un string, script string) {
 	prg := script
 	arg1 := fmt.Sprint(un)
-	arg2 := door
+	arg2 := doorCode
 
 	ClearScreen()
 
@@ -40,9 +40,9 @@ func goldMine(userName string, tag string, doorCode string, host string, port st
 }
 
 // Launches a bash script that uses rlogin to connect to BBS Link server
-func bbsLink(door string, un int, script string) {
+func bbsLink(doorCode string, un int, script string) {
 	prg := script
-	arg1 := door
+	arg1 := doorCode
 	arg2 := fmt.Sprint(un)
 
 	ClearScreen()

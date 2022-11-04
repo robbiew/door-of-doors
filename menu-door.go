@@ -5,29 +5,40 @@ import (
 	"fmt"
 )
 
-func doorMenu(db *sql.DB, dataChan chan []byte, errorChan chan error) {
-	count := 0
-	yLoc1 := 7
-	yLoc2 := 7
-	xLoc1 := 2
-	xLoc2 := 29
-
+func doorMenu(db *sql.DB) {
+	currCode = getCatCode(currCat, categories)
 	ClearScreen()
-
 	MoveCursor(0, 0)
-	catHeader(U.W)
+	header(U.W)
 
 	doorsList := doorsByCategory(db)
+
+	count := 0
+	yLoc1 := 8
+	yLoc2 := 8
+	xLoc1 := 3
+	xLoc2 := 36
+
+	var data string
+
 	for i := 0; i < len(doorsList); i++ {
 
-		if count < 15 {
+		data = doorsList[i].DoorTitle
+
+		if count < 14 {
 			MoveCursor(xLoc1, yLoc1)
-			fmt.Printf(BlackHi+"["+White+"%d"+BlackHi+"]"+Reset+RedHi+" %s\n"+Reset, i+1, doorsList[i].DoorTitle)
+			if count < 9 {
+				MoveCursor(xLoc1, yLoc1)
+				fmt.Printf(White+" %d"+BlackHi+"..."+Reset+RedHi+"%s\n"+Reset, i+1, data)
+
+			} else {
+				fmt.Printf(White+"%d"+BlackHi+"..."+Reset+RedHi+"%s\n"+Reset, i+1, data)
+			}
 			yLoc1++
 		}
-		if count >= 15 {
+		if count >= 14 {
 			MoveCursor(xLoc2, yLoc2)
-			fmt.Printf(BlackHi+"["+White+"%d"+BlackHi+"]"+Reset+RedHi+" %s\n"+Reset, i+1, doorsList[i].DoorTitle)
+			fmt.Printf(White+"%d"+BlackHi+"..."+Reset+RedHi+"%s\n"+Reset, i+1, data)
 			yLoc2++
 		}
 		count++

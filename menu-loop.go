@@ -13,11 +13,10 @@ import (
 
 func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 	if menuType == "category" {
-		mainHeader(U.W, currTab)
 		catMenu(db)
 	}
 	if menuType == "door" {
-		doorMenu(db, dataChan, errorChan)
+		doorMenu(db)
 	}
 
 	for {
@@ -69,7 +68,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					log.Println("time stopped...")
 					menuType = "door"
 					currCat = i
-					doorMenu(db, dataChan, errorChan)
+					doorMenu(db)
 				}
 			}
 			continue
@@ -97,7 +96,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				}
 
 				// User entered a number greater than what's in the list
-				if i > len(categories)-1 {
+				if i > len(categories) {
 					menuKeys = append(menuKeys, r)
 					MoveCursor(6, 24)
 					s := string(menuKeys)
@@ -131,7 +130,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					log.Println("time stopped...")
 					menuType = "door"
 					currCat = i
-					doorMenu(db, dataChan, errorChan)
+					doorMenu(db)
 					continue
 				}
 			}

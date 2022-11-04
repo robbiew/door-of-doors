@@ -184,30 +184,15 @@ func InitIni() {
 
 }
 
-func mainHeader(w int, tab int) {
+func header(w int) {
 	if w == 80 {
-		if tab == 0 {
-			PrintAnsiLoc("art/tab1.ans", 0, 1)
-			MoveCursor(70, 2)
-			fmt.Printf(Reset + BgBlue + BlueHi + " [Q] Quit " + Reset)
-		}
-	}
-	if w > 80 {
-		fmt.Fprintf(os.Stdout, " ")
-	}
-}
-
-func catHeader(w int) {
-	if w == 80 {
-		fn := fmt.Sprint(currCat)
-		PrintAnsiLoc("art/"+fn+".ans", 0, 1)
+		PrintAnsiLoc("art/"+currCode+".ans", 0, 1)
 		MoveCursor(70, 2)
 		fmt.Printf(Reset + BgRed + RedHi + " [Q] Quit " + Reset)
 	}
 	if w > 80 {
 		fmt.Fprintf(os.Stdout, " ")
 	}
-
 }
 
 func prompt(color string) {

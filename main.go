@@ -36,11 +36,30 @@ type DoorConfig struct {
 	BL_Script  string
 }
 
+type CategoryList struct {
+	CategoryId   int
+	CategoryName string
+	CategoryCode string
+}
+
+type DoorsList struct {
+	DoorTitle string
+}
+
+type ServerList struct {
+	UserName string
+	Tag      string
+	DoorCode string
+	Script   string
+	Host     string
+	Port     string
+}
+
 var (
 	menuKeys   []rune
 	categories []CategoryList
-	currTab    int
 	currCat    int
+	currCode   string
 	shortTimer *time.Timer
 	menuType   string
 	idle       int
@@ -70,7 +89,6 @@ func init() {
 	}
 
 	dropPath := *pathPtr
-	currTab = 0
 	currCat = 0
 
 	// entry menu

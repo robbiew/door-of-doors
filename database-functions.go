@@ -11,15 +11,6 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-type CategoryList struct {
-	CategoryId   string
-	CategoryName string
-}
-
-type DoorsList struct {
-	DoorTitle string
-}
-
 func initDb() {
 	if _, err := os.Stat("./data.db"); errors.Is(err, fs.ErrNotExist) {
 		log.Print(err.Error())
@@ -30,7 +21,6 @@ func initDb() {
 		}
 		file.Close()
 		log.Println("data.db doesn't exist - created")
-
 		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 		defer db.Close()                          // Defer Closing the database
 
@@ -63,6 +53,7 @@ func createCategoriesTable(db *sql.DB) {
 	createCategoriesTableSQL := `CREATE TABLE categories (
 		"idCategory" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
 		"categoryName" TEXT NOT NULL,
+		"categoryCode" TEXT NOT NULL,
         "isMature" integer NOT NULL
 	  );` // SQL Statement for Create Table
 
@@ -103,14 +94,14 @@ func insertDoor(db *sql.DB, code string, title string, category int, server int,
 	}
 }
 
-func insertCategory(db *sql.DB, categoryName string, isMature int) {
+func insertCategory(db *sql.DB, categoryName string, categoryCode string, isMature int) {
 	log.Println("Inserting category record ...")
-	insertCategorySQL := `INSERT INTO categories(categoryName, isMature) VALUES (?, ?)`
+	insertCategorySQL := `INSERT INTO categories(categoryName, categoryCode, isMature) VALUES (?, ?, ?)`
 	statement, err := db.Prepare(insertCategorySQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Println(err.Error())
 	}
-	_, err = statement.Exec(categoryName, isMature)
+	_, err = statement.Exec(categoryName, categoryCode, isMature)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -133,9 +124,12 @@ func categoryList(db *sql.DB) []CategoryList {
 	rows, err := db.Query(`
     SELECT
         idCategory,
-        categoryName
+        categoryName,
+		categoryCode
     FROM 
         categories
+	ORDER BY
+		categoryName
   `)
 	if err != nil {
 		log.Fatal(err)
@@ -147,15 +141,36 @@ func categoryList(db *sql.DB) []CategoryList {
 
 		var idCategory int
 		var categoryName string
+		var categoryCode string
 
-		err := rows.Scan(&idCategory, &categoryName)
+		err := rows.Scan(&idCategory, &categoryName, &categoryCode)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		categoryList = append(categoryList, CategoryList{CategoryId: fmt.Sprint(idCategory), CategoryName: categoryName})
+		categoryList = append(categoryList, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
 	}
 	return categoryList
+
+}
+
+func doorByServer(db *sql.DB) {
+
+	rows, err := db.Query(`
+    SELECT 
+        title as DoorTitle
+    FROM 
+        doors 
+    WHERE
+        categoryId = ?
+	ORDER BY
+		title
+  `, currCat)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
 
 }
 
@@ -167,6 +182,8 @@ func doorsByCategory(db *sql.DB) []DoorsList {
         doors 
     WHERE
         categoryId = ?
+	ORDER BY
+		title
   `, currCat)
 
 	if err != nil {
