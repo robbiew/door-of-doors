@@ -6,45 +6,47 @@ import (
 )
 
 func doorMenu(db *sql.DB) {
-	currCode = getCatCode(currCat, categories)
-	ClearScreen()
-	MoveCursor(0, 0)
+	clearScreen()
 	header(U.W)
 
-	doorsList := doorsByCategory(db)
+	doorsList = doorsByCategory(db, currCat)
+
+	currCatName = categories[currCat].CategoryName
+
+	moveCursor(3, 6)
+	fmt.Print(whiteHi + currCatName + ":" + reset)
 
 	count := 0
 	yLoc1 := 8
 	yLoc2 := 8
 	xLoc1 := 3
-	xLoc2 := 36
+	xLoc2 := 32
 
-	var data string
+	var SelectionData string
 
 	for i := 0; i < len(doorsList); i++ {
 
-		data = doorsList[i].DoorTitle
+		SelectionData = doorsList[i].DoorTitle
 
 		if count < 14 {
-			MoveCursor(xLoc1, yLoc1)
+			moveCursor(xLoc1, yLoc1)
 			if count < 9 {
-				MoveCursor(xLoc1, yLoc1)
-				fmt.Printf(White+" %d"+BlackHi+"..."+Reset+RedHi+"%s\n"+Reset, i+1, data)
-
+				moveCursor(xLoc1, yLoc1)
+				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
 			} else {
-				fmt.Printf(White+"%d"+BlackHi+"..."+Reset+RedHi+"%s\n"+Reset, i+1, data)
+				fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
 			}
 			yLoc1++
 		}
 		if count >= 14 {
-			MoveCursor(xLoc2, yLoc2)
-			fmt.Printf(White+"%d"+BlackHi+"..."+Reset+RedHi+"%s\n"+Reset, i+1, data)
+			moveCursor(xLoc2, yLoc2)
+			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
 			yLoc2++
 		}
 		count++
 	}
 
-	MoveCursor(3, 24)
+	moveCursor(3, 24)
 	prompt("red")
 
 }

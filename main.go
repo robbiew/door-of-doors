@@ -47,19 +47,27 @@ type DoorsList struct {
 }
 
 type ServerList struct {
-	UserName string
-	Tag      string
-	DoorCode string
-	Script   string
-	Host     string
-	Port     string
+	DoorTitle  string
+	ServerName string
+	// UserName   string
+	// Tag        string
+	// DoorCode   string
+	// Script     string
+	// Host       string
+	// Port       string
 }
 
 var (
 	menuKeys   []rune
 	categories []CategoryList
-	currCat    int
-	currCode   string
+	doorsList  []DoorsList
+
+	currCat     int
+	currCatName string
+	currCode    string
+	currDoor    int
+	currTitle   string
+
 	shortTimer *time.Timer
 	menuType   string
 	idle       int
@@ -98,10 +106,10 @@ func init() {
 	initDb()
 
 	// Get door32.sys, h, w as user object
-	InitDrop(dropPath)
+	initDrop(dropPath)
 
 	// Get ap config from config.ini
-	InitIni()
+	initIni()
 }
 
 // Main input loop
@@ -136,7 +144,7 @@ func main() {
 	errorChan := make(chan error)
 	dataChan := make(chan []byte)
 
-	ClearScreen()
+	clearScreen()
 
 	// Exit if no ANSI capabilities (sorry!)
 	if U.Emulation != 1 {

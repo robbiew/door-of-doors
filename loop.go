@@ -18,6 +18,9 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 	if menuType == "door" {
 		doorMenu(db)
 	}
+	if menuType == "server" {
+		doorMenu(db)
+	}
 
 	for {
 		shortTimer.Stop()
@@ -27,8 +30,8 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 
 		// show anything typed in prompt so far
 		s := string(menuKeys)
-		MoveCursor(6, 24)
-		fmt.Printf(BgBlue+BgBlueHi+"%v"+Reset, s)
+		moveCursor(6, 24)
+		fmt.Printf(bgRed+redHi+"%v"+reset, s)
 
 		r, _ := utf8.DecodeRune(<-dataChan)
 
@@ -40,13 +43,19 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 			if menuType == "door" {
 				menuType = "category"
 				catMenu(db)
+				continue
+			}
+			if menuType == "server" {
+				menuType = "door"
+				doorMenu(db)
+				continue
 			}
 		}
 		if r == '\b' {
 			if len(menuKeys) > 0 {
 				menuKeys = menuKeys[:len(menuKeys)-1]
 			}
-			MoveCursor(6, 24)
+			moveCursor(6, 24)
 		}
 
 		// User hit return on a single digit number in the list, let's load a category
@@ -59,16 +68,25 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				}
 				menuKeys = nil
 				if i != 0 {
-					MoveCursor(5, 24)
+					moveCursor(5, 24)
 					fmt.Printf("                   ")
-					MoveCursor(5, 24)
+					moveCursor(5, 24)
 					// show list
-					ClearScreen()
+					clearScreen()
 					shortTimer.Stop()
 					log.Println("time stopped...")
-					menuType = "door"
-					currCat = i
-					doorMenu(db)
+					if menuType == "category" {
+						menuType = "door"
+						currCat = i
+						doorMenu(db)
+						continue
+					}
+					if menuType == "door" {
+						menuType = "server"
+						currDoor = i - 1
+						serverMenu(db)
+						continue
+					}
 				}
 			}
 			continue
@@ -80,8 +98,8 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				if len(menuKeys) <= 0 {
 					menuKeys = append(menuKeys, r)
 					s := string(menuKeys)
-					MoveCursor(6, 24)
-					fmt.Printf(BgBlue+BgBlueHi+"%v"+Reset, s)
+					moveCursor(6, 24)
+					fmt.Printf(bgRed+redHi+"%v"+reset, s)
 					continue
 				}
 			}
@@ -98,39 +116,56 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				// User entered a number greater than what's in the list
 				if i > len(categories) {
 					menuKeys = append(menuKeys, r)
-					MoveCursor(6, 24)
+					moveCursor(6, 24)
 					s := string(menuKeys)
-					fmt.Printf(BgBlue+BgBlueHi+"%v"+Reset, s)
-					MoveCursor(6, 24)
+					fmt.Printf(bgRed+redHi+"%v"+reset, s)
+					moveCursor(6, 24)
 					fmt.Printf("     ")
-					MoveCursor(6, 24)
-					fmt.Printf(Red+" Select from 1 to %v"+Reset, len(categories))
+					moveCursor(6, 24)
+					fmt.Printf(red+" Select from 1 to %v"+reset, len(categories))
 					time.Sleep(1 * time.Second)
-					MoveCursor(6, 24)
+					moveCursor(6, 24)
 					fmt.Printf("                               ")
-					MoveCursor(6, 24)
+					moveCursor(6, 24)
 					// wipe the slice so it starts over
 					menuKeys = nil
 					continue
 
 				} else {
 					// second key, it's valid, so load the category list!
-					MoveCursor(6, 24)
+					moveCursor(6, 24)
 					fmt.Printf("     ")
-					MoveCursor(6, 24)
-					fmt.Printf(BgBlue+BgBlueHi+"%v"+Reset, s)
+					moveCursor(6, 24)
+					fmt.Printf(bgRed+redHi+"%v"+reset, s)
 					time.Sleep(100 * time.Millisecond)
 					menuKeys = nil
-					MoveCursor(6, 24)
+					moveCursor(6, 24)
 					fmt.Printf("                   ")
-					MoveCursor(6, 24)
-					// show list
-					ClearScreen()
+					moveCursor(6, 24)
+					clearScreen()
+
 					shortTimer.Stop()
 					log.Println("time stopped...")
-					menuType = "door"
-					currCat = i
-					doorMenu(db)
+					if menuType == "category" {
+						menuType = "door"
+						currCat = i
+
+						doorMenu(db)
+						continue
+					}
+					if menuType == "door" {
+						currDoor = i - 1
+						menuType = "server"
+						serverMenu(db)
+						continue
+					}
+
+					if menuType == "server" {
+						menuType = "door"
+						currCat = i
+						doorMenu(db)
+						continue
+					}
 					continue
 				}
 			}

@@ -36,6 +36,8 @@ func createDoorsTable(db *sql.DB) {
 		"code" TEXT NOT NULL,
 		"title" TEXT NOT NULL,
 		"categoryId" integer NOT NULL,
+		"category2" integer NOT NULL,
+		"category3" integer NOT NULL,
         "serverId" integer NOT NULL,
         "isMature" integer NOT NULL		
 	  );` // SQL Statement for Create Table
@@ -81,14 +83,14 @@ func createServersTable(db *sql.DB) {
 	log.Println("servers table created")
 }
 
-func insertDoor(db *sql.DB, code string, title string, category int, server int, isMature int) {
+func insertDoor(db *sql.DB, code string, title string, category int, category2 int, category3 int, server int, isMature int) {
 	log.Println("Inserting door record ...")
-	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, serverId, isMature) VALUES (?, ?, ?, ?, ?)`
+	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, category2, category3, serverId, isMature) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	statement, err := db.Prepare(insertDoorSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Println(err.Error())
 	}
-	_, err = statement.Exec(code, title, category, server, isMature)
+	_, err = statement.Exec(code, title, category, category2, category3, server, isMature)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -119,6 +121,36 @@ func insertServer(db *sql.DB, serverName string) {
 		log.Println(err.Error())
 	}
 }
+
+// func catIdbyCode(db *sql.DB) int {
+// 	rows, err := db.Query(`
+//     SELECT
+//         idCategory
+//     FROM
+//         categories
+// 	WHERE
+// 		categoryCode = ?
+//   `, currCode)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	defer rows.Close()
+// 	var catId int
+// 	for rows.Next() {
+
+// 		var idCategory int
+
+// 		err := rows.Scan(&idCategory)
+// 		if err != nil {
+// 			log.Fatal(err)
+// 		}
+
+// 		catId = idCategory
+// 	}
+// 	return catId
+
+// }
 
 func categoryList(db *sql.DB) []CategoryList {
 	rows, err := db.Query(`
@@ -154,37 +186,17 @@ func categoryList(db *sql.DB) []CategoryList {
 
 }
 
-func doorByServer(db *sql.DB) {
-
-	rows, err := db.Query(`
-    SELECT 
-        title as DoorTitle
-    FROM 
-        doors 
-    WHERE
-        categoryId = ?
-	ORDER BY
-		title
-  `, currCat)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-
-}
-
-func doorsByCategory(db *sql.DB) []DoorsList {
+func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	rows, err := db.Query(`
     SELECT DISTINCT
         title as DoorTitle
     FROM 
         doors 
     WHERE
-        categoryId = ?
+        categoryId = ? OR category2 = ? OR category3 = ? 
 	ORDER BY
 		title
-  `, currCat)
+  `, realCat, realCat, realCat)
 
 	if err != nil {
 		log.Fatal(err)
@@ -204,4 +216,40 @@ func doorsByCategory(db *sql.DB) []DoorsList {
 		doorsList = append(doorsList, DoorsList{DoorTitle: DoorTitle})
 	}
 	return doorsList
+}
+
+func doorByServer(db *sql.DB) []ServerList {
+	rows, err := db.Query(`
+    SELECT
+        title,
+		serverName
+    FROM
+        doors
+	INNER JOIN servers ON servers.IdServer = serverId 
+    WHERE
+        title = ?
+	ORDER BY
+		title
+  `, currTitle)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	var serverList []ServerList
+	for rows.Next() {
+
+		var title string
+		var serverName string
+
+		err := rows.Scan(&title, &serverName)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		serverList = append(serverList, ServerList{DoorTitle: title, ServerName: serverName})
+	}
+	return serverList
+
 }

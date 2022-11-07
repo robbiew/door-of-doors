@@ -6,11 +6,12 @@ import (
 )
 
 func catMenu(db *sql.DB) {
-	currCode = "MAIN1"
-	ClearScreen()
-	MoveCursor(0, 0)
+	clearScreen()
+	currCode = "MAIN"
 	header(U.W)
 
+	moveCursor(3, 6)
+	fmt.Print(whiteHi + "Select a category:" + reset)
 	categories = categoryList(db)
 
 	count := 0
@@ -19,26 +20,26 @@ func catMenu(db *sql.DB) {
 	xLoc1 := 3
 	xLoc2 := 36
 
-	PrintStringLoc(" "+C.Menu_Title+" "+C.Version+" "+Reset, 2, 2, RedHi, BgBlack)
+	// printStringLoc(" "+C.Menu_Title+" "+C.Version+" "+reset, 2, 2, redHi, bgBlack)
 
 	for i := 0; i < len(categories); i++ {
 		if count < 14 {
-			MoveCursor(xLoc1, yLoc1)
+			moveCursor(xLoc1, yLoc1)
 			if count < 9 {
-				fmt.Printf(White+" %d"+BlackHi+"..."+Reset+RedHi+"%s"+Reset, i+1, categories[i].CategoryName)
+				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
 			} else {
-				fmt.Printf(White+"%d"+BlackHi+"..."+Reset+RedHi+"%s"+Reset, i+1, categories[i].CategoryName)
+				fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
 			}
 			yLoc1++
 		}
 		if count >= 14 {
-			MoveCursor(xLoc2, yLoc2)
-			fmt.Printf(White+"%d"+BlackHi+"..."+Reset+RedHi+"%s"+Reset, i+1, categories[i].CategoryName)
+			moveCursor(xLoc2, yLoc2)
+			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
 			yLoc2++
 		}
 		count++
 	}
-	MoveCursor(3, 24)
+	moveCursor(3, 24)
 	prompt("red")
 
 }

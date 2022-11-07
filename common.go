@@ -54,113 +54,78 @@ var (
 // is only needed once; otherwise, use the functions (e.g. moving a cursor
 // several lines/columns). See: https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
 const (
-	CursorBackward = Esc + "D"
-	CursorPrevLine = Esc + "F"
-	CursorLeft     = Esc + "G"
-	CursorTop      = Esc + "d"
-	CursorTopLeft  = Esc + "H"
+	cursorBackward = Esc + "D"
+	cursorPrevLine = Esc + "F"
+	cursorLeft     = Esc + "G"
+	cursorTop      = Esc + "d"
+	cursorTopLeft  = Esc + "H"
 
-	CursorBlinkEnable  = Esc + "?12h"
-	CursorBlinkDisable = Esc + "?12I"
+	cursorBlinkEnable  = Esc + "?12h"
+	cursorBlinkDisable = Esc + "?12I"
 
-	ScrollUp   = Esc + "S"
-	ScrollDown = Esc + "T"
+	scrollUp   = Esc + "S"
+	scrollDown = Esc + "T"
 
-	TextInsertChar = Esc + "@"
-	TextDeleteChar = Esc + "P"
-	TextEraseChar  = Esc + "X"
-	TextInsertLine = Esc + "L"
-	TextDeleteLine = Esc + "M"
+	textInsertChar = Esc + "@"
+	textDeleteChar = Esc + "P"
+	textEraseChar  = Esc + "X"
+	textInsertLine = Esc + "L"
+	textDeleteLine = Esc + "M"
 
-	EraseRight  = Esc + "K"
-	EraseLeft   = Esc + "1K"
-	EraseLine   = Esc + "2K"
-	EraseDown   = Esc + "J"
-	EraseUp     = Esc + "1J"
-	EraseScreen = Esc + "2J"
+	eraseRight  = Esc + "K"
+	eraseLeft   = Esc + "1K"
+	eraseLine   = Esc + "2K"
+	eraseDown   = Esc + "J"
+	eraseUp     = Esc + "1J"
+	eraseScreen = Esc + "2J"
 
-	Black     = Esc + "30m"
-	Red       = Esc + "31m"
-	Green     = Esc + "32m"
-	Yellow    = Esc + "33m"
-	Blue      = Esc + "34m"
-	Magenta   = Esc + "35m"
-	Cyan      = Esc + "36m"
-	White     = Esc + "37m"
-	BlackHi   = Esc + "30;1m"
-	RedHi     = Esc + "31;1m"
-	GreenHi   = Esc + "32;1m"
-	YellowHi  = Esc + "33;1m"
-	BlueHi    = Esc + "34;1m"
-	MagentaHi = Esc + "35;1m"
-	CyanHi    = Esc + "36;1m"
-	WhiteHi   = Esc + "37;1m"
+	black     = Esc + "30m"
+	red       = Esc + "31m"
+	green     = Esc + "32m"
+	yellow    = Esc + "33m"
+	blue      = Esc + "34m"
+	magenta   = Esc + "35m"
+	cyan      = Esc + "36m"
+	white     = Esc + "37m"
+	blackHi   = Esc + "30;1m"
+	redHi     = Esc + "31;1m"
+	greenHi   = Esc + "32;1m"
+	yellowHi  = Esc + "33;1m"
+	blueHi    = Esc + "34;1m"
+	magentaHi = Esc + "35;1m"
+	cyanHi    = Esc + "36;1m"
+	whiteHi   = Esc + "37;1m"
 
-	BgBlack     = Esc + "40m"
-	BgRed       = Esc + "41m"
-	BgGreen     = Esc + "42m"
-	BgYellow    = Esc + "43m"
-	BgBlue      = Esc + "44m"
-	BgMagenta   = Esc + "45m"
-	BgCyan      = Esc + "46m"
-	BgWhite     = Esc + "47m"
-	BgBlackHi   = Esc + "40;1m"
-	BgRedHi     = Esc + "41;1m"
-	BgGreenHi   = Esc + "42;1m"
-	BgYellowHi  = Esc + "43;1m"
-	BgBlueHi    = Esc + "44;1m"
-	BgMagentaHi = Esc + "45;1m"
-	BgCyanHi    = Esc + "46;1m"
-	BgWhiteHi   = Esc + "47;1m"
+	bgBlack     = Esc + "40m"
+	bgRed       = Esc + "41m"
+	bgGreen     = Esc + "42m"
+	bgYellow    = Esc + "43m"
+	bgBlue      = Esc + "44m"
+	bgMagenta   = Esc + "45m"
+	bgCyan      = Esc + "46m"
+	bgWhite     = Esc + "47m"
+	bgBlackHi   = Esc + "40;1m"
+	bgredHi     = Esc + "41;1m"
+	bgGreenHi   = Esc + "42;1m"
+	bgYellowHi  = Esc + "43;1m"
+	bgblueHi    = Esc + "44;1m"
+	bgMagentaHi = Esc + "45;1m"
+	bgCyanHi    = Esc + "46;1m"
+	bgWhiteHi   = Esc + "47;1m"
 
-	Reset = Esc + "0m"
+	reset = Esc + "0m"
 )
 
-func newUser(alias string, timeLeft int, emulation int, nodeNum int, userNum int, h int, w int) *User {
-
-	u := User{
-		Alias:     alias,
-		TimeLeft:  timeLeft,
-		Emulation: emulation,
-		NodeNum:   nodeNum,
-		UserNum:   userNum,
-		H:         h,
-		W:         w,
-	}
-	return &u
-}
-
-func getConfig(menu_title string, version string, gm_host string, gm_port string, gm_tag string, gm_enabled string, gm_script string, dp_script string, dp_enabled string, bl_script string, bl_enabled string) *DoorConfig {
-
-	c := DoorConfig{
-		Menu_Title: menu_title,
-		Version:    version,
-		GM_Host:    gm_host,
-		GM_Port:    gm_port,
-		GM_Tag:     gm_tag,
-		GM_Enabled: gm_enabled,
-		GM_script:  gm_script,
-
-		DP_Script:  dp_script,
-		DP_Enabled: dp_enabled,
-
-		BL_Script:  bl_script,
-		BL_Enabled: bl_enabled,
-	}
-
-	return &c
-}
-
 // Get info from the Drop File, h, w
-func InitDrop(path string) {
-	alias, timeLeft, emulation, nodeNum, userNum := DropFileData(path)
+func initDrop(path string) {
+	alias, timeLeft, emulation, nodeNum, userNum := dropFileData(path)
 	h, w := GetTermSize()
 	u := User{alias, timeLeft, emulation, nodeNum, userNum, h, w}
 	U = &u
 
 }
 
-func InitIni() {
+func initIni() {
 	cfg, err := ini.Load("config.ini")
 	if err != nil {
 		fmt.Printf("Fail to read CONFIG file: %v", err)
@@ -186,9 +151,8 @@ func InitIni() {
 
 func header(w int) {
 	if w == 80 {
-		PrintAnsiLoc("art/"+currCode+".ans", 0, 1)
-		MoveCursor(70, 2)
-		fmt.Printf(Reset + BgRed + RedHi + " [Q] Quit " + Reset)
+		printAnsiLoc("art/"+currCode+".ans", 0, 1)
+		moveCursor(70, 2)
 	}
 	if w > 80 {
 		fmt.Fprintf(os.Stdout, " ")
@@ -197,19 +161,19 @@ func header(w int) {
 
 func prompt(color string) {
 	if U.W == 80 {
-		PrintStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+Reset, 3, 23, BlackHi, BgBlack)
-		MoveCursor(3, 24)
+		printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 3, 23, blackHi, bgBlack)
+		moveCursor(3, 24)
 		if color == "blue" {
 			PrintAnsi("art/prompt-blue.ans", 0, 1)
-			MoveCursor(6, 24)
-			fmt.Printf(BgBlue + "  " + Reset)
-			MoveCursor(6, 24)
+			moveCursor(6, 24)
+			fmt.Printf(bgBlue + "  " + reset)
+			moveCursor(6, 24)
 		}
 		if color == "red" {
 			PrintAnsi("art/prompt-red.ans", 0, 1)
-			MoveCursor(6, 24)
-			fmt.Printf(BgRed + "  " + Reset)
-			MoveCursor(6, 24)
+			moveCursor(6, 24)
+			fmt.Printf(bgRed + "  " + reset)
+			moveCursor(6, 24)
 		}
 	}
 	if U.W > 80 {
@@ -230,7 +194,7 @@ func newTimer(seconds int, action func()) *time.Timer {
 	return timer
 }
 
-func TruncateText(s string, max int) string {
+func truncateText(s string, max int) string {
 	if len(s) > max {
 		r := 0
 		for i := range s {
@@ -244,76 +208,76 @@ func TruncateText(s string, max int) string {
 }
 
 // Move cursor to X, Y location
-func MoveCursor(x int, y int) {
+func moveCursor(x int, y int) {
 	fmt.Printf(Esc+"%d;%df", y, x)
 }
 
-func EraseToLeft() {
-	fmt.Println(EraseLeft)
+func eraseToLeft() {
+	fmt.Println(eraseLeft)
 }
 
 // Erase the screen
-func ClearScreen() {
-	fmt.Println(EraseScreen)
-	MoveCursor(0, 0)
+func clearScreen() {
+	fmt.Println(eraseScreen)
+	moveCursor(0, 0)
 }
 
 // Move the cursor n cells to up.
-func CursorUp(n int) {
+func cursorUp(n int) {
 	fmt.Printf(Esc+"%dA", n)
 }
 
 // Move the cursor n cells to down.
-func CursorDown(n int) {
+func cursorDown(n int) {
 	fmt.Printf(Esc+"%dB", n)
 }
 
 // Move the cursor n cells to right.
-func CursorForward(n int) {
+func cursorForward(n int) {
 	fmt.Printf(Esc+"%dC", n)
 }
 
 // Move the cursor n cells to left.
-func CursorBack(n int) {
+func cursorBack(n int) {
 	fmt.Printf(Esc+"%dD", n)
 }
 
 // Move cursor to beginning of the line n lines down.
-func CursorNextLine(n int) {
+func cursorNextLine(n int) {
 	fmt.Printf(Esc+"%dE", n)
 }
 
 // Move cursor to beginning of the line n lines up.
-func CursorPreviousLine(n int) {
+func cursorPreviousLine(n int) {
 	fmt.Printf(Esc+"%dF", n)
 }
 
 // Move cursor horizontally to x.
-func CursorHorizontalAbsolute(x int) {
+func cursorHorizontalAbsolute(x int) {
 	fmt.Printf(Esc+"%dG", x)
 }
 
 // Show the cursor.
-func CursorShow() {
+func cursorShow() {
 	fmt.Print(Esc + "?25h")
 }
 
 // Hide the cursor.
-func CursorHide() {
+func cursorHide() {
 	fmt.Print(Esc + "?25l")
 }
 
 // Save the screen.
-func SaveScreen() {
+func saveScreen() {
 	fmt.Print(Esc + "?47h")
 }
 
 // Restore the saved screen.
-func RestoreScreen() {
+func restoreScreen() {
 	fmt.Print(Esc + "?47l")
 }
 
-func DropFileData(path string) (string, int, int, int, int) {
+func dropFileData(path string) (string, int, int, int, int) {
 	// path needs to include trailing slash!
 	var dropAlias string
 	var dropTimeLeft string
@@ -431,7 +395,7 @@ func GetTermSize() (int, int) {
 		h := ih
 		w := iw
 
-		ClearScreen()
+		clearScreen()
 
 		return h, w
 
@@ -449,43 +413,43 @@ func PrintAnsi(artfile string, delay int, height int) {
 	if err != nil {
 		fmt.Print(err)
 	}
-	noSauce := TrimStringFromSauce(string(b)) // strip off the SAUCE metadata
+	noSauce := trimStringFromSauce(string(b)) // strip off the SAUCE metadata
 	s := bufio.NewScanner(strings.NewReader(string(noSauce)))
 
 	i := 1
 
 	for s.Scan() {
-		fmt.Fprintf(os.Stdout, s.Text())
+		fmt.Print(s.Text())
 		time.Sleep(time.Duration(delay) * time.Millisecond)
 		if i < height {
 			fmt.Fprintf(os.Stdout, "\r\n")
 		} else {
-			MoveCursor(0, 0)
+			moveCursor(0, 0)
 			break
 		}
 		i++
 	}
 }
 
-func TrimStringFromSauce(s string) string {
+func trimStringFromSauce(s string) string {
 	if idx := strings.Index(s, "COMNT"); idx != -1 {
 		string := s
 		delimiter := "COMNT"
 		leftOfDelimiter := strings.Split(string, delimiter)[0]
-		trim := TrimLastChar(leftOfDelimiter)
+		trim := trimLastChar(leftOfDelimiter)
 		return trim
 	}
 	if idx := strings.Index(s, "SAUCE00"); idx != -1 {
 		string := s
 		delimiter := "SAUCE00"
 		leftOfDelimiter := strings.Split(string, delimiter)[0]
-		trim := TrimLastChar(leftOfDelimiter)
+		trim := trimLastChar(leftOfDelimiter)
 		return trim
 	}
 	return s
 }
 
-func TrimLastChar(s string) string {
+func trimLastChar(s string) string {
 	r, size := utf8.DecodeLastRuneInString(s)
 	if r == utf8.RuneError && (size == 0 || size == 1) {
 		size = 0
@@ -493,12 +457,12 @@ func TrimLastChar(s string) string {
 	return s[:len(s)-size]
 }
 
-func PrintAnsiLoc(artfile string, x int, y int) {
+func printAnsiLoc(artfile string, x int, y int) {
 	b, err := os.ReadFile(artfile) // just pass the file name
 	if err != nil {
 		fmt.Print(err)
 	}
-	noSauce := TrimStringFromSauce(string(b)) // strip off the SAUCE metadata
+	noSauce := trimStringFromSauce(string(b)) // strip off the SAUCE metadata
 	s := bufio.NewScanner(strings.NewReader(string(noSauce)))
 	yLoc := y
 
@@ -509,22 +473,22 @@ func PrintAnsiLoc(artfile string, x int, y int) {
 }
 
 // Print text at an X, Y location
-func PrintStringLoc(text string, x int, y int, fg string, bg string) {
-	fmt.Fprintf(os.Stdout, Reset+Esc+strconv.Itoa(y)+";"+strconv.Itoa(x)+"f"+bg+fg+text+Reset)
+func printStringLoc(text string, x int, y int, fg string, bg string) {
+	fmt.Fprintf(os.Stdout, reset+Esc+strconv.Itoa(y)+";"+strconv.Itoa(x)+"f"+bg+fg+text+reset)
 
 }
 
 // Horizontally center some text.
-func CenterText(s string, w int) {
+func centerText(s string, w int) {
 	fmt.Fprintf(os.Stdout, (fmt.Sprintf("%[1]*s", -w, fmt.Sprintf("%[1]*s", (w+len(s))/2, s))))
 }
 
-func AbsCenterArt(artfile string, l int) {
+func absCenterArt(artfile string, l int) {
 	artY := (modalH / 2) - 2
 	artLen := l / 2
 	artX := (modalW - modalW/2) - artLen
 
-	noSauce := TrimStringFromSauce(artfile) // strip off the SAUCE metadata
+	noSauce := trimStringFromSauce(artfile) // strip off the SAUCE metadata
 	s := bufio.NewScanner(strings.NewReader(string(noSauce)))
 
 	for s.Scan() {
@@ -532,127 +496,4 @@ func AbsCenterArt(artfile string, l int) {
 		fmt.Println(s.Text())
 		artY++
 	}
-}
-
-// Credit to @richorr
-func PipeColorToEscCode(ansiColor string) (string, bool) {
-	log.Println("checking string == " + ansiColor)
-
-	if len(strings.Trim(ansiColor, " ")) < 2 {
-		log.Println("finding no string")
-		return "", false
-	}
-	tint := ""
-	isColor := true
-
-	log.Println("finding a string")
-	switch ansiColor[0] {
-	case '0':
-		tint = BgBlack
-	case '1':
-		tint = BgBlue
-	case '2':
-		tint = BgGreen
-	case '3':
-		tint = BgCyan
-	case '4':
-		tint = BgRed
-	case '5':
-		tint = BgMagenta
-	case '6':
-		tint = BgYellow
-	case '7':
-		tint = BgWhite
-	case '8':
-		tint = BgBlackHi
-	case '9':
-		tint = BgBlueHi
-	case 'A':
-		tint = BgGreenHi
-	case 'B':
-		tint = BgCyanHi
-	case 'C':
-		tint = BgRedHi
-	case 'D':
-		tint = BgMagentaHi
-	case 'E':
-		tint = BgYellowHi
-	case 'F':
-		tint = BgWhiteHi
-	default:
-		isColor = false
-	}
-
-	if isColor {
-		switch ansiColor[1] {
-		case '0':
-			tint += Black
-		case '1':
-			tint += Blue
-		case '2':
-			tint += Green
-		case '3':
-			tint += Cyan
-		case '4':
-			tint += Red
-		case '5':
-			tint += Magenta
-		case '6':
-			tint += Yellow
-		case '7':
-			tint += White
-		case '8':
-			tint += BlackHi
-		case '9':
-			tint += BlueHi
-		case 'A':
-			tint += GreenHi
-		case 'B':
-			tint += CyanHi
-		case 'C':
-			tint += RedHi
-		case 'D':
-			tint += MagentaHi
-		case 'E':
-			tint += YellowHi
-		case 'F':
-			tint += WhiteHi
-		default:
-			isColor = false
-		}
-	}
-	return tint, isColor
-}
-
-func PrintPipeColor(text string, defaultTint string) string {
-	tint := defaultTint
-	// log.Println("Text: ", text)
-
-	coloredSections := strings.Split(text, "|")
-	for i, ansiBlock := range coloredSections {
-		log.Println("Ansi Block @", strconv.Itoa(i), ": [", ansiBlock, "]")
-		if len(strings.Trim(ansiBlock, " ")) < 2 {
-			if i == 0 {
-				fmt.Print(tint, ansiBlock, Reset)
-			} else {
-				fmt.Print(tint, "|", ansiBlock, Reset)
-			}
-		} else {
-			newTint, isColor := PipeColorToEscCode(ansiBlock[0:2])
-
-			if isColor {
-				// Change the tint and then print the following block
-				tint = newTint
-				fmt.Print(tint, ansiBlock[2:], Reset)
-			} else {
-				// Print the pipe if a color was not found
-				if i == 0 {
-					fmt.Print(tint, ansiBlock, Reset)
-				} else {
-					fmt.Print(tint, "|", ansiBlock, Reset)
-				}
-			}
-		}
-	}
-	return tint
 }

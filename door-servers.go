@@ -12,7 +12,7 @@ func doorParty(doorCode string, un string, script string) {
 	arg1 := fmt.Sprint(un)
 	arg2 := doorCode
 
-	ClearScreen()
+	clearScreen()
 
 	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2)
 	cmd.Stdin = os.Stdin
@@ -30,7 +30,7 @@ func goldMine(userName string, tag string, doorCode string, host string, port st
 	arg4 := host
 	arg5 := port
 
-	ClearScreen()
+	clearScreen()
 
 	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2+" "+arg3+" "+arg4+" "+arg5)
 	cmd.Stdin = os.Stdin
@@ -45,7 +45,7 @@ func bbsLink(doorCode string, un int, script string) {
 	arg1 := doorCode
 	arg2 := fmt.Sprint(un)
 
-	ClearScreen()
+	clearScreen()
 
 	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2)
 	cmd.Stdin = os.Stdin
