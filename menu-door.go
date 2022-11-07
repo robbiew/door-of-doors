@@ -11,7 +11,8 @@ func doorMenu(db *sql.DB) {
 
 	doorsList = doorsByCategory(db, currCat)
 
-	currCatName = categories[currCat].CategoryName
+	categories = categoryList(db)
+	currCatName = categories[currCat-1].CategoryName
 
 	moveCursor(3, 6)
 	fmt.Print(whiteHi + currCatName + ":" + reset)

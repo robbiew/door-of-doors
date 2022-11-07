@@ -122,36 +122,6 @@ func insertServer(db *sql.DB, serverName string) {
 	}
 }
 
-// func catIdbyCode(db *sql.DB) int {
-// 	rows, err := db.Query(`
-//     SELECT
-//         idCategory
-//     FROM
-//         categories
-// 	WHERE
-// 		categoryCode = ?
-//   `, currCode)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-
-// 	defer rows.Close()
-// 	var catId int
-// 	for rows.Next() {
-
-// 		var idCategory int
-
-// 		err := rows.Scan(&idCategory)
-// 		if err != nil {
-// 			log.Fatal(err)
-// 		}
-
-// 		catId = idCategory
-// 	}
-// 	return catId
-
-// }
-
 func categoryList(db *sql.DB) []CategoryList {
 	rows, err := db.Query(`
     SELECT

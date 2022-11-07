@@ -34,7 +34,8 @@ func createTables(db *sql.DB) {
 	insertServer(db, "BBS Link")
 	insertServer(db, "Door Party")
 
-	// INSERT RECORDS
+	// INSERT DOOR RECORDS
+	// category int, category2 int, category3 int, server int, isMature int
 	// Gold Mine - Adult
 	insertDoor(db, "DRUGLORD", "Drug Lord", 1, 0, 0, 1, 1)
 	insertDoor(db, "BORDELLO", "Bordello", 1, 0, 0, 1, 1)
@@ -44,12 +45,18 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "GODFATHE", "Godfather of Crime", 1, 0, 0, 1, 1)
 
 	// Gold Mine - Arcade & Action
-	insertDoor(db, "GOOBLE", "Gooble Gooble", 11, 16, 0, 2, 0)
-	insertDoor(db, "LEMONS", "Lemons", 11, 16, 0, 2, 0)
-	insertDoor(db, "CHICKEN", "Chicken Delivery", 11, 16, 0, 2, 0)
-	insertDoor(db, "MYSTMAN", "Myst Man", 11, 0, 0, 2, 0)
-	insertDoor(db, "BBSTRIS", "BBS*Tris", 11, 0, 0, 2, 0)
-	insertDoor(db, "ESCAPE", "Escape Arcade", 0, 0, 11, 2, 0)
+	insertDoor(db, "GOOBLE", "Gooble Gooble", 2, 16, 0, 1, 0)
+	insertDoor(db, "LEMONS", "Lemons", 2, 16, 0, 1, 0)
+	insertDoor(db, "CHICKEN", "Chicken Delivery", 2, 16, 0, 1, 0)
+	insertDoor(db, "MYSTMAN", "Myst Man", 2, 0, 0, 1, 0)
+	insertDoor(db, "BBSTRIS", "BBS*Tris", 2, 0, 0, 1, 0)
+	insertDoor(db, "ESCAPE", "Escape Arcade", 2, 0, 11, 1, 0)
+
+	// Gold Mine - Board Games
+	insertDoor(db, "4CORNERC", "4 Corner checkers", 3, 0, 0, 1, 0)
+	insertDoor(db, "BOGGLE", "Bubble Boggle", 3, 16, 0, 1, 0)
+	insertDoor(db, "CONCENTR", "Concentration", 3, 0, 0, 1, 0)
+	insertDoor(db, "SEABATTL", "Sea Battle", 3, 0, 0, 1, 0)
 
 	insertDoor(db, "LORD", "L.O.R.D.", 11, 0, 0, 1, 0)
 	insertDoor(db, "LORD", "L.O.R.D. II", 11, 0, 0, 1, 0)

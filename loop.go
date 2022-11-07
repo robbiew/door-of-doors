@@ -149,7 +149,6 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					if menuType == "category" {
 						menuType = "door"
 						currCat = i
-
 						doorMenu(db)
 						continue
 					}

@@ -116,6 +116,19 @@ const (
 	reset = Esc + "0m"
 )
 
+func getInfo(game string) string {
+
+	inf, err := ini.Load("info.ini")
+	if err != nil {
+		fmt.Printf("Fail to read CONFIG file: %v", err)
+		os.Exit(1)
+	}
+
+	desc := inf.Section(game).Key("desc").String()
+	return desc
+
+}
+
 // Get info from the Drop File, h, w
 func initDrop(path string) {
 	alias, timeLeft, emulation, nodeNum, userNum := dropFileData(path)
