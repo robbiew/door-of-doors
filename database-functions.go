@@ -30,16 +30,31 @@ func initDb() {
 	// database exists, so do nothing
 }
 
+func createTitlesTables(db *sql.DB) {
+	createTitlesTableSQL := `CREATE TABLE titles (
+		"idTitle" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
+		"titleName" TEXT NOT NULL,
+		"categoryId" integer NOT NULL,
+		"category2" integer NOT NULL,
+		"category3" integer NOT NULL,
+		"isMature" integer NOT NULL
+	  );` // SQL Statement for Create Table
+
+	fmt.Println("Create titles table...")
+	statement, err := db.Prepare(createTitlesTableSQL) // Prepare SQL Statement
+	if err != nil {
+		log.Println(err.Error())
+	}
+	statement.Exec() // Execute SQL Statements
+	log.Println("servers table created")
+}
+
 func createDoorsTable(db *sql.DB) {
 	createDoorsTableSQL := `CREATE TABLE doors (
 		"idDoor" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
 		"code" TEXT NOT NULL,
-		"title" TEXT NOT NULL,
-		"categoryId" integer NOT NULL,
-		"category2" integer NOT NULL,
-		"category3" integer NOT NULL,
-        "serverId" integer NOT NULL,
-        "isMature" integer NOT NULL		
+		"titleId" integer NOT NULL,
+        "serverId" integer NOT NULL
 	  );` // SQL Statement for Create Table
 
 	log.Println("Create doors table...")
@@ -83,14 +98,27 @@ func createServersTable(db *sql.DB) {
 	log.Println("servers table created")
 }
 
-func insertDoor(db *sql.DB, code string, title string, category int, category2 int, category3 int, server int, isMature int) {
+func insertTitle(db *sql.DB, titleName string, categoryId int, category2 int, category3 int, isMature int) {
+	log.Println("Inserting server record ...")
+	insertTitleSQL := `INSERT INTO titles(titleName, categoryId, category2, category3, isMature) VALUES (?, ?, ?, ?, ?)`
+	statement, err := db.Prepare(insertTitleSQL) // Prepare statement. This is good to avoid SQL injections
+	if err != nil {
+		log.Println(err.Error())
+	}
+	_, err = statement.Exec(titleName, categoryId, category2, category3, isMature)
+	if err != nil {
+		log.Println(err.Error())
+	}
+}
+
+func insertDoor(db *sql.DB, code string, title int, server int) {
 	log.Println("Inserting door record ...")
-	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, category2, category3, serverId, isMature) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	insertDoorSQL := `INSERT INTO doors(code, titleId, serverId) VALUES (?, ?, ?)`
 	statement, err := db.Prepare(insertDoorSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Println(err.Error())
 	}
-	_, err = statement.Exec(code, title, category, category2, category3, server, isMature)
+	_, err = statement.Exec(code, title, server)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -159,13 +187,14 @@ func categoryList(db *sql.DB) []CategoryList {
 func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	rows, err := db.Query(`
     SELECT DISTINCT
-        title as DoorTitle
+        titleName AS DoorTitle 
     FROM 
-        doors 
+        titles
+	INNER JOIN doors ON doors.titleId = idTitle 
     WHERE
         categoryId = ? OR category2 = ? OR category3 = ? 
 	ORDER BY
-		title
+		DoorTitle
   `, realCat, realCat, realCat)
 
 	if err != nil {
@@ -188,16 +217,18 @@ func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	return doorsList
 }
 
-func doorByServer(db *sql.DB) []ServerList {
+func doorByServer(db *sql.DB) []ServersList {
 	rows, err := db.Query(`
     SELECT
-        title,
-		serverName
+        titles.titleName AS title,
+		servers.serverName as serverName
     FROM
-        doors
-	INNER JOIN servers ON servers.IdServer = serverId 
+        titles
+	LEFT JOIN doors ON doors.titleId = titles.idTitle
+	LEFT JOIN servers ON servers.idServer = doors.serverId
+
     WHERE
-        title = ?
+        titles.titleName = ?
 	ORDER BY
 		title
   `, currTitle)
@@ -207,7 +238,7 @@ func doorByServer(db *sql.DB) []ServerList {
 	}
 	defer rows.Close()
 
-	var serverList []ServerList
+	var serverList []ServersList
 	for rows.Next() {
 
 		var title string
@@ -218,7 +249,7 @@ func doorByServer(db *sql.DB) []ServerList {
 			log.Fatal(err)
 		}
 
-		serverList = append(serverList, ServerList{DoorTitle: title, ServerName: serverName})
+		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName})
 	}
 	return serverList
 

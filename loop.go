@@ -12,14 +12,18 @@ import (
 )
 
 func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
+
 	if menuType == "category" {
 		catMenu(db)
+
 	}
 	if menuType == "door" {
 		doorMenu(db)
+
 	}
 	if menuType == "server" {
-		doorMenu(db)
+		serverMenu(db)
+
 	}
 
 	for {
@@ -82,11 +86,19 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 						continue
 					}
 					if menuType == "door" {
-						menuType = "server"
 						currDoor = i - 1
+						menuType = "server"
 						serverMenu(db)
 						continue
 					}
+
+					if menuType == "server" {
+						menuType = "door"
+						currCat = i
+						doorMenu(db)
+						continue
+					}
+
 				}
 			}
 			continue
@@ -114,7 +126,8 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				}
 
 				// User entered a number greater than what's in the list
-				if i > len(categories) {
+
+				if i > lenList {
 					menuKeys = append(menuKeys, r)
 					moveCursor(6, 24)
 					s := string(menuKeys)
@@ -122,11 +135,13 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					moveCursor(6, 24)
 					fmt.Printf("     ")
 					moveCursor(6, 24)
-					fmt.Printf(red+" Select from 1 to %v"+reset, len(categories))
+					fmt.Printf(red+" Select from 1 to %v"+reset, lenList)
 					time.Sleep(1 * time.Second)
 					moveCursor(6, 24)
 					fmt.Printf("                               ")
 					moveCursor(6, 24)
+					fmt.Printf(bgRed + "  " + reset)
+
 					// wipe the slice so it starts over
 					menuKeys = nil
 					continue

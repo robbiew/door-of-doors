@@ -46,7 +46,7 @@ type DoorsList struct {
 	DoorTitle string
 }
 
-type ServerList struct {
+type ServersList struct {
 	DoorTitle  string
 	ServerName string
 	// UserName   string
@@ -58,15 +58,17 @@ type ServerList struct {
 }
 
 var (
-	menuKeys   []rune
-	categories []CategoryList
-	doorsList  []DoorsList
+	menuKeys    []rune
+	categories  []CategoryList
+	doorsList   []DoorsList
+	serversList []ServersList
 
 	currCat     int
 	currCatName string
 	currCode    string
 	currDoor    int
 	currTitle   string
+	lenList     int
 
 	shortTimer *time.Timer
 	menuType   string

@@ -10,7 +10,7 @@ func doorMenu(db *sql.DB) {
 	header(U.W)
 
 	doorsList = doorsByCategory(db, currCat)
-
+	lenList = len(doorsList)
 	categories = categoryList(db)
 	currCatName = categories[currCat-1].CategoryName
 

@@ -11,12 +11,11 @@ func serverMenu(db *sql.DB) {
 
 	// get title
 	currTitle = doorsList[currDoor].DoorTitle
-	serverList := doorByServer(db)
-	// info := getInfo(currTitle)
+	serversList = doorByServer(db)
+	lenList = len(serversList)
 
 	moveCursor(3, 6)
 	fmt.Print(whiteHi + "Play " + yellowHi + currTitle + whiteHi + " on:" + reset)
-	// fmt.Println(info)
 
 	count := 0
 	xLoc1 := 3
@@ -24,8 +23,8 @@ func serverMenu(db *sql.DB) {
 
 	var data string
 
-	for i := 0; i < len(serverList); i++ {
-		data = serverList[i].ServerName
+	for i := 0; i < len(serversList); i++ {
+		data = serversList[i].ServerName
 		moveCursor(xLoc1, yLoc1)
 		fmt.Printf(yellowHi+"%d"+cyanHi+"..."+reset+yellowHi+"%s\n"+reset, i+1, data)
 		yLoc1++

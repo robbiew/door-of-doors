@@ -13,6 +13,7 @@ func catMenu(db *sql.DB) {
 	moveCursor(3, 6)
 	fmt.Print(whiteHi + "Select a category:" + reset)
 	categories = categoryList(db)
+	lenList = len(categories)
 
 	count := 0
 	yLoc1 := 8
