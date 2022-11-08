@@ -40,6 +40,8 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 		r, _ := utf8.DecodeRune(<-dataChan)
 
 		if r == 'q' || r == 'Q' {
+			paginator = false
+
 			if menuType == "category" {
 				log.Println("category exit")
 				os.Exit(0)
@@ -61,10 +63,12 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 			if r == ']' {
 				currPage = 2
 				doorMenu(db)
+				continue
 			}
 			if r == '[' {
 				currPage = 1
 				doorMenu(db)
+				continue
 			}
 		}
 
