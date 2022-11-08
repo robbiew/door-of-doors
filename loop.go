@@ -55,6 +55,19 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				continue
 			}
 		}
+
+		// pagination keys
+		if menuType == "door" && paginator {
+			if r == ']' {
+				currPage = 2
+				doorMenu(db)
+			}
+			if r == '[' {
+				currPage = 1
+				doorMenu(db)
+			}
+		}
+
 		if r == '\b' {
 			if len(menuKeys) > 0 {
 				menuKeys = menuKeys[:len(menuKeys)-1]

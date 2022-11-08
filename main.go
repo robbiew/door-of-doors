@@ -49,6 +49,8 @@ type DoorsList struct {
 type ServersList struct {
 	DoorTitle  string
 	ServerName string
+	Desc       string
+	Year       string
 	// UserName   string
 	// Tag        string
 	// DoorCode   string
@@ -68,7 +70,11 @@ var (
 	currCode    string
 	currDoor    int
 	currTitle   string
-	lenList     int
+	currPage    int
+
+	paginator bool
+
+	lenList int
 
 	shortTimer *time.Timer
 	menuType   string
@@ -100,6 +106,7 @@ func init() {
 
 	dropPath := *pathPtr
 	currCat = 0
+	currPage = 1
 
 	// entry menu
 	menuType = "category"

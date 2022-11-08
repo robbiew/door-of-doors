@@ -37,7 +37,9 @@ func createTitlesTables(db *sql.DB) {
 		"categoryId" integer NOT NULL,
 		"category2" integer NOT NULL,
 		"category3" integer NOT NULL,
-		"isMature" integer NOT NULL
+		"isMature" integer NOT NULL,
+		"desc" TEXT NOT NULL,
+		"year" TEXT NOT NULL
 	  );` // SQL Statement for Create Table
 
 	fmt.Println("Create titles table...")
@@ -98,14 +100,14 @@ func createServersTable(db *sql.DB) {
 	log.Println("servers table created")
 }
 
-func insertTitle(db *sql.DB, titleName string, categoryId int, category2 int, category3 int, isMature int) {
+func insertTitle(db *sql.DB, titleName string, categoryId int, category2 int, category3 int, isMature int, desc string, year string) {
 	log.Println("Inserting server record ...")
-	insertTitleSQL := `INSERT INTO titles(titleName, categoryId, category2, category3, isMature) VALUES (?, ?, ?, ?, ?)`
+	insertTitleSQL := `INSERT INTO titles(titleName, categoryId, category2, category3, isMature, desc, year) VALUES (?, ?, ?, ?, ?, ?, ?)`
 	statement, err := db.Prepare(insertTitleSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Println(err.Error())
 	}
-	_, err = statement.Exec(titleName, categoryId, category2, category3, isMature)
+	_, err = statement.Exec(titleName, categoryId, category2, category3, isMature, desc, year)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -221,12 +223,13 @@ func doorByServer(db *sql.DB) []ServersList {
 	rows, err := db.Query(`
     SELECT
         titles.titleName AS title,
-		servers.serverName as serverName
+		servers.serverName as serverName,
+		titles.desc,
+		titles.year
     FROM
         titles
 	LEFT JOIN doors ON doors.titleId = titles.idTitle
 	LEFT JOIN servers ON servers.idServer = doors.serverId
-
     WHERE
         titles.titleName = ?
 	ORDER BY
@@ -243,13 +246,15 @@ func doorByServer(db *sql.DB) []ServersList {
 
 		var title string
 		var serverName string
+		var desc string
+		var year string
 
-		err := rows.Scan(&title, &serverName)
+		err := rows.Scan(&title, &serverName, &desc, &year)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName})
+		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year})
 	}
 	return serverList
 
