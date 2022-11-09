@@ -48,7 +48,7 @@ func doorMenu(db *sql.DB) {
 			}
 			count++
 		}
-		if lenList > (recordsPerCol*2)-1 {
+		if lenList > (recordsPerCol * 2) {
 			paginator = true
 			moveCursor(3, 6)
 			fmt.Print(whiteHi + currCatName + " (1/2):" + reset)

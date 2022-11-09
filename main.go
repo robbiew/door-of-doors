@@ -51,12 +51,10 @@ type ServersList struct {
 	ServerName string
 	Desc       string
 	Year       string
-	// UserName   string
-	// Tag        string
-	// DoorCode   string
-	// Script     string
-	// Host       string
-	// Port       string
+	DoorCode   string
+	Script     string
+	Host       string
+	Port       string
 }
 
 var (

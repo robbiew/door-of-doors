@@ -164,7 +164,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					continue
 
 				} else {
-					// second key, it's valid, so load the category list!
+					// second key, it's valid, so load the list!
 					moveCursor(6, 24)
 					fmt.Printf("     ")
 					moveCursor(6, 24)
