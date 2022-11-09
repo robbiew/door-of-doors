@@ -230,6 +230,7 @@ func doorByServer(db *sql.DB) []ServersList {
 		titles.desc,
 		titles.year,
 		doors.code
+		doors.serverId
     FROM
         titles
 	LEFT JOIN doors ON doors.titleId = titles.idTitle
@@ -253,13 +254,14 @@ func doorByServer(db *sql.DB) []ServersList {
 		var desc string
 		var year string
 		var code string
+		var serverId int
 
-		err := rows.Scan(&title, &serverName, &desc, &year, &code)
+		err := rows.Scan(&title, &serverName, &desc, &year, &code, &serverId)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year, DoorCode: code})
+		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year, DoorCode: code, ServerId: serverId})
 	}
 	return serverList
 

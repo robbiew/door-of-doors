@@ -28,7 +28,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 
 	for {
 		shortTimer.Stop()
-		log.Println("time stopped...")
+		// log.Println("time stopped...")
 
 		go readWrapper(dataChan, errorChan)
 
@@ -95,7 +95,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					// show list
 					clearScreen()
 					shortTimer.Stop()
-					log.Println("time stopped...")
+					// log.Println("time stopped...")
 					if menuType == "category" {
 						menuType = "door"
 						currCat = i
@@ -177,7 +177,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					clearScreen()
 
 					shortTimer.Stop()
-					log.Println("time stopped...")
+					// log.Println("time stopped...")
 					if menuType == "category" {
 						menuType = "door"
 						currCat = i
@@ -194,6 +194,12 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					if menuType == "server" {
 						menuType = "door"
 						currCat = i
+						s := serversList[i]
+
+						if s.ServerId == 1 {
+							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+						}
+
 						doorMenu(db)
 						continue
 					}

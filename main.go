@@ -48,13 +48,11 @@ type DoorsList struct {
 
 type ServersList struct {
 	DoorTitle  string
+	ServerId   int
 	ServerName string
 	Desc       string
 	Year       string
 	DoorCode   string
-	Script     string
-	Host       string
-	Port       string
 }
 
 var (

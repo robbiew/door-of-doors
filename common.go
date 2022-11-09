@@ -203,7 +203,7 @@ func newTimer(seconds int, action func()) *time.Timer {
 		action()
 
 	}()
-	log.Println("time started...")
+	// log.Println("time started...")
 	return timer
 }
 
