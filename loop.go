@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -12,6 +11,7 @@ import (
 )
 
 func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
+
 	if menuType == "category" {
 		catMenu(db)
 	}
@@ -19,12 +19,13 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 		doorMenu(db)
 	}
 	if menuType == "server" {
-		doorMenu(db)
+		serverMenu(db)
+
 	}
 
 	for {
 		shortTimer.Stop()
-		log.Println("time stopped...")
+		// log.Println("time stopped...")
 
 		go readWrapper(dataChan, errorChan)
 
@@ -36,8 +37,9 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 		r, _ := utf8.DecodeRune(<-dataChan)
 
 		if r == 'q' || r == 'Q' {
+			paginator = false
+
 			if menuType == "category" {
-				log.Println("category exit")
 				os.Exit(0)
 			}
 			if menuType == "door" {
@@ -51,6 +53,21 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				continue
 			}
 		}
+
+		// pagination keys
+		if menuType == "door" && paginator {
+			if r == ']' {
+				currPage = 2
+				doorMenu(db)
+				continue
+			}
+			if r == '[' {
+				currPage = 1
+				doorMenu(db)
+				continue
+			}
+		}
+
 		if r == '\b' {
 			if len(menuKeys) > 0 {
 				menuKeys = menuKeys[:len(menuKeys)-1]
@@ -74,7 +91,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					// show list
 					clearScreen()
 					shortTimer.Stop()
-					log.Println("time stopped...")
+					// log.Println("time stopped...")
 					if menuType == "category" {
 						menuType = "door"
 						currCat = i
@@ -82,11 +99,31 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 						continue
 					}
 					if menuType == "door" {
-						menuType = "server"
 						currDoor = i - 1
+						menuType = "server"
 						serverMenu(db)
 						continue
 					}
+
+					if menuType == "server" {
+						currCat = i - 1
+						s := serversList[i-1]
+						clearScreen()
+						if s.ServerId == "1" {
+							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+							serverMenu(db)
+							continue
+						}
+						if s.ServerId == "2" {
+							bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+							serverMenu(db)
+							continue
+						}
+						// clearScreen()
+
+						continue
+					}
+
 				}
 			}
 			continue
@@ -114,7 +151,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				}
 
 				// User entered a number greater than what's in the list
-				if i > len(categories) {
+				if i > lenList {
 					menuKeys = append(menuKeys, r)
 					moveCursor(6, 24)
 					s := string(menuKeys)
@@ -122,17 +159,19 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					moveCursor(6, 24)
 					fmt.Printf("     ")
 					moveCursor(6, 24)
-					fmt.Printf(red+" Select from 1 to %v"+reset, len(categories))
+					fmt.Printf(red+" Select from 1 to %v"+reset, lenList)
 					time.Sleep(1 * time.Second)
 					moveCursor(6, 24)
 					fmt.Printf("                               ")
 					moveCursor(6, 24)
+					fmt.Printf(bgRed + "  " + reset)
+
 					// wipe the slice so it starts over
 					menuKeys = nil
 					continue
 
 				} else {
-					// second key, it's valid, so load the category list!
+					// second key, it's valid, so load the list!
 					moveCursor(6, 24)
 					fmt.Printf("     ")
 					moveCursor(6, 24)
@@ -145,7 +184,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					clearScreen()
 
 					shortTimer.Stop()
-					log.Println("time stopped...")
+					// log.Println("time stopped...")
 					if menuType == "category" {
 						menuType = "door"
 						currCat = i
@@ -162,6 +201,16 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					if menuType == "server" {
 						menuType = "door"
 						currCat = i
+						s := serversList[i-1]
+						clearScreen()
+						if s.ServerId == "1" {
+							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+						}
+						if s.ServerId == "2" {
+							bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+						}
+						clearScreen()
+
 						doorMenu(db)
 						continue
 					}

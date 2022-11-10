@@ -26,7 +26,7 @@ func goldMine(userName string, tag string, doorCode string, host string, port st
 	prg := script
 	arg1 := userName
 	arg2 := tag
-	arg3 := doorCode
+	arg3 := "xtrn=" + doorCode
 	arg4 := host
 	arg5 := port
 

@@ -20,7 +20,10 @@ func initDb() {
 			log.Println(err.Error())
 		}
 		file.Close()
-		log.Println("data.db doesn't exist - created")
+
+		clearScreen()
+
+		fmt.Print("data.db doesn't exist - creating...\r\n")
 		db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 		defer db.Close()                          // Defer Closing the database
 
@@ -30,25 +33,42 @@ func initDb() {
 	// database exists, so do nothing
 }
 
+func createTitlesTables(db *sql.DB) {
+	createTitlesTableSQL := `CREATE TABLE titles (
+		"idTitle" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
+		"titleName" TEXT NOT NULL,
+		"categoryId" integer NOT NULL,
+		"category2" integer NOT NULL,
+		"category3" integer NOT NULL,
+		"isMature" integer NOT NULL,
+		"desc" TEXT NOT NULL,
+		"year" TEXT NOT NULL
+	  );` // SQL Statement for Create Table
+
+	fmt.Print("Creating TITLES table...\r\n")
+	statement, err := db.Prepare(createTitlesTableSQL) // Prepare SQL Statement
+	if err != nil {
+		log.Println(err.Error())
+	}
+	statement.Exec() // Execute SQL Statements
+	// fmt.Println("TITLES table created.")
+}
+
 func createDoorsTable(db *sql.DB) {
 	createDoorsTableSQL := `CREATE TABLE doors (
 		"idDoor" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
 		"code" TEXT NOT NULL,
-		"title" TEXT NOT NULL,
-		"categoryId" integer NOT NULL,
-		"category2" integer NOT NULL,
-		"category3" integer NOT NULL,
-        "serverId" integer NOT NULL,
-        "isMature" integer NOT NULL		
+		"titleId" integer NOT NULL,
+        "serverId" integer NOT NULL
 	  );` // SQL Statement for Create Table
 
-	log.Println("Create doors table...")
+	fmt.Print("Creating DOORS table...\r\n")
 	statement, err := db.Prepare(createDoorsTableSQL) // Prepare SQL Statement
 	if err != nil {
 		log.Println(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	log.Println("doors table created")
+	// fmt.Println("DOORS table created.")
 }
 
 func createCategoriesTable(db *sql.DB) {
@@ -59,13 +79,13 @@ func createCategoriesTable(db *sql.DB) {
         "isMature" integer NOT NULL
 	  );` // SQL Statement for Create Table
 
-	log.Println("Create categories table...")
+	fmt.Print("Creating CATEGORIES table...\r\n")
 	statement, err := db.Prepare(createCategoriesTableSQL) // Prepare SQL Statement
 	if err != nil {
 		log.Println(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	log.Println("categories table created")
+	// fmt.Println("CATEGORIES table created.")
 }
 
 func createServersTable(db *sql.DB) {
@@ -74,30 +94,43 @@ func createServersTable(db *sql.DB) {
 		"serverName" TEXT NOT NULL
 	  );` // SQL Statement for Create Table
 
-	fmt.Println("Create servers table...")
+	fmt.Print("Creating SERVERS table...\r\n")
 	statement, err := db.Prepare(createServersTableSQL) // Prepare SQL Statement
 	if err != nil {
 		log.Println(err.Error())
 	}
 	statement.Exec() // Execute SQL Statements
-	log.Println("servers table created")
+	// fmt.Println("SERVERS table created.")
 }
 
-func insertDoor(db *sql.DB, code string, title string, category int, category2 int, category3 int, server int, isMature int) {
-	log.Println("Inserting door record ...")
-	insertDoorSQL := `INSERT INTO doors(code, title, categoryId, category2, category3, serverId, isMature) VALUES (?, ?, ?, ?, ?, ?, ?)`
+func insertTitle(db *sql.DB, titleName string, categoryId int, category2 int, category3 int, isMature int, desc string, year string) {
+	// fmt.Println("Inserting TITLES records...")
+	insertTitleSQL := `INSERT INTO titles(titleName, categoryId, category2, category3, isMature, desc, year) VALUES (?, ?, ?, ?, ?, ?, ?)`
+	statement, err := db.Prepare(insertTitleSQL) // Prepare statement. This is good to avoid SQL injections
+	if err != nil {
+		log.Println(err.Error())
+	}
+	_, err = statement.Exec(titleName, categoryId, category2, category3, isMature, desc, year)
+	if err != nil {
+		log.Println(err.Error())
+	}
+}
+
+func insertDoor(db *sql.DB, code string, title int, server int) {
+	// fmt.Println("Inserting DOORS records...")
+	insertDoorSQL := `INSERT INTO doors(code, titleId, serverId) VALUES (?, ?, ?)`
 	statement, err := db.Prepare(insertDoorSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Println(err.Error())
 	}
-	_, err = statement.Exec(code, title, category, category2, category3, server, isMature)
+	_, err = statement.Exec(code, title, server)
 	if err != nil {
 		log.Println(err.Error())
 	}
 }
 
 func insertCategory(db *sql.DB, categoryName string, categoryCode string, isMature int) {
-	log.Println("Inserting category record ...")
+	// fmt.Println("Inserting CATEGORIES records...")
 	insertCategorySQL := `INSERT INTO categories(categoryName, categoryCode, isMature) VALUES (?, ?, ?)`
 	statement, err := db.Prepare(insertCategorySQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
@@ -110,7 +143,7 @@ func insertCategory(db *sql.DB, categoryName string, categoryCode string, isMatu
 }
 
 func insertServer(db *sql.DB, serverName string) {
-	log.Println("Inserting server record ...")
+	// fmt.Println("Inserting SERVERS records...")
 	insertServerSQL := `INSERT INTO servers(serverName) VALUES (?)`
 	statement, err := db.Prepare(insertServerSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
@@ -159,13 +192,14 @@ func categoryList(db *sql.DB) []CategoryList {
 func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	rows, err := db.Query(`
     SELECT DISTINCT
-        title as DoorTitle
+        titleName AS DoorTitle 
     FROM 
-        doors 
+        titles
+	INNER JOIN doors ON doors.titleId = idTitle 
     WHERE
         categoryId = ? OR category2 = ? OR category3 = ? 
 	ORDER BY
-		title
+		DoorTitle
   `, realCat, realCat, realCat)
 
 	if err != nil {
@@ -188,16 +222,22 @@ func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	return doorsList
 }
 
-func doorByServer(db *sql.DB) []ServerList {
+func doorByServer(db *sql.DB) []ServersList {
 	rows, err := db.Query(`
     SELECT
-        title,
-		serverName
+        titles.titleName AS title,
+		servers.serverName as serverName,
+		titles.desc,
+		titles.year,
+		doors.code,
+		doors.serverId
+		
     FROM
-        doors
-	INNER JOIN servers ON servers.IdServer = serverId 
+        titles
+	LEFT JOIN doors ON doors.titleId = titles.idTitle
+	LEFT JOIN servers ON servers.idServer = doors.serverId
     WHERE
-        title = ?
+        titles.titleName = ?
 	ORDER BY
 		title
   `, currTitle)
@@ -207,18 +247,22 @@ func doorByServer(db *sql.DB) []ServerList {
 	}
 	defer rows.Close()
 
-	var serverList []ServerList
+	var serverList []ServersList
 	for rows.Next() {
 
 		var title string
 		var serverName string
+		var desc string
+		var year string
+		var code string
+		var serverId string
 
-		err := rows.Scan(&title, &serverName)
+		err := rows.Scan(&title, &serverName, &desc, &year, &code, &serverId)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		serverList = append(serverList, ServerList{DoorTitle: title, ServerName: serverName})
+		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year, DoorCode: code, ServerId: serverId})
 	}
 	return serverList
 

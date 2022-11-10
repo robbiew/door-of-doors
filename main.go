@@ -32,8 +32,8 @@ type DoorConfig struct {
 	GM_script  string
 	DP_Enabled string
 	DP_Script  string
-	BL_Enabled string
 	BL_Script  string
+	BL_Enabled string
 }
 
 type CategoryList struct {
@@ -46,27 +46,31 @@ type DoorsList struct {
 	DoorTitle string
 }
 
-type ServerList struct {
+type ServersList struct {
 	DoorTitle  string
+	ServerId   string
 	ServerName string
-	// UserName   string
-	// Tag        string
-	// DoorCode   string
-	// Script     string
-	// Host       string
-	// Port       string
+	Desc       string
+	Year       string
+	DoorCode   string
 }
 
 var (
-	menuKeys   []rune
-	categories []CategoryList
-	doorsList  []DoorsList
+	menuKeys    []rune
+	categories  []CategoryList
+	doorsList   []DoorsList
+	serversList []ServersList
 
 	currCat     int
 	currCatName string
 	currCode    string
 	currDoor    int
 	currTitle   string
+	currPage    int
+
+	paginator bool
+
+	lenList int
 
 	shortTimer *time.Timer
 	menuType   string
@@ -98,6 +102,7 @@ func init() {
 
 	dropPath := *pathPtr
 	currCat = 0
+	currPage = 1
 
 	// entry menu
 	menuType = "category"
@@ -161,6 +166,8 @@ func main() {
 	})
 
 	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+	categories = categoryList(db)
+	lenList = len(categories)
 
 	loop(db, dataChan, errorChan)
 }

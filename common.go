@@ -203,7 +203,7 @@ func newTimer(seconds int, action func()) *time.Timer {
 		action()
 
 	}()
-	log.Println("time started...")
+	// log.Println("time started...")
 	return timer
 }
 
@@ -509,4 +509,80 @@ func absCenterArt(artfile string, l int) {
 		fmt.Println(s.Text())
 		artY++
 	}
+}
+
+func justifyText(text string, maxWidth int) string {
+	// Split the text into words
+	words := strings.Split(text, " ")
+	// Keep track of current line and previous lines
+	var lines, current string
+	// Iterate through each word
+	for _, word := range words {
+		// If the word fits, add to current
+		if len(current)+len(word) <= maxWidth {
+			// All words need a space after, expect for the last word
+			// we will trim the space for the last word
+			current += word + " "
+			continue
+		}
+		// Otherwise, word did not fit so lets finish this line
+		// Trim extra space from the last word
+		current = current[:len(current)-1]
+		// Distribute any extra spaces and add current line to previous lines
+		lines += distributeSpaces(current, maxWidth-len(current))
+		// The next iteration current line will be this word that did not fit
+		current = word + " "
+	}
+	// return the previous lines and any current line we were working on
+	return lines + current
+}
+
+// distributeSpaces will spread extra amount of whitespaces into the gaps
+// between the words in s
+func distributeSpaces(s string, extra int) string {
+	// Nothing to do, return early
+	if extra < 1 {
+		return s + "\n"
+	}
+	// Split into tokens as it's easier to work with
+	words := strings.Split(s, " ")
+	// Edge case where only 1 word is on a line
+	// we can just put all extra space at the end then return
+	if len(words) == 1 {
+		for extra > 0 {
+			words[0] += " "
+			extra--
+		}
+		return words[0] + "\n"
+	}
+	// calculate how many spaces between each word and any extra that dont
+	// divide evenly into the gaps
+	gaps := len(words) - 1
+	spaces := extra + gaps
+	spacePerGap, extraSpace := spaces/gaps, spaces%gaps
+	// Distribute the spaces that dont fit evenly
+	for i := 0; extraSpace > 0; i++ {
+		words[i] += " "
+		extraSpace--
+	}
+	// Make a tmp spacer for the whitespace that does divide evenly
+	tmp := ""
+	for spacePerGap > 0 {
+		tmp += " "
+		spacePerGap--
+	}
+	// Join the words with the tmp spacer
+	return strings.Join(words, tmp) + "\n"
+}
+
+func printMultiStringAt(text string, x int, y int) {
+
+	xLoc := x
+	yLoc := y
+	for _, line := range strings.Split(strings.TrimRight(text, "\n"), "\n") {
+		moveCursor(xLoc, yLoc)
+		fmt.Println(line)
+		yLoc++
+	}
+
 }

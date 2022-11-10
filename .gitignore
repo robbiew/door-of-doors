@@ -27,3 +27,6 @@ go.work
 
 # aLPHA's additions, don't commit yer sekkrits!
 .env
+
+# sqlite database will be built on first run, no need to include
+.db
