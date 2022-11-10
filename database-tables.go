@@ -24,11 +24,12 @@ func createTables(db *sql.DB) {
 	insertCategory(db, "RPG: Medieval & Fantasy", "RPG1", 0)    // 11
 	insertCategory(db, "RPG: War, Present/Future", "RPG2", 0)   // 12
 	insertCategory(db, "Realtime Multiplayer", "MULTI", 0)      // 13
-	insertCategory(db, "Solitaire Card Games", "SOLIT", 0)      // 14
+	insertCategory(db, "Solitaire", "SOLIT", 0)                 // 14
 	insertCategory(db, "Space", "SPACE", 0)                     // 15
 	insertCategory(db, "Synchronet Games", "SYNC", 0)           // 16
 	insertCategory(db, "Trivia", "TRIV", 0)                     // 17
 	insertCategory(db, "Word Games", "WORD", 0)                 // 18
+	insertCategory(db, "BBS, Hack and Crack", "BBS", 0)         // 19
 
 	// INSERT AVAILABLE DOOR SERVERS
 	insertServer(db, "Gold Mine")  // 1
@@ -37,7 +38,7 @@ func createTables(db *sql.DB) {
 
 	// INSERT DOOR GAME NAMES
 	/*id */
-	/*1  */
+	/*1 */
 	insertTitle(db, "Drug Lord", 1, 16, 0, 1, "DrugLord is a game similar to Dope Wars and its derivatives.", "1991")
 	/*2 */ insertTitle(db, "Bordello", 1, 0, 0, 1, "Run your own whore house and fight against other players. Steal money, whores, destroy other houses, fight with opponents thugs, and much more!", "2004")
 	/*3 */ insertTitle(db, "Pimp Wars", 1, 0, 0, 1, "Pimp Wars is a game where players assume the role of a Pimp and work the streets through 'extra-cirricular' activities.", "1990")
@@ -116,7 +117,7 @@ func createTables(db *sql.DB) {
 	/*76*/ insertTitle(db, "Thirstyville", 9, 16, 0, 0, "", "")
 	/*77*/ insertTitle(db, "Port Victoria", 9, 0, 0, 0, "", "")
 	/*78*/ insertTitle(db, "Oregon Trail", 9, 0, 0, 0, "", "")
-	/*79*/ insertTitle(db, "Sim BBS", 9, 0, 0, 0, "", "")
+	/*79*/ insertTitle(db, "Sim BBS", 19, 0, 0, 0, "", "")
 	/*80*/ insertTitle(db, "Synchronet Minesweeper", 9, 16, 0, 0, "", "")
 	/*81*/ insertTitle(db, "Uber Blox", 10, 16, 0, 0, "", "")
 	/*82*/ insertTitle(db, "Synchrotetris", 16, 0, 0, 0, "", "")
@@ -131,7 +132,7 @@ func createTables(db *sql.DB) {
 	/*91*/ insertTitle(db, "Kannons & Katapults", 11, 0, 0, 0, "", "")
 	/*92*/ insertTitle(db, "Arrowbridge I", 11, 0, 0, 0, "", "")
 	/*93*/ insertTitle(db, "Arrowbridge II", 11, 0, 0, 0, "", "")
-	/*94*/ insertTitle(db, "LEGION RPG", 11, 0, 0, 0, "", "")
+	/*94*/ insertTitle(db, "LEGION", 11, 0, 0, 0, "", "")
 	/*95*/ insertTitle(db, "King's Crown", 11, 0, 0, 0, "", "")
 	/*96*/ insertTitle(db, "Exitilus", 11, 0, 0, 0, "", "")
 	/*97*/ insertTitle(db, "Usurper", 11, 0, 0, 0, "", "")
@@ -143,7 +144,7 @@ func createTables(db *sql.DB) {
 	/*103*/ insertTitle(db, "Colonies", 12, 0, 0, 0, "", "")
 	/*104*/ insertTitle(db, "Atlantis", 12, 0, 0, 0, "", "")
 	/*105*/ insertTitle(db, "Operation Overkill II", 12, 0, 0, 0, "", "")
-	/*106*/ insertTitle(db, "Darkness 2", 12, 0, 0, 0, "", "")
+	/*106*/ insertTitle(db, "Darkness 2.0", 12, 0, 0, 0, "", "")
 	/*107*/ insertTitle(db, "Jedi Knight", 12, 0, 0, 0, "", "")
 	/*108*/ insertTitle(db, "Barren Realms Elite", 12, 0, 0, 0, "", "")
 	/*109*/ insertTitle(db, "Forces of Darkness", 12, 0, 0, 0, "", "")
@@ -170,14 +171,39 @@ func createTables(db *sql.DB) {
 	/*129*/ insertTitle(db, "Soduku", 18, 0, 0, 0, "", "")
 	/*130*/ insertTitle(db, "BBS Wordle", 18, 0, 0, 0, "", "")
 
+	// BBS Link exclusives
+	/*131*/
+	insertTitle(db, "MKZ LORD", 11, 0, 0, 0, "", "")
+	/*132*/ insertTitle(db, "Planets: Exploration of Space", 15, 0, 0, 0, "", "")
+	/*133*/ insertTitle(db, "Trade Wars 2002", 15, 0, 0, 0, "", "")
+	/*134*/ insertTitle(db, "Global War", 12, 0, 0, 0, "", "")
+	/*135*/ insertTitle(db, "Global Backgammon", 3, 0, 0, 0, "", "")
+	/*136*/ insertTitle(db, "Falcon's Eye", 11, 0, 0, 0, "", "")
+	/*137*/ insertTitle(db, "Falcon's Honor", 11, 0, 0, 0, "", "")
+	/*138*/ insertTitle(db, "Arcadian Legends", 11, 0, 0, 0, "", "")
+	/*139*/ insertTitle(db, "Netrunner", 12, 19, 0, 0, "", "")
+	/*140*/ insertTitle(db, "Assassin", 11, 0, 0, 0, "", "")
+	/*141*/ insertTitle(db, "BBS Crash", 19, 0, 0, 0, "", "")
+	/*142*/ insertTitle(db, "Virtual Sysop", 19, 0, 0, 0, "", "")
+	/*143*/ insertTitle(db, "The Pit", 11, 0, 0, 0, "", "")
+	/*144*/ insertTitle(db, "Junkyard", 9, 0, 0, 0, "", "")
+	/*145*/ insertTitle(db, "Murder Motel", 9, 0, 0, 0, "", "")
+	/*146*/ insertTitle(db, "Dark Lands", 11, 0, 0, 0, "", "")
+	/*147*/ insertTitle(db, "Hackin' Crackin'", 19, 0, 0, 0, "", "")
+	/*148*/ insertTitle(db, "Mega Slots", 4, 0, 0, 0, "", "")
+	/*149*/ insertTitle(db, "Fresh Water Fishing Sim", 6, 0, 0, 0, "", "")
+	/*150*/ insertTitle(db, "Lemonade", 9, 0, 0, 0, "", "")
+	/*151*/ insertTitle(db, "BCR Games Server", 9, 0, 0, 0, "", "")
+
 	// INSERT DOOR RECORDS FOR EACH SERVER
 	// code, title int, server int
 
-	// Gold Mine
 	// Adult
 	insertDoor(db, "DRUGLORD", 1, 1)
 	insertDoor(db, "BORDELLO", 2, 1)
+	insertDoor(db, "BORD", 2, 2)
 	insertDoor(db, "PIMPWARS", 3, 1)
+	insertDoor(db, "PIMP", 3, 2)
 	insertDoor(db, "RN", 4, 1)
 	insertDoor(db, "PISSORAM", 5, 1)
 	insertDoor(db, "GODFATHE", 6, 1)
@@ -193,6 +219,7 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "BOGGLE", 14, 1)
 	insertDoor(db, "CONCENTR", 15, 1)
 	insertDoor(db, "RSEABATTL", 16, 1)
+	insertDoor(db, "GGAM", 135, 1)
 	// Cards & Casino
 	insertDoor(db, "3PAIRPOK", 17, 1)
 	insertDoor(db, "ACEYDEUC", 18, 1)
@@ -213,6 +240,7 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "LVSLOTS", 33, 1)
 	insertDoor(db, "LVCASINO", 34, 1)
 	insertDoor(db, "FIVECARD", 35, 1)
+	insertDoor(db, "MEGA", 148, 2)
 	// DOS TEXT BASED
 	insertDoor(db, "ZORK1", 36, 1)
 	insertDoor(db, "ZORK2", 37, 1)
@@ -254,12 +282,16 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "FATFISH", 72, 1)
 	insertDoor(db, "GUTBOWL", 73, 1)
 	insertDoor(db, "CAMPTOWN", 74, 1)
+	insertDoor(db, "FISH", 149, 2)
 	// Other
 	insertDoor(db, "SOKOBAN", 75, 1)
 	insertDoor(db, "THIRSTY", 76, 1)
 	insertDoor(db, "PORTVIC", 77, 1)
 	insertDoor(db, "OREGONTR", 78, 1)
-	insertDoor(db, "SIMBBS", 79, 1)
+	insertDoor(db, "JUNK", 144, 2)
+	insertDoor(db, "MMOT", 145, 2)
+	insertDoor(db, "LMON", 150, 2)
+	insertDoor(db, "BCR", 151, 2)
 	// Puzzle
 	insertDoor(db, "MSWEEPER", 80, 1)
 	insertDoor(db, "UBERBLOX", 81, 1)
@@ -267,47 +299,68 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "STACKTIO", 83, 1)
 	// RPG1
 	insertDoor(db, "LORD", 84, 1)
+	insertDoor(db, "LORD", 84, 2)
 	insertDoor(db, "LORD2", 85, 1)
+	insertDoor(db, "LORD2", 85, 2)
+	insertDoor(db, "MKZLORD", 131, 2)
 	insertDoor(db, "TBD", 86, 1)
 	insertDoor(db, "FH", 87, 1)
 	insertDoor(db, "DEATHMAS", 88, 1)
 	insertDoor(db, "DOORMUD", 89, 1)
+	insertDoor(db, "DOORMUD", 89, 2)
 	insertDoor(db, "DM", 90, 1)
+	insertDoor(db, "DMAS", 90, 2)
 	insertDoor(db, "KNK", 91, 1)
 	insertDoor(db, "AB1", 92, 1)
 	insertDoor(db, "AB2", 93, 1)
 	insertDoor(db, "LEGION", 94, 1)
+	insertDoor(db, "LGN", 94, 2)
 	insertDoor(db, "KC", 95, 1)
 	insertDoor(db, "EXIT", 96, 1)
 	insertDoor(db, "USURPER", 97, 1)
+	insertDoor(db, "USRP", 136, 2)
 	insertDoor(db, "AM2", 98, 1)
 	insertDoor(db, "RTP", 99, 1)
 	insertDoor(db, "BM", 100, 1)
 	insertDoor(db, "XROADS", 101, 1)
 	insertDoor(db, "TARENA", 102, 1)
+	insertDoor(db, "FALC", 136, 2)
+	insertDoor(db, "FHON", 137, 2)
+	insertDoor(db, "ARCL", 138, 2)
+	insertDoor(db, "ASSN", 140, 2)
+	insertDoor(db, "TPIT", 143, 2)
+	insertDoor(db, "DARK", 146, 2)
 	// RPG2
 	insertDoor(db, "COLONIES", 103, 1)
 	insertDoor(db, "ATLANTIS", 104, 1)
 	insertDoor(db, "OOII", 105, 1)
+	insertDoor(db, "OOII", 132, 2)
 	insertDoor(db, "DARK2", 106, 1)
+	insertDoor(db, "DKNS", 106, 2)
 	insertDoor(db, "JEDI", 107, 1)
 	insertDoor(db, "BRE", 108, 1)
+	insertDoor(db, "BRE", 108, 2)
 	insertDoor(db, "FOD", 109, 1)
 	insertDoor(db, "GWAR", 110, 1)
+	insertDoor(db, "GWAR", 134, 2)
 	insertDoor(db, "IRONWAR", 111, 1)
 	insertDoor(db, "GRUNTF", 112, 1)
 	insertDoor(db, "LUNATIX", 113, 1)
+	insertDoor(db, "LUNA", 113, 2)
 	insertDoor(db, "MUTANTS", 114, 1)
-	// RPG2
+	insertDoor(db, "NETR", 139, 2)
+	// Solitaire
 	insertDoor(db, "BETSYROS", 115, 1)
 	insertDoor(db, "AS", 116, 1)
 	// Space
 	insertDoor(db, "GALAXY5", 117, 1)
 	insertDoor(db, "STAR TREK", 118, 1)
 	insertDoor(db, "TW2", 119, 1)
+	insertDoor(db, "TW", 133, 2)
 	insertDoor(db, "GD2", 120, 1)
 	insertDoor(db, "SQUEST", 121, 1)
 	insertDoor(db, "YT", 122, 1)
+	insertDoor(db, "TEOS", 132, 2)
 	// Trivia
 	insertDoor(db, "TREKQUIZ", 123, 1)
 	insertDoor(db, "SBQUIZ", 124, 1)
@@ -319,12 +372,10 @@ func createTables(db *sql.DB) {
 	insertDoor(db, "WORDEM", 129, 1)
 	insertDoor(db, "SODUKU", 130, 1)
 	insertDoor(db, "WORDLE", 131, 1)
+	// BBS Hack Crack
+	insertDoor(db, "HACK", 147, 2)
+	insertDoor(db, "SIMBBS", 79, 1)
+	insertDoor(db, "BBSC", 141, 2)
+	insertDoor(db, "VSYS", 142, 2)
 
-	// DoorParty
-	insertDoor(db, "CHANGEME", 1, 2)
-
-	// // BBS Link
-	// insertDoor(db, "LORD", "L.O.R.D.", 11, 0, 0, 2, 0)
-	// // Door Party
-	// insertDoor(db, "LORD", "L.O.R.D.", 11, 0, 0, 3, 0)
 }

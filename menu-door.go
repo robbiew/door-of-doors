@@ -10,9 +10,12 @@ func doorMenu(db *sql.DB) {
 	currCode = "DOOR"
 	header(U.W)
 
-	doorsList = doorsByCategory(db, currCat)
-	lenList = len(doorsList)
+	realCat := categories[currCat-1].CategoryId
 	categories = categoryList(db)
+
+	doorsList = doorsByCategory(db, realCat)
+	lenList = len(doorsList)
+
 	currCatName = categories[currCat-1].CategoryName
 
 	moveCursor(3, 6)

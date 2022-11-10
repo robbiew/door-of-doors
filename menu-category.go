@@ -21,8 +21,6 @@ func catMenu(db *sql.DB) {
 	xLoc1 := 3
 	xLoc2 := 36
 
-	// printStringLoc(" "+C.Menu_Title+" "+C.Version+" "+reset, 2, 2, redHi, bgBlack)
-
 	for i := 0; i < len(categories); i++ {
 		if count < 14 {
 			moveCursor(xLoc1, yLoc1)

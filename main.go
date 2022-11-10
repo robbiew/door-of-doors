@@ -32,8 +32,8 @@ type DoorConfig struct {
 	GM_script  string
 	DP_Enabled string
 	DP_Script  string
-	BL_Enabled string
 	BL_Script  string
+	BL_Enabled string
 }
 
 type CategoryList struct {
@@ -48,7 +48,7 @@ type DoorsList struct {
 
 type ServersList struct {
 	DoorTitle  string
-	ServerId   int
+	ServerId   string
 	ServerName string
 	Desc       string
 	Year       string
@@ -166,6 +166,8 @@ func main() {
 	})
 
 	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
+	categories = categoryList(db)
+	lenList = len(categories)
 
 	loop(db, dataChan, errorChan)
 }

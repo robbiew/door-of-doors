@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"log"
 	"os"
 	"strconv"
 	"time"
@@ -15,11 +14,9 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 
 	if menuType == "category" {
 		catMenu(db)
-
 	}
 	if menuType == "door" {
 		doorMenu(db)
-
 	}
 	if menuType == "server" {
 		serverMenu(db)
@@ -43,7 +40,6 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 			paginator = false
 
 			if menuType == "category" {
-				log.Println("category exit")
 				os.Exit(0)
 			}
 			if menuType == "door" {
@@ -110,9 +106,21 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					}
 
 					if menuType == "server" {
-						menuType = "door"
-						currCat = i
-						doorMenu(db)
+						currCat = i - 1
+						s := serversList[i-1]
+						clearScreen()
+						if s.ServerId == "1" {
+							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+							serverMenu(db)
+							continue
+						}
+						if s.ServerId == "2" {
+							bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+							serverMenu(db)
+							continue
+						}
+						// clearScreen()
+
 						continue
 					}
 
@@ -143,7 +151,6 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				}
 
 				// User entered a number greater than what's in the list
-
 				if i > lenList {
 					menuKeys = append(menuKeys, r)
 					moveCursor(6, 24)
@@ -194,11 +201,15 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					if menuType == "server" {
 						menuType = "door"
 						currCat = i
-						s := serversList[i]
-
-						if s.ServerId == 1 {
+						s := serversList[i-1]
+						clearScreen()
+						if s.ServerId == "1" {
 							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
 						}
+						if s.ServerId == "2" {
+							bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+						}
+						clearScreen()
 
 						doorMenu(db)
 						continue
