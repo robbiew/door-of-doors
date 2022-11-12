@@ -267,3 +267,34 @@ func doorByServer(db *sql.DB) []ServersList {
 	return serverList
 
 }
+
+func doorCount(db *sql.DB, server int) int {
+
+	rows, err := db.Query(`
+    SELECT 
+		COUNT(*)
+    FROM 
+        doors
+    WHERE
+        serverId = ? 
+
+  `, server)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var count int
+	defer rows.Close()
+
+	for rows.Next() {
+
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+	return count
+
+}

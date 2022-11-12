@@ -21,8 +21,8 @@ func createTables(db *sql.DB) {
 	insertCategory(db, "Multiplayer", "MULTI", 0)               // 8
 	insertCategory(db, "Other", "OTHR", 0)                      // 9
 	insertCategory(db, "Puzzle", "PUZZL", 0)                    // 10
-	insertCategory(db, "RPG: Medieval & Fantasy", "RPG1", 0)    // 11
-	insertCategory(db, "RPG: War, Present/Future", "RPG2", 0)   // 12
+	insertCategory(db, "Medieval & Fantasy", "RPG1", 0)         // 11
+	insertCategory(db, "War, Present/Future", "RPG2", 0)        // 12
 	insertCategory(db, "Realtime Multiplayer", "MULTI", 0)      // 13
 	insertCategory(db, "Solitaire", "SOLIT", 0)                 // 14
 	insertCategory(db, "Space", "SPACE", 0)                     // 15

@@ -10,5 +10,6 @@ require (
 
 require (
 	github.com/stretchr/testify v1.8.1 // indirect
+	github.com/xeonx/timeago v1.0.0-rc5 // indirect
 	golang.org/x/sys v0.1.0 // indirect
 )

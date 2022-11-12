@@ -12,6 +12,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/xeonx/timeago"
 	"gopkg.in/ini.v1"
 )
 
@@ -173,20 +174,36 @@ func header(w int) {
 }
 
 func prompt(color string) {
+	// print last user
+
+	PrintAnsi("art/bullet.ans", 2, 21)
+	moveCursor(4, 21)
+	last := lastUser()
+	moveCursor(4, 21)
+
+	date, error := time.Parse("2006/01/02 15:04:05 ", last[0])
+	if error != nil {
+		fmt.Println(error)
+		return
+	}
+
+	s := timeago.English.Format(date)
+	fmt.Printf(cyanHi+"%v played %v on %v"+blackHi+"%v", s, last[1], last[2], last[3])
+
 	if U.W == 80 {
-		printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 3, 23, blackHi, bgBlack)
-		moveCursor(3, 24)
+		// printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 2, 22, blackHi, bgBlack)
+		moveCursor(2, 23)
 		if color == "blue" {
 			PrintAnsi("art/prompt-blue.ans", 0, 1)
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 			fmt.Printf(bgBlue + "  " + reset)
-			moveCursor(6, 24)
+			moveCursor(5, 24)
 		}
 		if color == "red" {
 			PrintAnsi("art/prompt-red.ans", 0, 1)
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 			fmt.Printf(bgRed + "  " + reset)
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 		}
 	}
 	if U.W > 80 {

@@ -10,19 +10,32 @@ func catMenu(db *sql.DB) {
 	currCode = "MAIN"
 	header(U.W)
 
+	// gmCount := doorCount(db, 1)
+	// blCount := doorCount(db, 2)
+	// dpCount := doorCount(db, 3)
+
+	// moveCursor(44, 2)
+	// fmt.Printf(" Gold Mine: %v games", fmt.Sprint(gmCount))
+	// moveCursor(44, 3)
+	// fmt.Printf("   BBSLink:  %v games", fmt.Sprint(blCount))
+	// moveCursor(44, 4)
+	// fmt.Printf("Door Party:  %v games", fmt.Sprint(dpCount))
+
 	moveCursor(3, 6)
-	fmt.Print(whiteHi + "Select a category:" + reset)
+	fmt.Print(whiteHi + "Select a category" + reset + white + " or [Q] to Quit:" + reset)
 	categories = categoryList(db)
 	lenList = len(categories)
+
+	recordsPerCol := 12
 
 	count := 0
 	yLoc1 := 8
 	yLoc2 := 8
-	xLoc1 := 3
-	xLoc2 := 36
+	xLoc1 := 2
+	xLoc2 := 34
 
 	for i := 0; i < len(categories); i++ {
-		if count < 14 {
+		if count < recordsPerCol {
 			moveCursor(xLoc1, yLoc1)
 			if count < 9 {
 				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
@@ -31,7 +44,7 @@ func catMenu(db *sql.DB) {
 			}
 			yLoc1++
 		}
-		if count >= 14 {
+		if count >= recordsPerCol {
 			moveCursor(xLoc2, yLoc2)
 			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
 			yLoc2++
