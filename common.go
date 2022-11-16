@@ -12,7 +12,6 @@ import (
 	"time"
 	"unicode/utf8"
 
-	"github.com/xeonx/timeago"
 	"gopkg.in/ini.v1"
 )
 
@@ -174,21 +173,8 @@ func header(w int) {
 }
 
 func prompt(color string) {
-	// print last user
 
-	PrintAnsi("art/bullet.ans", 2, 21)
-	moveCursor(4, 21)
-	last := lastUser()
-	moveCursor(4, 21)
-
-	date, error := time.Parse("2006/01/02 15:04:05 ", last[0])
-	if error != nil {
-		fmt.Println(error)
-		return
-	}
-
-	s := timeago.English.Format(date)
-	fmt.Printf(cyanHi+"%v played %v on %v"+blackHi+"%v", s, last[1], last[2], last[3])
+	moveCursor(2, 21)
 
 	if U.W == 80 {
 		// printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 2, 22, blackHi, bgBlack)

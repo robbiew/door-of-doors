@@ -29,4 +29,7 @@ go.work
 .env
 
 # sqlite database will be built on first run, no need to include
-.db
+*.db
+
+# logs will be created at run-time, don't commit
+*.log

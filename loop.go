@@ -36,11 +36,13 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 
 		r, _ := utf8.DecodeRune(<-dataChan)
 
+		// quit
 		if r == 'q' || r == 'Q' {
 			paginator = false
-
 			if menuType == "category" {
-				os.Exit(0)
+				fmt.Print(" Quitting...")
+				time.Sleep(time.Second * 1)
+				break
 			}
 			if menuType == "door" {
 				menuType = "category"
@@ -52,6 +54,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				doorMenu(db)
 				continue
 			}
+			continue
 		}
 
 		// pagination keys
@@ -97,38 +100,43 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 						currCat = i
 						doorMenu(db)
 						continue
+
 					}
 					if menuType == "door" {
 						currDoor = i - 1
 						menuType = "server"
 						serverMenu(db)
 						continue
+
 					}
-
 					if menuType == "server" {
-
-						currCat = i - 1
 						s := serversList[i-1]
 						writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
 						clearScreen()
+
 						if s.ServerId == "1" {
 							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+							menuType = "server"
 							serverMenu(db)
-							continue
+
 						}
 						if s.ServerId == "2" {
 							bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+							menuType = "server"
 							serverMenu(db)
-							continue
 						}
-						// clearScreen()
 
 						continue
 					}
 
+					continue
 				}
+
+				continue
 			}
+
 			continue
+
 		}
 
 		// Make sure it's a number greater than 0, otherwise don't respond
@@ -219,9 +227,11 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 					}
 					continue
 				}
+
 			}
 			continue
 		}
 		continue
 	}
+
 }

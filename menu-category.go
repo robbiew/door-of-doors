@@ -10,17 +10,6 @@ func catMenu(db *sql.DB) {
 	currCode = "MAIN"
 	header(U.W)
 
-	// gmCount := doorCount(db, 1)
-	// blCount := doorCount(db, 2)
-	// dpCount := doorCount(db, 3)
-
-	// moveCursor(44, 2)
-	// fmt.Printf(" Gold Mine: %v games", fmt.Sprint(gmCount))
-	// moveCursor(44, 3)
-	// fmt.Printf("   BBSLink:  %v games", fmt.Sprint(blCount))
-	// moveCursor(44, 4)
-	// fmt.Printf("Door Party:  %v games", fmt.Sprint(dpCount))
-
 	moveCursor(3, 6)
 	fmt.Print(whiteHi + "Select a category" + reset + white + " or [Q] to Quit:" + reset)
 	categories = categoryList(db)
