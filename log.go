@@ -14,6 +14,31 @@ func writeLog(f *os.File, user string, door string, server string) {
 	log.Println("|" + user + "|" + door + "|" + server)
 }
 
+func getTopDoors() {
+	counts := make(map[string]int)
+	filename := "activity.log"
+	file, err := os.Open(filename)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	content := bufio.NewScanner(file)
+
+	res1 := strings.SplitN(string(content.Text()), "|", 4)
+	selected := res1
+
+	for content.Scan() {
+		counts[selected[0]]++
+	}
+	file.Close()
+
+	for city, count := range counts {
+		fmt.Printf("%d\t%s\n", count, city)
+	}
+
+}
+
 func getLogCount(file string, title string, server string) int {
 	var err error
 
@@ -146,4 +171,15 @@ func lineCounter(s string, r rune) int {
 		}
 	}
 	return count
+}
+
+func showStats() {
+	PrintAnsi("art/stats.ans", 0, 4)
+	getTopDoors()
+
+	moveCursor(2, 23)
+	fmt.Println(green + "[" + greenHi + "Hit Enter" + reset + green + "]" + reset)
+	moveCursor(2, 23)
+	fmt.Scanln()
+
 }

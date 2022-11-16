@@ -179,5 +179,7 @@ func main() {
 	categories = categoryList(db)
 	lenList = len(categories)
 
+	showStats()
+
 	loop(db, dataChan, errorChan, f, logFille)
 }
