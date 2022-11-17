@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -14,8 +15,25 @@ func writeLog(f *os.File, user string, door string, server string) {
 	log.Println("|" + user + "|" + door + "|" + server)
 }
 
+// func printslice(slice []string) {
+// 	fmt.Println("slice = ", slice)
+// }
+
+func dup_count(list []string) map[string]int {
+	duplicate_frequency := make(map[string]int)
+	for _, item := range list {
+		// check if the item/element exist in the duplicate_frequency map
+		_, exist := duplicate_frequency[item]
+		if exist {
+			duplicate_frequency[item] += 1 // increase counter by 1 if already in the map
+		} else {
+			duplicate_frequency[item] = 1 // else start counting from 1
+		}
+	}
+	return duplicate_frequency
+}
+
 func getTopDoors() {
-	counts := make(map[string]int)
 	filename := "activity.log"
 	file, err := os.Open(filename)
 	if err != nil {
@@ -23,20 +41,64 @@ func getTopDoors() {
 		os.Exit(1)
 	}
 
-	content := bufio.NewScanner(file)
-
-	res1 := strings.SplitN(string(content.Text()), "|", 4)
-	selected := res1
-
-	for content.Scan() {
-		counts[selected[0]]++
-	}
-	file.Close()
-
-	for city, count := range counts {
-		fmt.Printf("%d\t%s\n", count, city)
+	b, err := os.ReadFile(filename)
+	if err != nil {
+		fmt.Print(err)
 	}
 
+	reader := bufio.NewReader(file)
+	ct := lineCounter(string(b), '\n')
+	i := 0
+
+	var list []string
+	for i < ct {
+		line, _ := reader.ReadString('\n')
+		res1 := strings.SplitN(string(line), "|", 4)
+		logItem := res1[2] + " on " + res1[3]
+		list = append(list, logItem)
+		i++
+	}
+
+	dup_map := dup_count(list)
+
+	keys := make([]string, 0, len(dup_map))
+	for k := range dup_map {
+		keys = append(keys, k)
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		return dup_map[keys[i]] > dup_map[keys[j]]
+	})
+
+	i = 0
+	y := 8
+	for _, k := range keys {
+		// sort.Strings(keys)
+		if i < 5 {
+			splitr := strings.SplitN(string(k), " on ", 2)
+			moveCursor(3, y)
+			fmt.Printf(reset+cyan+"%v."+reset, i+1)
+			moveCursor(6, y)
+			fmt.Printf(cyanHi+"%v"+reset, splitr[0])
+			moveCursor(46, y)
+			fmt.Printf(greenHi+"%v"+reset, splitr[1])
+			moveCursor(65, y)
+
+			if len(fmt.Sprint(dup_map[k])) == 1 {
+				fmt.Printf(yellowHi+"  %d"+reset+blackHi+" plays"+reset, dup_map[k])
+			}
+			if len(fmt.Sprint(dup_map[k])) > 1 && len(fmt.Sprint(dup_map[k])) <= 2 {
+				fmt.Printf(yellowHi+" %d"+reset+blackHi+" plays"+reset, dup_map[k])
+			}
+			if len(fmt.Sprint(dup_map[k])) > 2 {
+				fmt.Printf(yellowHi+"%d"+reset+blackHi+" plays"+reset, dup_map[k])
+
+			}
+
+			i++
+			y++
+		}
+	}
 }
 
 func getLogCount(file string, title string, server string) int {
@@ -52,6 +114,7 @@ func getLogCount(file string, title string, server string) int {
 	for {
 		line, _ := reader.ReadString('\n')
 		// fmt.Print(line)
+
 		if strings.Count(line, title) == 1 && strings.Count(line, server) == 1 {
 			count++
 		}
@@ -174,7 +237,7 @@ func lineCounter(s string, r rune) int {
 }
 
 func showStats() {
-	PrintAnsi("art/stats.ans", 0, 4)
+	PrintAnsi("art/stats.ans", 0, 24)
 	getTopDoors()
 
 	moveCursor(2, 23)
