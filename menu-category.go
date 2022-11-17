@@ -11,11 +11,11 @@ func catMenu(db *sql.DB) {
 	header(U.W)
 
 	moveCursor(3, 6)
-	fmt.Print(whiteHi + "Select a category" + reset + white + " or [Q] to Quit:" + reset)
+	fmt.Print(whiteHi + "Select a category:" + reset)
 	categories = categoryList(db)
 	lenList = len(categories)
 
-	recordsPerCol := 12
+	recordsPerCol := 14
 
 	count := 0
 	yLoc1 := 8

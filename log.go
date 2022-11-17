@@ -8,6 +8,7 @@ import (
 	"os"
 	"sort"
 	"strings"
+	"unicode/utf8"
 )
 
 func writeLog(f *os.File, user string, door string, server string) {
@@ -80,9 +81,9 @@ func getTopDoors() {
 			fmt.Printf(reset+cyan+"%v."+reset, i+1)
 			moveCursor(6, y)
 			fmt.Printf(cyanHi+"%v"+reset, splitr[0])
-			moveCursor(46, y)
+			moveCursor(41, y)
 			fmt.Printf(greenHi+"%v"+reset, splitr[1])
-			moveCursor(65, y)
+			moveCursor(55, y)
 
 			if len(fmt.Sprint(dup_map[k])) == 1 {
 				fmt.Printf(yellowHi+"  %d"+reset+blackHi+" plays"+reset, dup_map[k])
@@ -92,9 +93,7 @@ func getTopDoors() {
 			}
 			if len(fmt.Sprint(dup_map[k])) > 2 {
 				fmt.Printf(yellowHi+"%d"+reset+blackHi+" plays"+reset, dup_map[k])
-
 			}
-
 			i++
 			y++
 		}
@@ -138,7 +137,7 @@ func ReadExactLine(fileName string, lineNumber int) string {
 		_, _ = br.ReadString('\n')
 	}
 	str, _ := br.ReadString('\n')
-	fmt.Println("Line is ", str)
+	// fmt.Println("Line is ", str)
 	return str
 }
 
@@ -160,37 +159,25 @@ func lastUsers() {
 			fmt.Print(err)
 		}
 
-		moveCursor(2, 21)
-		PrintAnsi("art/bullet.ans", 0, 1)
-
 		ct := lineCounter(string(b), '\n')
 
-		y := 21
+		y := 16
 		i := 0
-		for i < 10 {
-			fmt.Print(ct)
-			moveCursor(4, y)
+		for i < 6 {
+			moveCursor(3, y)
+			PrintAnsi("art/bullet.ans", 0, 1)
 			x := ReadExactLine(file, ct)
-			fmt.Print(x)
+
+			res1 := strings.SplitN(string(x), "|", 4)
+
+			moveCursor(5, y)
+			fmt.Printf(reset+yellowHi+"%v "+reset+cyan+"played "+whiteHi+"%v "+reset+cyan+"on "+cyanHi+"%v", res1[1], res1[2], res1[3])
 			ct--
 			i++
 			y++
 		}
 
-		// date, error := time.Parse("2006/01/02 15:04:05 ", last[0])
-		// if error != nil {
-		// 	fmt.Println(error)
-		// 	return
-		// }
-
-		// s := timeago.English.Format(date)
-		// moveCursor(4, 21)
-		// fmt.Printf(cyanHi+"%v played %v on %v"+blackHi+" %v", last[1], last[2], last[3], s)
-		// moveCursor(4, 22)
-
 	}
-
-	// res1 := strings.SplitN(string(last), "|", 4)
 
 }
 
@@ -199,20 +186,20 @@ func lastUsers() {
 // An error is returned iff there is an error with the
 // buffered reader.
 
-// func Readln(r *bufio.Reader) ([]string, error) {
+func Readln(r *bufio.Reader) ([]string, error) {
 
-// 	var (
-// 		isPrefix bool  = true
-// 		err      error = nil
-// 		line     []byte
-// 		last     []string
-// 	)
-// 	for isPrefix && err == nil {
-// 		line, isPrefix, err = r.ReadLine()
-// 		last = append(last, string(line))
-// 	}
-// 	return last, err
-// }
+	var (
+		isPrefix bool  = true
+		err      error = nil
+		line     []byte
+		last     []string
+	)
+	for isPrefix && err == nil {
+		line, isPrefix, err = r.ReadLine()
+		last = append(last, string(line))
+	}
+	return last, err
+}
 
 func ReadLine(r io.Reader, lineNum int) (line string, lastLine int, err error) {
 	sc := bufio.NewScanner(r)
@@ -237,12 +224,28 @@ func lineCounter(s string, r rune) int {
 }
 
 func showStats() {
+
+	errorChan := make(chan error)
+	dataChan := make(chan []byte)
+
 	PrintAnsi("art/stats.ans", 0, 24)
 	getTopDoors()
+	lastUsers()
 
 	moveCursor(2, 23)
-	fmt.Println(green + "[" + greenHi + "Hit Enter" + reset + green + "]" + reset)
+	fmt.Println(reset + green + "[" + greenHi + "Hit a Key" + reset + green + "]" + reset)
 	moveCursor(2, 23)
-	fmt.Scanln()
+
+	for {
+
+		go readWrapper(dataChan, errorChan)
+
+		r, _ := utf8.DecodeRune(<-dataChan)
+
+		if r != '~' {
+			break
+		}
+
+	}
 
 }
