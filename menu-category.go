@@ -15,14 +15,16 @@ func catMenu(db *sql.DB) {
 	categories = categoryList(db)
 	lenList = len(categories)
 
+	recordsPerCol := 14
+
 	count := 0
 	yLoc1 := 8
 	yLoc2 := 8
-	xLoc1 := 3
-	xLoc2 := 36
+	xLoc1 := 2
+	xLoc2 := 34
 
 	for i := 0; i < len(categories); i++ {
-		if count < 14 {
+		if count < recordsPerCol {
 			moveCursor(xLoc1, yLoc1)
 			if count < 9 {
 				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
@@ -31,7 +33,7 @@ func catMenu(db *sql.DB) {
 			}
 			yLoc1++
 		}
-		if count >= 14 {
+		if count >= recordsPerCol {
 			moveCursor(xLoc2, yLoc2)
 			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
 			yLoc2++

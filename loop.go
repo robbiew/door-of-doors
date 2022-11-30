@@ -10,7 +10,7 @@ import (
 	"unicode/utf8"
 )
 
-func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
+func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, logFile string) {
 
 	if menuType == "category" {
 		catMenu(db)
@@ -31,16 +31,18 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 
 		// show anything typed in prompt so far
 		s := string(menuKeys)
-		moveCursor(6, 24)
+		moveCursor(5, 23)
 		fmt.Printf(bgRed+redHi+"%v"+reset, s)
 
 		r, _ := utf8.DecodeRune(<-dataChan)
 
+		// quit
 		if r == 'q' || r == 'Q' {
 			paginator = false
-
 			if menuType == "category" {
-				os.Exit(0)
+				fmt.Print(" Quitting...")
+				time.Sleep(time.Second * 1)
+				break
 			}
 			if menuType == "door" {
 				menuType = "category"
@@ -52,6 +54,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				doorMenu(db)
 				continue
 			}
+			continue
 		}
 
 		// pagination keys
@@ -72,7 +75,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 			if len(menuKeys) > 0 {
 				menuKeys = menuKeys[:len(menuKeys)-1]
 			}
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 		}
 
 		// User hit return on a single digit number in the list, let's load a category
@@ -85,9 +88,9 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				}
 				menuKeys = nil
 				if i != 0 {
-					moveCursor(5, 24)
+					moveCursor(5, 23)
 					fmt.Printf("                   ")
-					moveCursor(5, 24)
+					moveCursor(5, 23)
 					// show list
 					clearScreen()
 					shortTimer.Stop()
@@ -97,36 +100,43 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 						currCat = i
 						doorMenu(db)
 						continue
+
 					}
 					if menuType == "door" {
 						currDoor = i - 1
 						menuType = "server"
 						serverMenu(db)
 						continue
-					}
 
+					}
 					if menuType == "server" {
-						currCat = i - 1
 						s := serversList[i-1]
+						writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
 						clearScreen()
+
 						if s.ServerId == "1" {
 							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+							menuType = "server"
 							serverMenu(db)
-							continue
+
 						}
 						if s.ServerId == "2" {
 							bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+							menuType = "server"
 							serverMenu(db)
-							continue
 						}
-						// clearScreen()
 
 						continue
 					}
 
+					continue
 				}
+
+				continue
 			}
+
 			continue
+
 		}
 
 		// Make sure it's a number greater than 0, otherwise don't respond
@@ -135,7 +145,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				if len(menuKeys) <= 0 {
 					menuKeys = append(menuKeys, r)
 					s := string(menuKeys)
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf(bgRed+redHi+"%v"+reset, s)
 					continue
 				}
@@ -153,17 +163,17 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 				// User entered a number greater than what's in the list
 				if i > lenList {
 					menuKeys = append(menuKeys, r)
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					s := string(menuKeys)
 					fmt.Printf(bgRed+redHi+"%v"+reset, s)
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf("     ")
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf(red+" Select from 1 to %v"+reset, lenList)
 					time.Sleep(1 * time.Second)
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf("                               ")
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf(bgRed + "  " + reset)
 
 					// wipe the slice so it starts over
@@ -172,15 +182,15 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 
 				} else {
 					// second key, it's valid, so load the list!
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf("     ")
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf(bgRed+redHi+"%v"+reset, s)
 					time.Sleep(100 * time.Millisecond)
 					menuKeys = nil
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					fmt.Printf("                   ")
-					moveCursor(6, 24)
+					moveCursor(5, 23)
 					clearScreen()
 
 					shortTimer.Stop()
@@ -202,6 +212,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 						menuType = "door"
 						currCat = i
 						s := serversList[i-1]
+						writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
 						clearScreen()
 						if s.ServerId == "1" {
 							goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
@@ -216,9 +227,11 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error) {
 					}
 					continue
 				}
+
 			}
 			continue
 		}
 		continue
 	}
+
 }

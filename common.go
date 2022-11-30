@@ -173,20 +173,23 @@ func header(w int) {
 }
 
 func prompt(color string) {
+
+	moveCursor(2, 21)
+
 	if U.W == 80 {
-		printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 3, 23, blackHi, bgBlack)
-		moveCursor(3, 24)
+		// printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 2, 22, blackHi, bgBlack)
+		moveCursor(2, 23)
 		if color == "blue" {
 			PrintAnsi("art/prompt-blue.ans", 0, 1)
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 			fmt.Printf(bgBlue + "  " + reset)
-			moveCursor(6, 24)
+			moveCursor(5, 24)
 		}
 		if color == "red" {
 			PrintAnsi("art/prompt-red.ans", 0, 1)
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 			fmt.Printf(bgRed + "  " + reset)
-			moveCursor(6, 24)
+			moveCursor(5, 23)
 		}
 	}
 	if U.W > 80 {

@@ -81,6 +81,7 @@ var (
 )
 
 func init() {
+
 	// if user doesn't press a key in X seconds
 	idle = 240
 
@@ -165,9 +166,20 @@ func main() {
 		os.Exit(0)
 	})
 
+	// Logging
+	logFille := "activity.log"
+	f, err := os.OpenFile(logFille, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+
+	// Database
 	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 	categories = categoryList(db)
 	lenList = len(categories)
 
-	loop(db, dataChan, errorChan)
+	showStats()
+
+	loop(db, dataChan, errorChan, f, logFille)
 }

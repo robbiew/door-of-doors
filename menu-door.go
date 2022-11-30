@@ -26,7 +26,7 @@ func doorMenu(db *sql.DB) {
 	count := 0
 	yLoc1 := 8
 	yLoc2 := 8
-	xLoc1 := 3
+	xLoc1 := 2
 	xLoc2 := 43
 
 	var SelectionData string
