@@ -16,10 +16,6 @@ func writeLog(f *os.File, user string, door string, server string) {
 	log.Println("|" + user + "|" + door + "|" + server)
 }
 
-// func printslice(slice []string) {
-// 	fmt.Println("slice = ", slice)
-// }
-
 func dup_count(list []string) map[string]int {
 	duplicate_frequency := make(map[string]int)
 	for _, item := range list {
@@ -142,7 +138,6 @@ func ReadExactLine(fileName string, lineNumber int) string {
 }
 
 func lastUsers() {
-
 	file := "activity.log"
 	// check if there are any log entries, if not -- skip
 	fi, err := os.Stat(file)
@@ -158,12 +153,11 @@ func lastUsers() {
 		if err != nil {
 			fmt.Print(err)
 		}
-
 		ct := lineCounter(string(b), '\n')
 
 		y := 16
 		i := 0
-		for i < 6 {
+		for i < 6 && i <= ct {
 			moveCursor(3, y)
 			PrintAnsi("art/bullet.ans", 0, 1)
 			x := ReadExactLine(file, ct)
@@ -223,29 +217,50 @@ func lineCounter(s string, r rune) int {
 	return count
 }
 
-func showStats() {
-
-	errorChan := make(chan error)
-	dataChan := make(chan []byte)
-
-	PrintAnsi("art/stats.ans", 0, 24)
-	getTopDoors()
-	lastUsers()
-
-	moveCursor(2, 23)
-	fmt.Println(reset + green + "[" + greenHi + "Hit a Key" + reset + green + "]" + reset)
-	moveCursor(2, 23)
-
-	for {
-
-		go readWrapper(dataChan, errorChan)
-
-		r, _ := utf8.DecodeRune(<-dataChan)
-
-		if r != '~' {
-			break
+func isLogEmpty() bool {
+	file := "activity.log"
+	var empty bool
+	// does file exist?
+	if fsize, err := os.Stat(file); err == nil {
+		// is it empty?
+		if fsize.Size() == 0 {
+			empty = true
+		} else {
+			empty = false
 		}
 
+	} else {
+		empty = false
+	}
+	return empty
+
+}
+
+func showStats() {
+	// skip if there's no records
+	if !isLogEmpty() {
+		errorChan := make(chan error)
+		dataChan := make(chan []byte)
+
+		PrintAnsi("art/stats.ans", 0, 24)
+		getTopDoors()
+		lastUsers()
+
+		moveCursor(2, 23)
+		fmt.Println(reset + green + "[" + greenHi + "Hit a Key" + reset + green + "]" + reset)
+		moveCursor(2, 23)
+
+		for {
+
+			go readWrapper(dataChan, errorChan)
+
+			r, _ := utf8.DecodeRune(<-dataChan)
+
+			if r != '~' {
+				break
+			}
+
+		}
 	}
 
 }
