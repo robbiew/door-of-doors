@@ -40,6 +40,7 @@ ifeq ($(BUILDARCH),i386)
 	cp ${DIR}/${BINARY_NAME}-linux-386 /bbs/doors/dod
 endif
 ifeq ($(BUILDARCH),x86_64)
+	cp ${DIR}/${BINARY_NAME}-linux-386 /bbs/doors/dod
 	cp ${DIR}/${BINARY_NAME}-linux-amd64 /bbs/doors/dod
 endif
 ifeq ($(BUILDARCH),armv7l)
