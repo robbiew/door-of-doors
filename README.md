@@ -16,9 +16,10 @@ You can grab a full release -- just download the zip file for your platform from
 
 Note, if you build yourself, the contents of /assets should be added to the root of the door directory.
 
-Place your connections scripts in the /servers directory. Door Party requires the door-party-connector app to be configured and running.
+Place your door server connection scripts in the /servers directory, make sure paths are set in config.ini Note, Door Party requires the "door-party-connector" app to be configured and running.
 
-Instructions are in the assets/config.ini. You'll need to edit this file in order for it to work. There's a sample 'launch.sh' in /assets as well that shows how you might launch from a BBS, like Mystic.
+Instructions are in assets/config.ini. You'll need to edit this file in order for it to all work. 
+There's a sample 'launch.sh' in /assets as well that shows how you might launch from a BBS, like Mystic.
 
 Note, Door-of-Doors requires that you are a member of each door server (e.g. you have the credentials issued by the door server owners). You can also toggle individual door servers off/on if you don't use a particular one.
 
