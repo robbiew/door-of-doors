@@ -11,6 +11,9 @@ Direct launch door codes for each server are stored in a sqlite3 database. When 
 # Installation
 
 You can grab a full release -- just download the zip file -- or build yourself, if you've got Go installed.
+Note, if you build yourself, the contents of /assets should be added to the root of the door directory.
+Place your connections scripts in the /servers directory.
+Door Party requires the door-party-connector app to be configured and running.
 
 Instructions are in the assets/config.ini. You'll need to edit this file in order for it to work.
 There's a sample 'launch.sh' in /assets as well.
