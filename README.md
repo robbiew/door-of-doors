@@ -2,7 +2,7 @@
 
 This is a Linux-based BBS door that aggregates 3 popular door servers into a single menu system that runs as an external door, utilizing door32.sys. It currently includes Gold Mine (my own door server), BBS Link and Door Party. It's a convenient way to quickly add 200+ door games to a BBS -- no need to create menus or add each door one by one. ANSI art files are included for menu customization. I've started to add door descriptions, but there's a LOT to document here, so it's currently mostly sparse.
 
-It also contains a statastic ANSI screen to show most popular doors, and a user log.
+It also contains an ANSI screen to show most popular doors, and a user log.
 
 It's been tested on Linux amd64 and armv7 (e.g. Raspberry Pi). The Makefile will detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6-armv8.
 
