@@ -1,3 +1,5 @@
+[![dod1.png](https://i.postimg.cc/bdXzNVQ4/dod1.png)](https://postimg.cc/4H5CW521)
+
 # door-of-doors
 
 This is a Linux-based BBS door that aggregates 3 popular door servers into a single menu system that runs as an external door, utilizing door32.sys. It currently includes Gold Mine (my own door server), BBS Link and Door Party. It's a convenient way to quickly add 200+ door games to a BBS -- no need to create menus or add each door one by one. ANSI art files are included for menu customization. I've started to add door descriptions, but there's a LOT to document here, so it's currently mostly sparse.
