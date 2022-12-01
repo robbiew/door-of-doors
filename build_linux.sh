@@ -1,7 +1,8 @@
-
 #!/bin/bash
 
-# example script to build linux local 386 & amd64
+# example script to build linux 386 & amd64 executable on amd64.
+# after building, it copies them over the to BBS door directory.
+
 DIR=bin
 BIN=dod-linux
 TARGET_DIR=/mystic/doors/dod
