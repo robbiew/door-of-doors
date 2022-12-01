@@ -4,7 +4,7 @@ This is a Linux-based BBS door that aggregates 3 popular door servers into a sin
 
 It also contains an ANSI screen to show most popular doors, and a user log.
 
-It's been tested on Linux amd64 and armv7 (e.g. Raspberry Pi). The Makefile will detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6-armv8.
+It's been tested on Linux amd64 and armv7 (e.g. Raspberry Pi). 
 
 # How it works
 
@@ -15,6 +15,8 @@ Direct launch door codes for each server are stored in a sqlite3 database. When 
 You can grab a full release -- just download the zip file for your platform from RELEASES -- or build it yourself, if you're handy with Go.
 
 Note, if you build yourself, the contents of /assets should be added to the root of the door directory.
+
+The Makefile will detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6-armv8.
 
 Place your door server connection scripts in the /servers directory, make sure paths are set in config.ini Note, Door Party requires the "door-party-connector" app to be configured and running.
 
