@@ -25,12 +25,14 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 		if key == keyboard.KeyEsc || string(char) == "Q" || string(char) == "q" {
 			if menuType == "door" {
 				menuType = "category"
+				currY = saveY
 				clearScreen()
 				header(U.W)
 				catMenu(db, "none")
 				continue
 			}
 			if menuType == "server" {
+				currY = 0
 				menuType = "door"
 				clearScreen()
 				header(U.W)
@@ -52,6 +54,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			continue
 		}
 		if key == keyboard.KeyEnter {
+			saveY = currY
 			currY = 0
 			if menuType == "category" {
 				menuType = "door"

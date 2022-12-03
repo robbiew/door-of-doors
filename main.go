@@ -65,6 +65,7 @@ var (
 	currDoor    int
 	currTitle   string
 	currY       int
+	saveY       int
 	currStart   int
 
 	lenList    int
@@ -105,6 +106,7 @@ func init() {
 	//  initial state
 	currCat = 0
 	currY = 0
+	saveY = 0
 	currStart = 0
 	listHeight = 10
 
