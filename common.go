@@ -162,38 +162,10 @@ func initIni() {
 }
 
 func header(w int) {
-	if w == 80 {
-		printAnsiLoc("art/"+currCode+".ans", 0, 1)
-		moveCursor(70, 2)
-	}
-	if w > 80 {
-		fmt.Fprintf(os.Stdout, " ")
-	}
-}
 
-func prompt(color string) {
+	printAnsiLoc("art/"+menuType+".ans", 0, 1)
+	moveCursor(70, 2)
 
-	moveCursor(2, 21)
-
-	if U.W == 80 {
-		// printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 2, 22, blackHi, bgBlack)
-		moveCursor(2, 23)
-		if color == "blue" {
-			PrintAnsi("art/prompt-blue.ans", 0, 1)
-			moveCursor(5, 23)
-			fmt.Printf(bgBlue + "  " + reset)
-			moveCursor(5, 24)
-		}
-		if color == "red" {
-			PrintAnsi("art/prompt-red.ans", 0, 1)
-			moveCursor(5, 23)
-			fmt.Printf(bgRed + "  " + reset)
-			moveCursor(5, 23)
-		}
-	}
-	if U.W > 80 {
-		fmt.Fprintf(os.Stdout, " ")
-	}
 }
 
 // newTimer boots a user after being idle too long

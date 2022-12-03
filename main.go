@@ -56,31 +56,24 @@ type ServersList struct {
 }
 
 var (
-	menuKeys    []rune
 	categories  []CategoryList
 	doorsList   []DoorsList
 	serversList []ServersList
 
 	currCat     int
 	currCatName string
-	currCode    string
 	currDoor    int
 	currTitle   string
-	currPage    int
 	currY       int
 	currStart   int
-	currEnd     int
-
-	scroll bool
-
-	paginator bool
 
 	lenList    int
 	listHeight int
+	menuType   string
 
 	shortTimer *time.Timer
-	menuType   string
-	idle       int
+
+	idle int
 
 	U *User
 	C *DoorConfig
@@ -108,16 +101,16 @@ func init() {
 	}
 
 	dropPath := *pathPtr
+
+	//  initial state
 	currCat = 0
-	currPage = 1
-	currY = 1
-	currCode = "MAIN"
-	listHeight = 15
+	currY = 0
 	currStart = 0
-	currEnd = 0
+	listHeight = 10
 
 	// entry menu
 	menuType = "category"
+	cursorHide()
 
 	//SQlite db
 	initDb()

@@ -182,8 +182,9 @@ func categoryList(db *sql.DB) []CategoryList {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		categoryList = append(categoryList, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
+		if excludeEmptyCat(db, idCategory) > 0 {
+			categoryList = append(categoryList, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
+		}
 	}
 	return categoryList
 
@@ -211,13 +212,13 @@ func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	for rows.Next() {
 
 		var DoorTitle string
-
 		err := rows.Scan(&DoorTitle)
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		doorsList = append(doorsList, DoorsList{DoorTitle: DoorTitle})
+
 	}
 	return doorsList
 }
@@ -279,6 +280,35 @@ func doorCount(db *sql.DB, server int) int {
         serverId = ? 
 
   `, server)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var count int
+	defer rows.Close()
+
+	for rows.Next() {
+
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+	return count
+
+}
+
+func excludeEmptyCat(db *sql.DB, category int) int {
+	rows, err := db.Query(`
+    SELECT 
+		COUNT(*)
+    FROM 
+        titles
+    WHERE
+        categoryId = ? 
+  `, category)
 
 	if err != nil {
 		log.Fatal(err)
