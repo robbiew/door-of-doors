@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"os/exec"
 	"regexp"
 	"strconv"
 	"strings"
@@ -372,9 +371,9 @@ Get the terminal size
 */
 func GetTermSize() (int, int) {
 	// Set the terminal to raw mode so we aren't waiting for CLRF rom user (to be undone with `-raw`)
-	rawMode := exec.Command("/bin/stty", "raw")
-	rawMode.Stdin = os.Stdin
-	_ = rawMode.Run()
+	// rawMode := exec.Command("/bin/stty", "raw")
+	// rawMode.Stdin = os.Stdin
+	// _ = rawMode.Run()
 
 	reader := bufio.NewReader(os.Stdin)
 	fmt.Fprintf(os.Stdout, "\033[999;999f") // larger than any known term size
@@ -382,10 +381,10 @@ func GetTermSize() (int, int) {
 	text, _ := reader.ReadString('R')
 
 	// Set the terminal back from raw mode to 'cooked'
-	rawModeOff := exec.Command("/bin/stty", "-raw")
-	rawModeOff.Stdin = os.Stdin
-	_ = rawModeOff.Run()
-	rawModeOff.Wait()
+	// rawModeOff := exec.Command("/bin/stty", "-raw")
+	// rawModeOff.Stdin = os.Stdin
+	// _ = rawModeOff.Run()
+	// rawModeOff.Wait()
 
 	// check for the desired output
 	if strings.Contains(string(text), ";") {

@@ -8,7 +8,8 @@ import (
 	"os"
 	"sort"
 	"strings"
-	"unicode/utf8"
+
+	"github.com/eiannone/keyboard"
 )
 
 func writeLog(f *os.File, user string, door string, server string) {
@@ -239,8 +240,6 @@ func isLogEmpty() bool {
 func showStats() {
 	// skip if there's no records
 	if !isLogEmpty() {
-		errorChan := make(chan error)
-		dataChan := make(chan []byte)
 
 		PrintAnsi("art/stats.ans", 0, 24)
 		getTopDoors()
@@ -251,14 +250,11 @@ func showStats() {
 		moveCursor(2, 23)
 
 		for {
-
-			go readWrapper(dataChan, errorChan)
-
-			r, _ := utf8.DecodeRune(<-dataChan)
-
-			if r != '~' {
-				break
+			_, _, err := keyboard.GetKey()
+			if err != nil {
+				panic(err)
 			}
+			break
 
 		}
 	}

@@ -9,6 +9,7 @@ require (
 )
 
 require (
+	github.com/eiannone/keyboard v0.0.0-20220611211555-0d226195f203 // indirect
 	github.com/stretchr/testify v1.8.1 // indirect
-	golang.org/x/sys v0.1.0 // indirect
+	golang.org/x/sys v0.2.0 // indirect
 )

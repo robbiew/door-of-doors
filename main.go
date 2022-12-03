@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	"golang.org/x/term"
+	"github.com/eiannone/keyboard"
 )
 
 type User struct {
@@ -67,10 +67,16 @@ var (
 	currDoor    int
 	currTitle   string
 	currPage    int
+	currY       int
+	currStart   int
+	currEnd     int
+
+	scroll bool
 
 	paginator bool
 
-	lenList int
+	lenList    int
+	listHeight int
 
 	shortTimer *time.Timer
 	menuType   string
@@ -104,6 +110,11 @@ func init() {
 	dropPath := *pathPtr
 	currCat = 0
 	currPage = 1
+	currY = 1
+	currCode = "MAIN"
+	listHeight = 15
+	currStart = 0
+	currEnd = 0
 
 	// entry menu
 	menuType = "category"
@@ -116,34 +127,6 @@ func init() {
 
 	// Get ap config from config.ini
 	initIni()
-}
-
-// Main input loop
-func readWrapper(dataChan chan []byte, errorChan chan error) {
-	shortTimer = newTimer(idle, func() {
-		fmt.Println("\r\nYou've been idle for too long... exiting!")
-		time.Sleep(3 * time.Second)
-		os.Exit(0)
-	})
-
-	// fd 0 is stdin - set to raw mode so return doesn't have to be pressed
-	state, err := term.MakeRaw(0)
-	if err != nil {
-		log.Fatalln("setting stdin to raw:", err)
-	}
-	defer func() {
-		if err := term.Restore(0, state); err != nil {
-			log.Println("warning, failed to restore terminal:", err)
-		}
-	}()
-
-	buf := make([]byte, 1024)
-	reqLen, err := os.Stdin.Read(buf)
-	if err != nil {
-		errorChan <- err
-		return
-	}
-	dataChan <- buf[:reqLen]
 }
 
 func main() {
@@ -179,7 +162,14 @@ func main() {
 	categories = categoryList(db)
 	lenList = len(categories)
 
-	showStats()
+	if err := keyboard.Open(); err != nil {
+		panic(err)
+	}
+	defer func() {
+		_ = keyboard.Close()
+	}()
 
+	showStats()
+	clearScreen()
 	loop(db, dataChan, errorChan, f, logFille)
 }

@@ -5,43 +5,77 @@ import (
 	"fmt"
 )
 
-func catMenu(db *sql.DB) {
-	clearScreen()
-	currCode = "MAIN"
-	header(U.W)
-
-	moveCursor(3, 6)
-	fmt.Print(whiteHi + "Select a category:" + reset)
+func catMenu(db *sql.DB, arrow string) {
 	categories = categoryList(db)
 	lenList = len(categories)
+	yLoc := 8
+	xLoc := 2
+	const blank = "                                "
 
-	recordsPerCol := 14
-
-	count := 0
-	yLoc1 := 8
-	yLoc2 := 8
-	xLoc1 := 2
-	xLoc2 := 34
-
-	for i := 0; i < len(categories); i++ {
-		if count < recordsPerCol {
-			moveCursor(xLoc1, yLoc1)
-			if count < 9 {
-				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
-			} else {
-				fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
-			}
-			yLoc1++
+	if arrow == "up" {
+		if currY-1 > 0 {
+			currY--
 		}
-		if count >= recordsPerCol {
-			moveCursor(xLoc2, yLoc2)
-			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
-			yLoc2++
+		if currStart <= lenList && currStart > 0 {
+			currStart--
 		}
-		count++
 	}
-	moveCursor(3, 24)
-	prompt("red")
+	if arrow == "down" {
+		if currY < listHeight || currY >= listHeight && currStart+listHeight < lenList-1 {
+			currY++
+		}
+		if currY > listHeight && currStart+listHeight < lenList-1 {
+			currStart++
+		}
+	}
+	// moveCursor(0, 0)
+	// fmt.Printf("\r\ncurrY: %v    \r\ncurrStart: %v   ", currY, currStart)
+	// moveCursor(0, 0)
+
+	i := 0
+
+	for i <= listHeight+currStart {
+		if i >= 0 && i < lenList && i > currStart {
+			if i == currY {
+				moveCursor(xLoc, yLoc)
+				fmt.Print(blank)
+				moveCursor(xLoc, yLoc)
+				printAnsiLoc("art/bullet-on.ans", xLoc, yLoc)
+				moveCursor(xLoc+1, yLoc)
+				fmt.Print(bgCyan + cyanHi + " " + categories[i].CategoryName + " " + fmt.Sprint(currY) + " " + fmt.Sprint(i) + " " + reset)
+				yLoc++
+			} else {
+				moveCursor(xLoc, yLoc)
+				fmt.Print(blank)
+				moveCursor(xLoc, yLoc)
+				fmt.Printf("  " + categories[i].CategoryName + " " + fmt.Sprint(currY) + " " + fmt.Sprint(i) + " ")
+				yLoc++
+			}
+
+		}
+
+		i++
+	}
+
+	// for i := 0; i < len(categories); i++ {
+	// 	if count < listHeight {
+	// 		moveCursor(xLoc1, yLoc1)
+	// 		if count < 9 {
+	// 			fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
+	// 		} else {
+	// 			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
+	// 		}
+	// 		yLoc1++
+	// 	}
+	// 	if count >= listHeight {
+	// 		moveCursor(xLoc2, yLoc2)
+	// 		fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
+	// 		yLoc2++
+	// 	}
+	// 	count++
+	// }
+	// moveCursor(3, 24)
+	// prompt("red")
 
 }
 
