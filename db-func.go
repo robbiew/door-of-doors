@@ -170,8 +170,8 @@ func categoryList(db *sql.DB) []CategoryList {
 		log.Fatal(err)
 	}
 	defer rows.Close()
+	var categories []CategoryList
 
-	var categoryList []CategoryList
 	for rows.Next() {
 
 		var idCategory int
@@ -183,10 +183,10 @@ func categoryList(db *sql.DB) []CategoryList {
 			log.Fatal(err)
 		}
 		if excludeEmptyCat(db, idCategory) > 0 {
-			categoryList = append(categoryList, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
+			categories = append(categories, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
 		}
 	}
-	return categoryList
+	return categories
 
 }
 
@@ -208,7 +208,8 @@ func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	}
 	defer rows.Close()
 
-	var doorsList []DoorsList
+	var doors []DoorsList
+
 	for rows.Next() {
 
 		var DoorTitle string
@@ -216,11 +217,9 @@ func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		doorsList = append(doorsList, DoorsList{DoorTitle: DoorTitle})
-
+		doors = append(doors, DoorsList{DoorTitle: DoorTitle})
 	}
-	return doorsList
+	return doors
 }
 
 func doorByServer(db *sql.DB) []ServersList {
@@ -248,7 +247,7 @@ func doorByServer(db *sql.DB) []ServersList {
 	}
 	defer rows.Close()
 
-	var serverList []ServersList
+	var serversList []ServersList
 	for rows.Next() {
 
 		var title string
@@ -263,9 +262,9 @@ func doorByServer(db *sql.DB) []ServersList {
 			log.Fatal(err)
 		}
 
-		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year, DoorCode: code, ServerId: serverId})
+		serversList = append(serversList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year, DoorCode: code, ServerId: serverId})
 	}
-	return serverList
+	return serversList
 
 }
 

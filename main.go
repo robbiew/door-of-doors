@@ -23,7 +23,7 @@ type User struct {
 }
 
 type DoorConfig struct {
-	Menu_Title string
+	// Menu_Title string
 	Version    string
 	GM_Host    string
 	GM_Port    string
@@ -56,20 +56,24 @@ type ServersList struct {
 }
 
 var (
-	categories []CategoryList
-	doors      []DoorsList
-	servers    []ServersList
+	categories  []CategoryList
+	doors       []DoorsList
+	serversList []ServersList
 
-	currCat     int
+	currCat int
+
 	currCatName string
 	currTitle   string
-	currY       int
-	saveY       int
-	currStart   int
+	currServer  int
+
+	currY     int
+	saveY     int
+	currStart int
 
 	lenList    int
 	listHeight int
-	menuType   string
+
+	currMenu string
 
 	shortTimer *time.Timer
 
@@ -108,9 +112,10 @@ func init() {
 	saveY = 0
 	currStart = 0
 	listHeight = 10
+	currMenu = "category"
 
 	// entry menu
-	menuType = "category"
+	// menuType = "category"
 	cursorHide()
 
 	//SQlite db

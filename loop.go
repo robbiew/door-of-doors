@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"os"
 
 	"github.com/eiannone/keyboard"
@@ -11,9 +10,9 @@ import (
 func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, logFile string) {
 
 	clearScreen()
-	header(U.W)
-	catMenu(db, "none", "category")
-
+	header(U.W, currMenu)
+	catMenu(db, "none")
+	currY = 0
 	shortTimer.Stop()
 	// log.Println("time stopped...")
 
@@ -24,27 +23,23 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 		}
 
 		if key == keyboard.KeyEsc || string(char) == "Q" || string(char) == "q" {
-			if menuType == "door" {
-				menuType = "category"
-				currY = saveY
+			if currMenu == "door" {
+				currMenu = "category"
 				clearScreen()
-				header(U.W)
+				header(U.W, currMenu)
 				catMenu(db, "none")
 				continue
 			}
-			if menuType == "server" {
-				menuType = "door"
-				currY = saveY
+			if currMenu == "server" {
 				clearScreen()
-				header(U.W)
+				currMenu = "door"
+				header(U.W, currMenu)
 				catMenu(db, "none")
 				continue
-			}
-			if menuType == "category" {
+			} else {
 				cursorShow()
 				break
 			}
-
 		}
 		if key == keyboard.KeyArrowUp {
 			catMenu(db, "up")
@@ -55,70 +50,49 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			continue
 		}
 		if key == keyboard.KeyEnter {
-			saveY = currY
-			currY = 0
-
-			if menuType == "category" {
-				menuType = "door"
-
-			}
-			if menuType == "door" {
-				menuType = "server"
+			clearScreen()
+			if currMenu == "door" {
+				currMenu = "server"
+				currY = 0
+				clearScreen()
+				header(U.W, currMenu)
+				catMenu(db, "none")
 
 			}
-			if menuType == "server" {
-				fmt.Print("launching door...")
+			if currMenu == "server" {
+				currMenu = "server"
+				currY = 0
+				clearScreen()
+				header(U.W, currMenu)
+				catMenu(db, "none")
+
+				// s := doorByServer(db)
+				// fmt.Print(s[currY].DoorTitle)
+
+				// writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
+				// if s.ServerId == "1" {
+				// 	goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+				// }
+				// if s.ServerId == "2" {
+				// 	bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+				// }
+				// clearScreen()
+				// header(U.W, currMenu)
+				// catMenu(db, "none")
 
 			}
-			// clearScreen()
-			header(U.W)
-			catMenu(db, "none")
-			return
+			if currMenu == "category" {
+				currMenu = "door"
+				currY = 0
+				clearScreen()
+				header(U.W, currMenu)
+				catMenu(db, "none")
+
+			}
+			continue
 		}
+		continue
 
 	}
 
 }
-
-// 		shortTimer.Stop()
-// 		// log.Println("time stopped...")
-// 		if menuType == "category" {
-// 			menuType = "door"
-// 			currCat = i
-// 			doorMenu(db)
-// 			continue
-// 		}
-// 		if menuType == "door" {
-// 			currDoor = i - 1
-// 			menuType = "server"
-// 			serverMenu(db)
-// 			continue
-// 		}
-
-// 		if menuType == "server" {
-// 			menuType = "door"
-// 			currCat = i
-// 			s := serversList[i-1]
-// 			writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
-// 			clearScreen()
-// 			if s.ServerId == "1" {
-// 				goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
-// 			}
-// 			if s.ServerId == "2" {
-// 				bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
-// 			}
-// 			clearScreen()
-
-// 			doorMenu(db)
-// 			continue
-// 		}
-// 		continue
-// 	}
-
-// }
-// continue
-// }
-// 		continue
-// 	}
-
-// }

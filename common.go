@@ -144,7 +144,6 @@ func initIni() {
 		os.Exit(1)
 	}
 
-	menu_title := cfg.Section("general").Key("title").String()
 	version := cfg.Section("general").Key("version").String()
 	gm_host := cfg.Section("goldmine").Key("host").String()
 	gm_port := cfg.Section("goldmine").Key("port").String()
@@ -156,12 +155,12 @@ func initIni() {
 	bl_script := cfg.Section("bbslink").Key("script").String()
 	bl_enabled := cfg.Section("bbslink").Key("enabled").String()
 
-	c := DoorConfig{menu_title, version, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
+	c := DoorConfig{version, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
 	C = &c
 
 }
 
-func header(w int) {
+func header(w int, menuType string) {
 
 	printAnsiLoc("art/"+menuType+".ans", 0, 1)
 	moveCursor(70, 2)
