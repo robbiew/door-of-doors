@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"os"
 
 	"github.com/eiannone/keyboard"
@@ -11,7 +12,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 
 	clearScreen()
 	header(U.W)
-	catMenu(db, "none")
+	catMenu(db, "none", "category")
 
 	shortTimer.Stop()
 	// log.Println("time stopped...")
@@ -32,8 +33,8 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				continue
 			}
 			if menuType == "server" {
-				currY = 0
 				menuType = "door"
+				currY = saveY
 				clearScreen()
 				header(U.W)
 				catMenu(db, "none")
@@ -56,14 +57,25 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 		if key == keyboard.KeyEnter {
 			saveY = currY
 			currY = 0
+
 			if menuType == "category" {
 				menuType = "door"
-				clearScreen()
-				header(U.W)
-				catMenu(db, "none")
+
 			}
+			if menuType == "door" {
+				menuType = "server"
+
+			}
+			if menuType == "server" {
+				fmt.Print("launching door...")
+
+			}
+			// clearScreen()
+			header(U.W)
+			catMenu(db, "none")
+			return
 		}
-		continue
+
 	}
 
 }

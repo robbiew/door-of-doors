@@ -56,13 +56,12 @@ type ServersList struct {
 }
 
 var (
-	categories  []CategoryList
-	doorsList   []DoorsList
-	serversList []ServersList
+	categories []CategoryList
+	doors      []DoorsList
+	servers    []ServersList
 
 	currCat     int
 	currCatName string
-	currDoor    int
 	currTitle   string
 	currY       int
 	saveY       int

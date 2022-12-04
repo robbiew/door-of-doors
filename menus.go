@@ -5,7 +5,7 @@ import (
 	"fmt"
 )
 
-func catMenu(db *sql.DB, arrow string) {
+func catMenu(db *sql.DB, arrow string, menu string) {
 	yLoc := 13
 	scrollY := yLoc
 	xLoc := 2
@@ -21,17 +21,23 @@ func catMenu(db *sql.DB, arrow string) {
 	var lightbar string
 	var blank string
 
+	fmt.Print(menuType)
+
+	if menuType == "server" {
+		servers = doorByServer(db)
+		lenList = len(servers)
+		lightbar = "art/lightbar.ans"
+		blank = "                               "
+	}
 	if menuType == "category" {
 		categories = categoryList(db)
 		lenList = len(categories)
 		lightbar = "art/lightbar.ans"
 		blank = "                               "
 	}
-
-	// var realCat int
 	if menuType == "door" {
-		doorsList = doorsByCategory(db, currCat)
-		lenList = len(doorsList)
+		doors = doorsByCategory(db, currCat)
+		lenList = len(doors)
 		lightbar = "art/lightbar-long.ans"
 		blank = "                                          "
 	}
@@ -81,7 +87,10 @@ func catMenu(db *sql.DB, arrow string) {
 					fmt.Print(bgCyan + cyanHi + categories[i].CategoryName + reset)
 				}
 				if menuType == "door" {
-					fmt.Print(bgCyan + cyanHi + doorsList[i].DoorTitle + reset)
+					fmt.Print(bgCyan + cyanHi + doors[i].DoorTitle + reset)
+				}
+				if menuType == "server" {
+					fmt.Print(bgCyan + cyanHi + servers[i].ServerName + reset)
 				}
 				yLoc++
 			} else {
@@ -94,7 +103,10 @@ func catMenu(db *sql.DB, arrow string) {
 					fmt.Printf(cyanHi + categories[i].CategoryName + reset)
 				}
 				if menuType == "door" {
-					fmt.Printf(cyanHi + doorsList[i].DoorTitle + reset)
+					fmt.Printf(cyanHi + doors[i].DoorTitle + reset)
+				}
+				if menuType == "server" {
+					fmt.Print(cyanHi + servers[i].ServerName + reset)
 				}
 				yLoc++
 			}
@@ -116,7 +128,7 @@ func catMenu(db *sql.DB, arrow string) {
 		moveCursor(doorDescX, doorDescY)
 		fmt.Print("                                ")
 		moveCursor(doorDescX, doorDescY)
-		fmt.Print(doorsList[currY].DoorTitle)
+		fmt.Print(doors[currY].DoorTitle)
 		moveCursor(catDescX, catDescY)
 		fmt.Print(currCatName)
 	}
