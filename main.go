@@ -64,6 +64,7 @@ var (
 
 	currCatName string
 	currTitle   string
+	serverTitle string
 	currServer  int
 
 	currY     int

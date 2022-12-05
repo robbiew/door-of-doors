@@ -22,8 +22,28 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			panic(err)
 		}
 
+		// if currMenu == " launch" {
+		// 	clearScreen()
+		// 	header(U.W, currMenu)
+		// 	s := doorByServer(db)
+		// 	moveCursor(2, 24)
+		// 	fmt.Printf("Launch: %v on %v", currTitle, s[currY].ServerName)
+
+		// 	// writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
+		// 	// if s.ServerId == "1" {
+		// 	// 	goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+		// 	// }
+		// 	// if s.ServerId == "2" {
+		// 	// 	bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
+		// 	// }
+		// 	// clearScreen()
+		// 	// header(U.W, currMenu)
+		// 	// catMenu(db, "none")
+		// }
+
 		if key == keyboard.KeyEsc || string(char) == "Q" || string(char) == "q" {
 			if currMenu == "door" {
+				currY = 0
 				currMenu = "category"
 				clearScreen()
 				header(U.W, currMenu)
@@ -31,8 +51,17 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				continue
 			}
 			if currMenu == "server" {
-				clearScreen()
+				currY = 0
 				currMenu = "door"
+				clearScreen()
+				header(U.W, currMenu)
+				catMenu(db, "none")
+				continue
+			}
+			if currMenu == "launch" {
+				currY = 0
+				currMenu = "server"
+				clearScreen()
 				header(U.W, currMenu)
 				catMenu(db, "none")
 				continue
@@ -41,6 +70,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				break
 			}
 		}
+
 		if key == keyboard.KeyArrowUp {
 			catMenu(db, "up")
 			continue
@@ -49,6 +79,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			catMenu(db, "down")
 			continue
 		}
+
 		if key == keyboard.KeyEnter {
 			clearScreen()
 			if currMenu == "door" {
@@ -57,7 +88,6 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				clearScreen()
 				header(U.W, currMenu)
 				catMenu(db, "none")
-
 			}
 			if currMenu == "server" {
 				currMenu = "server"
@@ -65,29 +95,14 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				clearScreen()
 				header(U.W, currMenu)
 				catMenu(db, "none")
-
-				// s := doorByServer(db)
-				// fmt.Print(s[currY].DoorTitle)
-
-				// writeLog(f, U.Alias, s.DoorTitle, s.ServerName)
-				// if s.ServerId == "1" {
-				// 	goldMine(U.Alias, C.GM_Tag, s.DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
-				// }
-				// if s.ServerId == "2" {
-				// 	bbsLink(s.DoorCode, U.UserNum, C.BL_Script)
-				// }
-				// clearScreen()
-				// header(U.W, currMenu)
-				// catMenu(db, "none")
-
 			}
+
 			if currMenu == "category" {
 				currMenu = "door"
 				currY = 0
 				clearScreen()
 				header(U.W, currMenu)
 				catMenu(db, "none")
-
 			}
 			continue
 		}

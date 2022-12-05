@@ -29,9 +29,6 @@ func catMenu(db *sql.DB, arrow string) {
 
 	}
 	if currMenu == "server" {
-
-		// currTitle = doors[currY].DoorTitle
-
 		serversList = doorByServer(db)
 		lenList = len(serversList)
 		lightbar = "art/lightbar.ans"
@@ -91,37 +88,38 @@ func catMenu(db *sql.DB, arrow string) {
 				if currMenu == "category" {
 					currCat = categories[i].CategoryId
 					currCatName = categories[i].CategoryName
-					fmt.Print(bgCyan + cyanHi + categories[i].CategoryName + reset)
+					fmt.Printf(reset + bgCyan + cyanHi + categories[i].CategoryName + reset)
 				}
 				if currMenu == "door" {
 					currTitle = doors[i].DoorTitle
-					fmt.Print(bgCyan + cyanHi + doors[i].DoorTitle + reset)
+					fmt.Printf(reset + bgCyan + cyanHi + currTitle + reset)
 				}
 				if currMenu == "server" {
-					fmt.Print(bgCyan + cyanHi + serversList[i].ServerName + reset)
+					serverTitle = serversList[i].ServerName
+					fmt.Printf(reset + bgCyan + cyanHi + serverTitle + reset)
 				}
 				yLoc++
-
 			} else {
 				moveCursor(xLoc, yLoc)
 				fmt.Print(blank)
 				printAnsiLoc("art/seperator.ans", xLoc, yLoc)
 				moveCursor(xLoc+2, yLoc)
+				if currMenu == "server" {
+					serverTitle = serversList[i].ServerName
+					fmt.Printf(reset + cyanHi + serverTitle + reset)
+				}
 				if currMenu == "category" {
-					fmt.Printf(cyanHi + categories[i].CategoryName + reset)
+					fmt.Printf(reset + cyanHi + categories[i].CategoryName + reset)
 				}
 				if currMenu == "door" {
-					fmt.Printf(cyanHi + doors[i].DoorTitle + reset)
+					fmt.Printf(reset + cyanHi + doors[i].DoorTitle + reset)
 				}
-				if currMenu == "server" {
-					fmt.Print(cyanHi + serversList[i].ServerName + reset)
-				}
+
 				yLoc++
 
 			}
 		}
 		i++
-		continue
 	}
 	if lenList < listHeight {
 		x := 0
@@ -138,7 +136,7 @@ func catMenu(db *sql.DB, arrow string) {
 		moveCursor(doorDescX, doorDescY)
 		fmt.Print("                                ")
 		moveCursor(doorDescX, doorDescY)
-		fmt.Print(doors[currY].DoorTitle)
+		fmt.Printf("Title: %v", currTitle)
 		moveCursor(catDescX, catDescY)
 		fmt.Print(currCatName)
 	}
@@ -149,17 +147,17 @@ func catMenu(db *sql.DB, arrow string) {
 		moveCursor(catDescX, catDescY)
 		fmt.Print("                                               ")
 		moveCursor(catDescX, catDescY)
-		fmt.Printf("%v: %v games", categories[currY].CategoryName, doorCount)
+		fmt.Printf("%v: %v games", currCatName, doorCount)
 	}
 	if currMenu == "server" {
-		moveCursor(doorDescX, doorDescY)
-		fmt.Print("                                ")
-		moveCursor(doorDescX, doorDescY)
-		fmt.Print(currTitle)
-		moveCursor(doorDescX, doorDescY)
-		fmt.Print("                                               ")
-		moveCursor(doorDescX, doorDescY)
-		fmt.Printf("%v description", serversList[currY].ServerName)
+		// moveCursor(catDescX, catDescY)
+		// fmt.Print("                                ")
+		// moveCursor(catDescX, catDescY)
+		// fmt.Print(currTitle)
+		// moveCursor(doorDescX, doorDescY)
+		// fmt.Print("                                               ")
+		// moveCursor(doorDescX, doorDescY)
+		// fmt.Printf("%v description", serverTitle)
 
 	}
 
