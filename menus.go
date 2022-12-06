@@ -148,8 +148,10 @@ func catMenu(db *sql.DB, arrow string) {
 
 	// print some things after the scroll area has been printed
 	if currMenu == "door" {
+		currcat := doorsByCategory(db, currCat)
+		doorCount := len(currcat)
 		moveCursor(catDescX, catDescY)
-		fmt.Print(currCatName)
+		fmt.Printf(reset+"%v: %v games", currCatName, doorCount)
 		if len(doors[currY].DoorDesc) > 1 {
 			printMultiStringAt(blankDesc, doorDescX, doorDescY)
 			// Game Title
@@ -171,16 +173,14 @@ func catMenu(db *sql.DB, arrow string) {
 		moveCursor(catDescX, catDescY)
 		fmt.Print("                                               ")
 		moveCursor(catDescX, catDescY)
-		fmt.Printf("%v: %v games", currCatName, doorCount)
+		fmt.Printf(reset+"%v: %v games", currCatName, doorCount)
 	}
 
 	if currMenu == "server" {
 		// Game Title
-
 		printMultiStringAt(blankDesc, doorDescX, doorDescY)
-
 		moveCursor(catDescX, catDescY)
-		fmt.Print(currTitle)
+		fmt.Print(reset + currTitle)
 
 		// Server Description
 		wrapped := wordwrap.WrapString(servers[currY].ServerDesc, 30)

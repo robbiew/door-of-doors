@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 	"time"
-
-	"github.com/eiannone/keyboard"
 )
 
 type User struct {
@@ -117,8 +115,6 @@ func init() {
 
 	currMenu = "category"
 
-	// entry menu
-	// menuType = "category"
 	cursorHide()
 
 	//SQlite db
@@ -163,13 +159,6 @@ func main() {
 	db, _ := sql.Open("sqlite3", "./data.db") // Open the created SQLite File
 	categories = categoryList(db)
 	lenList = len(categories)
-
-	if err := keyboard.Open(); err != nil {
-		panic(err)
-	}
-	defer func() {
-		_ = keyboard.Close()
-	}()
 
 	showStats()
 	clearScreen()
