@@ -10,4 +10,4 @@
 ##      Data        /mystic/doors/dod/launch.sh %N
 
 cd ~/mystic/doors/dod
-./dod-linux-armv6 -path ~/mystic/temp$1/
+./dod-linux-amd64 -path ~/mystic/temp$1/
