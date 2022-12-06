@@ -44,21 +44,24 @@ type CategoryList struct {
 
 type DoorsList struct {
 	DoorTitle string
+	DoorDesc  string
+	DoorYear  string
 }
 
 type ServersList struct {
 	DoorTitle  string
 	ServerId   string
 	ServerName string
+	ServerDesc string
 	Desc       string
 	Year       string
 	DoorCode   string
 }
 
 var (
-	categories  []CategoryList
-	doors       []DoorsList
-	serversList []ServersList
+	categories []CategoryList
+	doors      []DoorsList
+	servers    []ServersList
 
 	currCat int
 
@@ -68,7 +71,6 @@ var (
 	currServer  int
 
 	currY     int
-	saveY     int
 	currStart int
 
 	lenList    int
@@ -110,9 +112,9 @@ func init() {
 	//  initial state
 	currCat = 0
 	currY = 0
-	saveY = 0
 	currStart = 0
 	listHeight = 10
+
 	currMenu = "category"
 
 	// entry menu

@@ -32,9 +32,9 @@ func createTables(db *sql.DB) {
 	insertCategory(db, "BBS, Hack and Crack", "BBS", 0)         // 19
 
 	// INSERT AVAILABLE DOOR SERVERS
-	insertServer(db, "Gold Mine")  // 1
-	insertServer(db, "BBS Link")   // 2
-	insertServer(db, "Door Party") // 3
+	insertServer(db, "Gold Mine", "Gold Mine is a community door server managed by aLPHA. You can find more information at https://goldminebbs.com")                                                        // 1                                                                                                                                       // 1
+	insertServer(db, "BBSlink", "BBSlink was created in early 2014 to allow sysops to easily add door games to their BBS.")                                                                                 // 2
+	insertServer(db, "Door Party", "Door Party offers either one-menu-for-all game access, or direct door access which makes it seem like you're hosting the games, but with DoorParty's large user base!") // 3                                                                                // 3
 
 	// INSERT DOOR GAME NAMES
 	/*id */

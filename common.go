@@ -161,9 +161,7 @@ func initIni() {
 }
 
 func header(w int, menuType string) {
-
 	printAnsiLoc("art/"+menuType+".ans", 0, 1)
-	moveCursor(70, 2)
 
 }
 
@@ -549,7 +547,6 @@ func distributeSpaces(s string, extra int) string {
 }
 
 func printMultiStringAt(text string, x int, y int) {
-
 	xLoc := x
 	yLoc := y
 	for _, line := range strings.Split(strings.TrimRight(text, "\n"), "\n") {
