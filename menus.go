@@ -3,180 +3,193 @@ package main
 import (
 	"database/sql"
 	"fmt"
+
+	"github.com/mitchellh/go-wordwrap"
 )
 
-func catMenu(db *sql.DB) {
-	clearScreen()
-	currCode = "MAIN"
-	header(U.W)
+func catMenu(db *sql.DB, arrow string) {
+	yLoc := 13
+	scrollY := yLoc
+	xLoc := 2
 
-	moveCursor(3, 6)
-	fmt.Print(whiteHi + "Select a category:" + reset)
-	categories = categoryList(db)
-	lenList = len(categories)
+	doorDescX := 46
+	doorDescY := yLoc
 
-	recordsPerCol := 14
+	catDescX := 2
+	catDescY := 2
 
-	count := 0
-	yLoc1 := 8
-	yLoc2 := 8
-	xLoc1 := 2
-	xLoc2 := 34
+	doScroll := false
+	var listMax int
+	var lightbar string
+	var blank string
 
-	for i := 0; i < len(categories); i++ {
-		if count < recordsPerCol {
-			moveCursor(xLoc1, yLoc1)
-			if count < 9 {
-				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
-			} else {
-				fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
-			}
-			yLoc1++
-		}
-		if count >= recordsPerCol {
-			moveCursor(xLoc2, yLoc2)
-			fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s"+reset, i+1, categories[i].CategoryName)
-			yLoc2++
-		}
-		count++
+	blankDesc :=
+		"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n" +
+			"                               \r\n"
+
+	if currMenu == "category" {
+		categories = categoryList(db)
+		lenList = len(categories)
+		lightbar = "art/lightbar-long.ans"
+		blank = "                                          "
 	}
-	moveCursor(3, 24)
-	prompt("red")
-
-}
-
-func getCatCode(id int, CategoryList []CategoryList) (result string) {
-	for _, categoryList := range CategoryList {
-		if categoryList.CategoryId == id {
-			result = categoryList.CategoryCode
-
-			break
-		}
+	if currMenu == "door" {
+		doors = doorsByCategory(db, currCat)
+		lenList = len(doors)
+		lightbar = "art/lightbar-long.ans"
+		blank = "                                          "
 	}
-	return result
-}
+	if currMenu == "server" {
+		servers = doorByServer(db)
+		lenList = len(servers)
+		lightbar = "art/lightbar-long.ans"
+		blank = "                                          "
+	}
 
-func doorMenu(db *sql.DB) {
-	clearScreen()
-	currCode = "DOOR"
-	header(U.W)
+	// if there are more items in list than display height
+	if lenList > listHeight {
+		doScroll = true
+	}
 
-	realCat := categories[currCat-1].CategoryId
-	categories = categoryList(db)
+	if doScroll {
+		listMax = listHeight
+	} else {
+		listMax = lenList - 1
+	}
 
-	doorsList = doorsByCategory(db, realCat)
-	lenList = len(doorsList)
+	// Arrow keys move the light bars
+	if arrow == "up" {
+		if currY > 0 {
+			currY--
+		}
+		if currStart <= lenList && currStart > 0 {
+			currStart--
+		}
 
-	currCatName = categories[currCat-1].CategoryName
+	}
+	if arrow == "down" {
+		if currY < listMax || currY >= listMax && currStart+listMax < lenList-1 {
+			currY++
+		}
+		if currY > listMax && currStart+listMax < lenList-1 {
+			currStart++
+		}
 
-	moveCursor(3, 6)
-	fmt.Print(whiteHi + currCatName + ":" + reset)
+	}
 
-	recordsPerCol := 12
+	// iterate through the  list
+	i := 0
+	for i <= listMax+currStart {
+		if i >= 0 && i < lenList && i >= currStart {
+			if i == currY {
+				moveCursor(xLoc, yLoc)
+				fmt.Print(blank)
+				printAnsiLoc("art/seperator.ans", xLoc, yLoc)
+				moveCursor(xLoc+1, yLoc)
+				printAnsiLoc(lightbar, xLoc+1, yLoc)
+				moveCursor(xLoc+2, yLoc)
+				if currMenu == "category" {
+					currCat = categories[i].CategoryId
+					currCatName = categories[i].CategoryName
+					fmt.Printf(reset + bgCyan + cyanHi + currCatName + reset)
 
-	count := 0
-	yLoc1 := 8
-	yLoc2 := 8
-	xLoc1 := 2
-	xLoc2 := 43
-
-	var SelectionData string
-
-	if currPage == 1 {
-		for i := 0; i < len(doorsList); i++ {
-			SelectionData = doorsList[i].DoorTitle
-			if count < recordsPerCol {
-				moveCursor(xLoc1, yLoc1)
-				if count < 9 {
-					moveCursor(xLoc1, yLoc1)
-					fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
-				} else {
-					fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
 				}
-				yLoc1++
+				if currMenu == "door" {
+					currTitle = doors[i].DoorTitle
+					fmt.Printf(reset + bgCyan + cyanHi + currTitle + reset)
+
+				}
+				if currMenu == "server" {
+					serverTitle = servers[i].ServerName
+					fmt.Printf(reset + bgCyan + cyanHi + serverTitle + reset)
+
+				}
+				yLoc++
+
+			} else {
+				moveCursor(xLoc, yLoc)
+				fmt.Print(blank)
+				printAnsiLoc("art/seperator.ans", xLoc, yLoc)
+				moveCursor(xLoc+2, yLoc)
+				if currMenu == "server" {
+					serverTitle = servers[i].ServerName
+					fmt.Printf(reset + cyanHi + serverTitle + reset)
+				}
+				if currMenu == "category" {
+					fmt.Printf(reset + cyanHi + categories[i].CategoryName + reset)
+				}
+				if currMenu == "door" {
+					fmt.Printf(reset + cyanHi + doors[i].DoorTitle + reset)
+				}
+				yLoc++
 			}
-			if count >= recordsPerCol && count <= (recordsPerCol*2)-1 {
-				moveCursor(xLoc2, yLoc2)
-				fmt.Printf(white+"%d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
-				yLoc2++
-			}
-			count++
 		}
-		if lenList > (recordsPerCol * 2) {
-			paginator = true
-			moveCursor(3, 6)
-			fmt.Print(whiteHi + currCatName + " (1/2):" + reset)
-			moveCursor(26, 21)
-			fmt.Print(white + "[" + blackHi + "," + reset + white + "]" + cyanHi + "..." + redHi + "Prev/Next " + bgRed + whiteHi + " 1 " + reset + whiteHi + " 2 " + reset)
+		i++
+	}
+	if lenList < listHeight {
+		x := 0
+		for x < (listHeight - lenList) {
+			moveCursor(xLoc+1, yLoc)
+			printAnsiLoc("art/seperator.ans", xLoc, yLoc)
+			fmt.Print("\r\n")
+			x++
+			yLoc++
 		}
 	}
 
-	if currPage == 2 {
+	// print some things after the scroll area has been printed
+	if currMenu == "door" {
+		currcat := doorsByCategory(db, currCat)
+		doorCount := len(currcat)
+		moveCursor(catDescX, catDescY)
+		fmt.Printf(reset+"%v: %v games", currCatName, doorCount)
+		if len(doors[currY].DoorDesc) > 1 {
+			printMultiStringAt(blankDesc, doorDescX, doorDescY)
+			// Game Title
+			moveCursor(doorDescX, doorDescY)
+			fmt.Printf(white+"%v (%v)"+reset, doors[currY].DoorTitle, doors[currY].DoorYear)
 
-		clearScreen()
-		header(U.W)
-		moveCursor(3, 6)
-		fmt.Print(whiteHi + currCatName + " (2/2):" + reset)
+			// Game Description
+			wrapped := wordwrap.WrapString(doors[currY].DoorDesc, 30)
+			printMultiStringAt(wrapped, doorDescX, doorDescY+1)
+		} else {
+			printMultiStringAt(blankDesc, doorDescX, doorDescY)
 
-		count := 24
-
-		for i := count; i < len(doorsList); i++ {
-			SelectionData = doorsList[i].DoorTitle
-			if count < recordsPerCol*3 {
-				moveCursor(xLoc1, yLoc1)
-				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
-				yLoc1++
-			}
-			if count >= (recordsPerCol*3)-1 {
-				moveCursor(xLoc2, yLoc2)
-				fmt.Printf(white+" %d"+blackHi+"..."+reset+redHi+"%s\n"+reset, i+1, SelectionData)
-				yLoc2++
-			}
-			count++
 		}
-		moveCursor(26, 21)
-		fmt.Print(white + "[" + blackHi + "," + reset + white + "]" + cyanHi + "..." + redHi + "Prev/Next " + bgBlack + whiteHi + " 1 " + reset + bgRed + whiteHi + " 2 " + reset)
 	}
 
-	moveCursor(3, 24)
-	prompt("red")
-
-}
-
-func serverMenu(db *sql.DB) {
-	clearScreen()
-	currCode = "SERVER"
-	header(U.W)
-
-	// get title
-	currTitle = doorsList[currDoor].DoorTitle
-	serversList = doorByServer(db)
-	lenList = len(serversList)
-
-	moveCursor(3, 6)
-	fmt.Print(whiteHi + "Play " + yellowHi + currTitle + whiteHi + " on:" + reset)
-
-	moveCursor(39, 8)
-	fmt.Print(currTitle + " (" + serversList[0].Year + ")")
-	moveCursor(39, 10)
-	d := (justifyText(serversList[0].Desc, 38))
-	printMultiStringAt(d, 39, 10)
-
-	count := 0
-	xLoc1 := 3
-	yLoc1 := 8
-
-	var data string
-
-	for i := 0; i < len(serversList); i++ {
-		data = serversList[i].ServerName
-		moveCursor(xLoc1, yLoc1)
-		fmt.Printf(yellowHi+"%d"+cyanHi+"..."+reset+yellowHi+"%s\n"+reset, i+1, data)
-		yLoc1++
-		count++
+	if currMenu == "category" {
+		currcat := doorsByCategory(db, currCat)
+		doorCount := len(currcat)
+		moveCursor(catDescX, catDescY)
+		fmt.Print("                                               ")
+		moveCursor(catDescX, catDescY)
+		fmt.Printf(reset+"%v: %v games", currCatName, doorCount)
 	}
 
-	moveCursor(3, 24)
-	prompt("red")
+	if currMenu == "server" {
+		// Game Title
+		printMultiStringAt(blankDesc, doorDescX, doorDescY)
+		moveCursor(catDescX, catDescY)
+		fmt.Print(reset + currTitle)
+
+		// Server Description
+		wrapped := wordwrap.WrapString(servers[currY].ServerDesc, 30)
+		printMultiStringAt(wrapped, doorDescX, doorDescY)
+
+	}
+
+	bottomY := listHeight + scrollY
+	printAnsiLoc("art/arrow-up.ans", xLoc, scrollY)
+	printAnsiLoc("art/arrow-down.ans", xLoc, bottomY)
 
 }

@@ -145,7 +145,6 @@ func initIni() {
 		os.Exit(1)
 	}
 
-	menu_title := cfg.Section("general").Key("title").String()
 	version := cfg.Section("general").Key("version").String()
 	gm_host := cfg.Section("goldmine").Key("host").String()
 	gm_port := cfg.Section("goldmine").Key("port").String()
@@ -157,44 +156,14 @@ func initIni() {
 	bl_script := cfg.Section("bbslink").Key("script").String()
 	bl_enabled := cfg.Section("bbslink").Key("enabled").String()
 
-	c := DoorConfig{menu_title, version, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
+	c := DoorConfig{version, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
 	C = &c
 
 }
 
-func header(w int) {
-	if w == 80 {
-		printAnsiLoc("art/"+currCode+".ans", 0, 1)
-		moveCursor(70, 2)
-	}
-	if w > 80 {
-		fmt.Fprintf(os.Stdout, " ")
-	}
-}
+func header(w int, menuType string) {
+	printAnsiLoc("art/"+menuType+".ans", 0, 1)
 
-func prompt(color string) {
-
-	moveCursor(2, 21)
-
-	if U.W == 80 {
-		// printStringLoc(U.Alias+" - "+fmt.Sprint(U.TimeLeft)+" mins left"+reset, 2, 22, blackHi, bgBlack)
-		moveCursor(2, 23)
-		if color == "blue" {
-			PrintAnsi("art/prompt-blue.ans", 0, 1)
-			moveCursor(5, 23)
-			fmt.Printf(bgBlue + "  " + reset)
-			moveCursor(5, 24)
-		}
-		if color == "red" {
-			PrintAnsi("art/prompt-red.ans", 0, 1)
-			moveCursor(5, 23)
-			fmt.Printf(bgRed + "  " + reset)
-			moveCursor(5, 23)
-		}
-	}
-	if U.W > 80 {
-		fmt.Fprintf(os.Stdout, " ")
-	}
 }
 
 // newTimer boots a user after being idle too long
@@ -371,14 +340,16 @@ Get the terminal size
 - Read in the result
 */
 func GetTermSize() (int, int) {
+	fmt.Print(bgBlack + black)
 	// Set the terminal to raw mode so we aren't waiting for CLRF rom user (to be undone with `-raw`)
 	rawMode := exec.Command("/bin/stty", "raw")
 	rawMode.Stdin = os.Stdin
 	_ = rawMode.Run()
 
 	reader := bufio.NewReader(os.Stdin)
-	fmt.Fprintf(os.Stdout, "\033[999;999f") // larger than any known term size
-	fmt.Fprintf(os.Stdout, "\033[6n")       // ansi escape code for reporting cursor location
+
+	fmt.Print("\033[999;999f") // larger than any known term size
+	fmt.Print("\033[6n")       // ansi escape code for reporting cursor location
 	text, _ := reader.ReadString('R')
 
 	// Set the terminal back from raw mode to 'cooked'
@@ -410,6 +381,8 @@ func GetTermSize() (int, int) {
 		}
 		h := ih
 		w := iw
+
+		fmt.Print(reset)
 
 		clearScreen()
 
@@ -579,7 +552,6 @@ func distributeSpaces(s string, extra int) string {
 }
 
 func printMultiStringAt(text string, x int, y int) {
-
 	xLoc := x
 	yLoc := y
 	for _, line := range strings.Split(strings.TrimRight(text, "\n"), "\n") {

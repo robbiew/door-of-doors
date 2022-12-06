@@ -8,8 +8,6 @@ import (
 	"log"
 	"os"
 	"time"
-
-	"golang.org/x/term"
 )
 
 type User struct {
@@ -23,7 +21,7 @@ type User struct {
 }
 
 type DoorConfig struct {
-	Menu_Title string
+	// Menu_Title string
 	Version    string
 	GM_Host    string
 	GM_Port    string
@@ -44,37 +42,43 @@ type CategoryList struct {
 
 type DoorsList struct {
 	DoorTitle string
+	DoorDesc  string
+	DoorYear  string
 }
 
 type ServersList struct {
 	DoorTitle  string
 	ServerId   string
 	ServerName string
+	ServerDesc string
 	Desc       string
 	Year       string
 	DoorCode   string
 }
 
 var (
-	menuKeys    []rune
-	categories  []CategoryList
-	doorsList   []DoorsList
-	serversList []ServersList
+	categories []CategoryList
+	doors      []DoorsList
+	servers    []ServersList
 
-	currCat     int
+	currCat int
+
 	currCatName string
-	currCode    string
-	currDoor    int
 	currTitle   string
-	currPage    int
+	serverTitle string
+	currServer  int
 
-	paginator bool
+	currY     int
+	currStart int
 
-	lenList int
+	lenList    int
+	listHeight int
+
+	currMenu string
 
 	shortTimer *time.Timer
-	menuType   string
-	idle       int
+
+	idle int
 
 	U *User
 	C *DoorConfig
@@ -102,11 +106,16 @@ func init() {
 	}
 
 	dropPath := *pathPtr
-	currCat = 0
-	currPage = 1
 
-	// entry menu
-	menuType = "category"
+	//  initial state
+	currCat = 0
+	currY = 0
+	currStart = 0
+	listHeight = 10
+
+	currMenu = "category"
+
+	cursorHide()
 
 	//SQlite db
 	initDb()
@@ -116,34 +125,6 @@ func init() {
 
 	// Get ap config from config.ini
 	initIni()
-}
-
-// Main input loop
-func readWrapper(dataChan chan []byte, errorChan chan error) {
-	shortTimer = newTimer(idle, func() {
-		fmt.Println("\r\nYou've been idle for too long... exiting!")
-		time.Sleep(3 * time.Second)
-		os.Exit(0)
-	})
-
-	// fd 0 is stdin - set to raw mode so return doesn't have to be pressed
-	state, err := term.MakeRaw(0)
-	if err != nil {
-		log.Fatalln("setting stdin to raw:", err)
-	}
-	defer func() {
-		if err := term.Restore(0, state); err != nil {
-			log.Println("warning, failed to restore terminal:", err)
-		}
-	}()
-
-	buf := make([]byte, 1024)
-	reqLen, err := os.Stdin.Read(buf)
-	if err != nil {
-		errorChan <- err
-		return
-	}
-	dataChan <- buf[:reqLen]
 }
 
 func main() {
@@ -180,6 +161,6 @@ func main() {
 	lenList = len(categories)
 
 	showStats()
-
+	clearScreen()
 	loop(db, dataChan, errorChan, f, logFille)
 }

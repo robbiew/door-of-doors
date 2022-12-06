@@ -5,6 +5,8 @@
 # You shouldn't need to edit this script
 # Makre sure config.ini is filled out properly
 
+export TERM=linux
+
 port=$5
 host=$4
 prefix="["$2"]"

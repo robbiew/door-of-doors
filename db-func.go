@@ -91,7 +91,8 @@ func createCategoriesTable(db *sql.DB) {
 func createServersTable(db *sql.DB) {
 	createServersTableSQL := `CREATE TABLE servers (
 		"idServer" integer NOT NULL PRIMARY KEY AUTOINCREMENT,		
-		"serverName" TEXT NOT NULL
+		"serverName" TEXT NOT NULL,
+		"serverDesc" TEXT NOT NULL
 	  );` // SQL Statement for Create Table
 
 	fmt.Print("Creating SERVERS table...\r\n")
@@ -142,14 +143,14 @@ func insertCategory(db *sql.DB, categoryName string, categoryCode string, isMatu
 	}
 }
 
-func insertServer(db *sql.DB, serverName string) {
+func insertServer(db *sql.DB, serverName string, serverDesc string) {
 	// fmt.Println("Inserting SERVERS records...")
-	insertServerSQL := `INSERT INTO servers(serverName) VALUES (?)`
+	insertServerSQL := `INSERT INTO servers(serverName, serverDesc) VALUES (?, ?)`
 	statement, err := db.Prepare(insertServerSQL) // Prepare statement. This is good to avoid SQL injections
 	if err != nil {
 		log.Println(err.Error())
 	}
-	_, err = statement.Exec(serverName)
+	_, err = statement.Exec(serverName, serverDesc)
 	if err != nil {
 		log.Println(err.Error())
 	}
@@ -170,8 +171,8 @@ func categoryList(db *sql.DB) []CategoryList {
 		log.Fatal(err)
 	}
 	defer rows.Close()
+	var categories []CategoryList
 
-	var categoryList []CategoryList
 	for rows.Next() {
 
 		var idCategory int
@@ -182,17 +183,20 @@ func categoryList(db *sql.DB) []CategoryList {
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		categoryList = append(categoryList, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
+		if excludeEmptyCat(db, idCategory) > 0 {
+			categories = append(categories, CategoryList{CategoryId: idCategory, CategoryName: categoryName, CategoryCode: categoryCode})
+		}
 	}
-	return categoryList
+	return categories
 
 }
 
 func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	rows, err := db.Query(`
     SELECT DISTINCT
-        titleName AS DoorTitle 
+        titleName AS DoorTitle, 
+		desc AS DoorDesc,
+		year AS DoorYear
     FROM 
         titles
 	INNER JOIN doors ON doors.titleId = idTitle 
@@ -207,19 +211,20 @@ func doorsByCategory(db *sql.DB, realCat int) []DoorsList {
 	}
 	defer rows.Close()
 
-	var doorsList []DoorsList
+	var doors []DoorsList
+
 	for rows.Next() {
 
 		var DoorTitle string
-
-		err := rows.Scan(&DoorTitle)
+		var DoorDesc string
+		var DoorYear string
+		err := rows.Scan(&DoorTitle, &DoorDesc, &DoorYear)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		doorsList = append(doorsList, DoorsList{DoorTitle: DoorTitle})
+		doors = append(doors, DoorsList{DoorTitle: DoorTitle, DoorDesc: DoorDesc, DoorYear: DoorYear})
 	}
-	return doorsList
+	return doors
 }
 
 func doorByServer(db *sql.DB) []ServersList {
@@ -227,6 +232,7 @@ func doorByServer(db *sql.DB) []ServersList {
     SELECT
         titles.titleName AS title,
 		servers.serverName as serverName,
+		servers.serverDesc as serverDesc,
 		titles.desc,
 		titles.year,
 		doors.code,
@@ -247,24 +253,25 @@ func doorByServer(db *sql.DB) []ServersList {
 	}
 	defer rows.Close()
 
-	var serverList []ServersList
+	var serversList []ServersList
 	for rows.Next() {
 
 		var title string
 		var serverName string
+		var serverDesc string
 		var desc string
 		var year string
 		var code string
 		var serverId string
 
-		err := rows.Scan(&title, &serverName, &desc, &year, &code, &serverId)
+		err := rows.Scan(&title, &serverName, &serverDesc, &desc, &year, &code, &serverId)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		serverList = append(serverList, ServersList{DoorTitle: title, ServerName: serverName, Desc: desc, Year: year, DoorCode: code, ServerId: serverId})
+		serversList = append(serversList, ServersList{DoorTitle: title, ServerName: serverName, ServerDesc: serverDesc, Desc: desc, Year: year, DoorCode: code, ServerId: serverId})
 	}
-	return serverList
+	return serversList
 
 }
 
@@ -279,6 +286,35 @@ func doorCount(db *sql.DB, server int) int {
         serverId = ? 
 
   `, server)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var count int
+	defer rows.Close()
+
+	for rows.Next() {
+
+		err := rows.Scan(&count)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+	}
+	return count
+
+}
+
+func excludeEmptyCat(db *sql.DB, category int) int {
+	rows, err := db.Query(`
+    SELECT 
+		COUNT(*)
+    FROM 
+        titles
+    WHERE
+        categoryId = ? 
+  `, category)
 
 	if err != nil {
 		log.Fatal(err)
