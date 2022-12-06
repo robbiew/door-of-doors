@@ -116,19 +116,6 @@ const (
 	reset = Esc + "0m"
 )
 
-func getInfo(game string) string {
-
-	inf, err := ini.Load("info.ini")
-	if err != nil {
-		fmt.Printf("Fail to read CONFIG file: %v", err)
-		os.Exit(1)
-	}
-
-	desc := inf.Section(game).Key("desc").String()
-	return desc
-
-}
-
 // Get info from the Drop File, h, w
 func initDrop(path string) {
 	alias, timeLeft, emulation, nodeNum, userNum := dropFileData(path)
@@ -145,7 +132,8 @@ func initIni() {
 		os.Exit(1)
 	}
 
-	version := cfg.Section("general").Key("version").String()
+	stats := cfg.Section("general").Key("stats").String()
+	adult := cfg.Section("general").Key("adult").String()
 	gm_host := cfg.Section("goldmine").Key("host").String()
 	gm_port := cfg.Section("goldmine").Key("port").String()
 	gm_tag := cfg.Section("goldmine").Key("tag").String()
@@ -156,7 +144,7 @@ func initIni() {
 	bl_script := cfg.Section("bbslink").Key("script").String()
 	bl_enabled := cfg.Section("bbslink").Key("enabled").String()
 
-	c := DoorConfig{version, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
+	c := DoorConfig{stats, adult, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
 	C = &c
 
 }
@@ -461,12 +449,6 @@ func printAnsiLoc(artfile string, x int, y int) {
 	}
 }
 
-// Print text at an X, Y location
-func printStringLoc(text string, x int, y int, fg string, bg string) {
-	fmt.Fprintf(os.Stdout, reset+Esc+strconv.Itoa(y)+";"+strconv.Itoa(x)+"f"+bg+fg+text+reset)
-
-}
-
 // Horizontally center some text.
 func centerText(s string, w int) {
 	fmt.Fprintf(os.Stdout, (fmt.Sprintf("%[1]*s", -w, fmt.Sprintf("%[1]*s", (w+len(s))/2, s))))
@@ -487,70 +469,6 @@ func absCenterArt(artfile string, l int) {
 	}
 }
 
-func justifyText(text string, maxWidth int) string {
-	// Split the text into words
-	words := strings.Split(text, " ")
-	// Keep track of current line and previous lines
-	var lines, current string
-	// Iterate through each word
-	for _, word := range words {
-		// If the word fits, add to current
-		if len(current)+len(word) <= maxWidth {
-			// All words need a space after, expect for the last word
-			// we will trim the space for the last word
-			current += word + " "
-			continue
-		}
-		// Otherwise, word did not fit so lets finish this line
-		// Trim extra space from the last word
-		current = current[:len(current)-1]
-		// Distribute any extra spaces and add current line to previous lines
-		lines += distributeSpaces(current, maxWidth-len(current))
-		// The next iteration current line will be this word that did not fit
-		current = word + " "
-	}
-	// return the previous lines and any current line we were working on
-	return lines + current
-}
-
-// distributeSpaces will spread extra amount of whitespaces into the gaps
-// between the words in s
-func distributeSpaces(s string, extra int) string {
-	// Nothing to do, return early
-	if extra < 1 {
-		return s + "\n"
-	}
-	// Split into tokens as it's easier to work with
-	words := strings.Split(s, " ")
-	// Edge case where only 1 word is on a line
-	// we can just put all extra space at the end then return
-	if len(words) == 1 {
-		for extra > 0 {
-			words[0] += " "
-			extra--
-		}
-		return words[0] + "\n"
-	}
-	// calculate how many spaces between each word and any extra that dont
-	// divide evenly into the gaps
-	gaps := len(words) - 1
-	spaces := extra + gaps
-	spacePerGap, extraSpace := spaces/gaps, spaces%gaps
-	// Distribute the spaces that dont fit evenly
-	for i := 0; extraSpace > 0; i++ {
-		words[i] += " "
-		extraSpace--
-	}
-	// Make a tmp spacer for the whitespace that does divide evenly
-	tmp := ""
-	for spacePerGap > 0 {
-		tmp += " "
-		spacePerGap--
-	}
-	// Join the words with the tmp spacer
-	return strings.Join(words, tmp) + "\n"
-}
-
 func printMultiStringAt(text string, x int, y int) {
 	xLoc := x
 	yLoc := y
@@ -560,4 +478,52 @@ func printMultiStringAt(text string, x int, y int) {
 		yLoc++
 	}
 
+}
+
+// Launches a bash script that uses rlogin to connect to Door Party local server
+func doorParty(doorCode string, un string, script string) {
+	prg := script
+	arg1 := fmt.Sprint(un)
+	arg2 := doorCode
+
+	clearScreen()
+
+	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run() // add error checking
+}
+
+// Launches a bash script that uses rlogin to connect to Gold Mine remote server
+func goldMine(userName string, tag string, doorCode string, host string, port string, script string) {
+	prg := script
+	arg1 := userName
+	arg2 := tag
+	arg3 := "xtrn=" + doorCode
+	arg4 := host
+	arg5 := port
+
+	clearScreen()
+
+	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2+" "+arg3+" "+arg4+" "+arg5)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run() // add error checking
+}
+
+// Launches a bash script that uses rlogin to connect to BBS Link server
+func bbsLink(doorCode string, un int, script string) {
+	prg := script
+	arg1 := doorCode
+	arg2 := fmt.Sprint(un)
+
+	clearScreen()
+
+	cmd := exec.Command("bash", "-c", prg+" "+arg1+" "+arg2)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	_ = cmd.Run() // add error checking
 }

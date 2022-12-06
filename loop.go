@@ -89,6 +89,8 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			if currMenu == "server" {
 				currMenu = "server"
 
+				writeLog(f, U.Alias, servers[currY].DoorTitle, servers[currY].ServerName)
+
 				moveCursor(2, 24)
 				fmt.Printf(yellow+"Launching %v on %v"+reset, servers[currY].DoorTitle, servers[currY].ServerName)
 				moveCursor(0, 0)

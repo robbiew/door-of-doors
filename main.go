@@ -8,6 +8,8 @@ import (
 	"log"
 	"os"
 	"time"
+
+	"github.com/eiannone/keyboard"
 )
 
 type User struct {
@@ -22,7 +24,8 @@ type User struct {
 
 type DoorConfig struct {
 	// Menu_Title string
-	Version    string
+	Stats      string
+	Adult      string
 	GM_Host    string
 	GM_Port    string
 	GM_Tag     string
@@ -35,15 +38,17 @@ type DoorConfig struct {
 }
 
 type CategoryList struct {
-	CategoryId   int
-	CategoryName string
-	CategoryCode string
+	CategoryId    int
+	CategoryName  string
+	CategoryCode  string
+	CategoryAdult string
 }
 
 type DoorsList struct {
 	DoorTitle string
 	DoorDesc  string
 	DoorYear  string
+	DoorAdult string
 }
 
 type ServersList struct {
@@ -160,7 +165,15 @@ func main() {
 	categories = categoryList(db)
 	lenList = len(categories)
 
-	showStats()
+	if C.Stats == "1" {
+		if err := keyboard.Open(); err != nil {
+			panic(err)
+		}
+		defer func() {
+			_ = keyboard.Close()
+		}()
+		showStats()
+	}
 	clearScreen()
 	loop(db, dataChan, errorChan, f, logFille)
 }

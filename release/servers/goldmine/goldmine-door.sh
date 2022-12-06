@@ -3,7 +3,7 @@
 # Script for connecting to Gold Mine rlogin
 # Install rsh-redone-client: "sudo apt install rsh-redone-client"
 # You shouldn't need to edit this script
-# Makre sure config.ini is filled out properly
+# Make sure config.ini is filled out properly
 
 export TERM=linux
 

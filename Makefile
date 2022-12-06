@@ -1,5 +1,8 @@
 BINARY_NAME=dod
-DIR=bin
+OUT=bbs
+DIR=release
+
+# may need: sudo apt-get install gcc-multilib
 
 # BUILDARCH is the host architecture
 BUILDARCH ?= $(shell uname -m)
@@ -37,14 +40,14 @@ clean:
 # change or remove. I used this to automate testing.
 copy:
 ifeq ($(BUILDARCH),i386)
-	cp ${DIR}/${BINARY_NAME}-linux-386 /mystic/doors/dod
+	cp ${DIR}/${BINARY_NAME}-linux-386 /${OUT}/doors/dod
 endif
 ifeq ($(BUILDARCH),x86_64)
-	cp ${DIR}/${BINARY_NAME}-linux-386 /mystic/doors/dod
-	cp ${DIR}/${BINARY_NAME}-linux-amd64 /mystic/doors/dod
+	cp ${DIR}/${BINARY_NAME}-linux-386 /${OUT}/doors/dod
+	cp ${DIR}/${BINARY_NAME}-linux-amd64 /${OUT}/doors/dod
 endif
 ifeq ($(BUILDARCH),armv7l)
-	cp ${DIR}/${BINARY_NAME}-linux-armv7 /mystic/doors/dod
+	cp ${DIR}/${BINARY_NAME}-linux-armv7 /${OUT}/doors/dod
 endif
 
 build_and_copy: build copy
