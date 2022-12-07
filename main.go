@@ -30,9 +30,9 @@ type DoorConfig struct {
 	GM_Port    string
 	GM_Tag     string
 	GM_Enabled string
-	GM_script  string
-	DP_Enabled string
+	GM_Script  string
 	DP_Script  string
+	DP_Enabled string
 	BL_Script  string
 	BL_Enabled string
 }

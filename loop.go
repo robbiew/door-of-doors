@@ -101,7 +101,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				keyboard.Close()
 
 				if servers[currY].ServerId == "1" {
-					goldMine(U.Alias, C.GM_Tag, servers[currY].DoorCode, C.GM_Host, C.GM_Port, C.GM_script)
+					goldMine(U.Alias, C.GM_Tag, servers[currY].DoorCode, C.GM_Host, C.GM_Port, C.GM_Script)
 					clearScreen()
 					cursorHide()
 					header(U.W, currMenu)
