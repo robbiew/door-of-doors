@@ -20,9 +20,8 @@ func catMenu(db *sql.DB, arrow string) {
 
 	doScroll := false
 	var listMax int
-	var lightbar string
-	var blank string
 
+	// blank out description areas before writing
 	blankDesc :=
 		"                               \r\n" +
 			"                               \r\n" +
@@ -36,23 +35,20 @@ func catMenu(db *sql.DB, arrow string) {
 			"                               \r\n" +
 			"                               \r\n"
 
+	blank := "                                          "
+	lightbar := "art/lightbar-long.ans"
+
 	if currMenu == "category" {
 		categories = categoryList(db)
 		lenList = len(categories)
-		lightbar = "art/lightbar-long.ans"
-		blank = "                                          "
 	}
 	if currMenu == "door" {
 		doors = doorsByCategory(db, currCat)
 		lenList = len(doors)
-		lightbar = "art/lightbar-long.ans"
-		blank = "                                          "
 	}
 	if currMenu == "server" {
 		servers = doorByServer(db)
 		lenList = len(servers)
-		lightbar = "art/lightbar-long.ans"
-		blank = "                                          "
 	}
 
 	// if there are more items in list than display height
@@ -71,13 +67,13 @@ func catMenu(db *sql.DB, arrow string) {
 		if currY > 0 {
 			currY--
 		}
-		if currStart <= lenList && currStart > 0 {
+		if currStart <= lenList && currStart > 0 && currY+currStart <= listMax-1 || currStart > currY {
 			currStart--
 		}
 
 	}
 	if arrow == "down" {
-		if currY < listMax || currY >= listMax && currStart+listMax < lenList-1 {
+		if currY < lenList-1 || currY >= listMax && currStart+listMax < lenList-1 {
 			currY++
 		}
 		if currY > listMax && currStart+listMax < lenList-1 {
@@ -85,6 +81,12 @@ func catMenu(db *sql.DB, arrow string) {
 		}
 
 	}
+
+	// debug positions
+	// moveCursor(2, 24)
+	// fmt.Print("                                                    ")
+	// moveCursor(2, 24)
+	// fmt.Printf("listMax: %v, currStart: %v, lenList: %v, currY: %v", listMax, currStart, lenList, currY)
 
 	// iterate through the  list
 	i := 0
