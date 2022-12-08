@@ -20,7 +20,7 @@ Note, if you build yourself, the contents of /release should be added to the roo
 
 The Makefile will detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6, armv7 and armv8. Simple select the version you want to used.
 
-go-sqlite3 is cgo package. If you want to build your app using go-sqlite3, you need gcc. However, after you have built and installed go-sqlite3 with go `install github.com/mattn/go-sqlite3` (which requires gcc), you can build your app without relying on gcc in future.
+go-sqlite3 is cgo package. If you want to build your app using go-sqlite3, you need gcc. However, after you have built and installed go-sqlite3 with `go install github.com/mattn/go-sqlite3` (which requires gcc), you can build your app without relying on gcc in future.
 
 # Door Servers
 Note, Door-of-Doors requires that you are a member of each door server (e.g. you have the credentials issued by the door server owners).
