@@ -6,6 +6,11 @@ A Linux-based BBS door that aggregates 3 popular door servers into a single menu
 
 It's been tested on Linux i386, amd64, armv6 and armv7 (e.g. Raspberry Pi). Windows OS is not supported.
 
+## Door Servers:
+- [Gold Mine]()
+- [BBSLink]()
+- [Door Party]()
+
 # How it works
 
 Direct launch door codes for each server are stored in a sqlite3 database. When a user selects a door, it launches the _external connection shell script_ provided by each door server and uses standard telnet/rlogin to pass the site/user credentials to connect the user to the door server.
