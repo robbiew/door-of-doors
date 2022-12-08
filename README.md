@@ -25,22 +25,23 @@ Easiest way to get up and running. To download the latest, compiled release just
 
 If you're a Go developer and want to contribute: fork this repo, make some changes, then submit a pull request! 
 
-Note, if you build yourself, the contents of /release should be added to the root of the door directory, as it contains all the static files necessary to run the door.
+Note: the contents of `/release` should be added to the root of the door directory, as it contains all the static files necessary to run the door.
 
 The included Makefile can detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6, armv7 and armv8. Simple select the version you want to used. You don't have to use this.
 
 Important: `go-sqlite3` is cgo package and you'll need gcc installed (e.g. `sudo apt install build-essentials`). However, after you have built and installed go-sqlite3 with `go install github.com/mattn/go-sqlite3` (which requires gcc), you can build your app without relying on gcc in future.
 
-# Door Servers
+# Door Server Setup
+
 Note, Door-of-Doors requires that you are a member of each door server (e.g. you have the credentials issued by the door server owners).
 
-Place your BBSLink and Door Party connection scripts in the /servers directory, making sure the correct paths are set in config.ini. Gold Mine's conenction is script is provided in the /servers/release/goldmine folder
+Place your BBSLink and Door Party connection scripts in the `/servers` directory, making sure the correct paths are set in config.ini. Gold Mine's conenction is script is provided in the `/servers/release/goldmine` folder
 
 Note, Door Party requires the "door-party-connector" app to be configured and running.
 
-# Config
+# Configuration
 
-There are instructions are in /release/config.ini. You'll need to edit this file in order for it to all work. There's also a sample 'launch.sh' in /release a that shows how you might launch this from a BBS, like Mystic.
+There are instructions are in `/release/config.ini`. You'll need to edit this file in order for it to all work. There's also a sample 'launch.sh' in /release a that shows how you might launch this from a BBS, like Mystic.
 
 I've also included a toggle for "Adult" type gamnes, as maybe some folks won't want some of those racy doors on their BBS.
 
@@ -50,3 +51,5 @@ I've also included a toggle for "Adult" type gamnes, as maybe some folks won't w
 - save to some sort of favorites list?
 - maybe some sort of grafitti wall?
 - implement a better timer/time-out
+- wide-screen support
+- loadable fonts
