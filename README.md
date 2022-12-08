@@ -14,15 +14,22 @@ Direct launch door codes for each server are stored in a sqlite3 database. When 
 
 You can grab a full release -- just download the zip file for your platform from RELEASES -- or build it yourself, if you're handy with Go.
 
+# Build from Go source
+
 Note, if you build yourself, the contents of /release should be added to the root of the door directory.
 
 The Makefile will detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6, armv7 and armv8. Simple select the version you want to used.
 
+go-sqlite3 is cgo package. If you want to build your app using go-sqlite3, you need gcc. However, after you have built and installed go-sqlite3 with go install github.com/mattn/go-sqlite3 (which requires gcc), you can build your app without relying on gcc in future.
+
+# Door Servers
 Note, Door-of-Doors requires that you are a member of each door server (e.g. you have the credentials issued by the door server owners).
 
 Place your BBSLink and Door Party connection scripts in the /servers directory, making sure the correct paths are set in config.ini. Gold Mine's conenction is script is provided in the /servers/release/goldmine folder
 
 Note, Door Party requires the "door-party-connector" app to be configured and running.
+
+# Config
 
 There are instructions are in /release/config.ini. You'll need to edit this file in order for it to all work. There's also a sample 'launch.sh' in /release a that shows how you might launch this from a BBS, like Mystic.
 
