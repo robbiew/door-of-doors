@@ -21,7 +21,7 @@ Direct launch door codes for each server are stored in a sqlite3 database. When 
 
 Easiest way to get up and running. To download the latest, compiled release just download the zip file for your platform from RELEASES.
 
-### Option 2: Build from Go source
+### Option 2: Build from source
 
 If you're a Go developer and want to contribute: fork this repo, make some changes, then submit a pull request! 
 
