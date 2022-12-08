@@ -17,9 +17,9 @@ Direct launch door codes for each server are stored in a sqlite3 database. When 
 
 # Installation options
 
-### Option 1: Grab a release zip
+### Option 1: Grab the release folder
 
-Easiest way to get up and running. To download the latest, compiled release just download the zip file for your platform from RELEASES.
+Easiest way to get up and running. To download the latest, grab everything in the `release` folder.
 
 ### Option 2: Build from source
 
