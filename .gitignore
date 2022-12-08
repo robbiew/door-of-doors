@@ -33,3 +33,5 @@ go.work
 
 # logs will be created at run-time, don't commit
 *.log
+
+Makefile
