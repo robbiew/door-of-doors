@@ -8,9 +8,11 @@ import (
 )
 
 func catMenu(db *sql.DB, arrow string) {
-	yLoc := 15
+	yLoc := 14
 	scrollY := yLoc - 1
 	xLoc := 2
+
+	listHeight = 9
 
 	doorDescX := 46
 	doorDescY := yLoc

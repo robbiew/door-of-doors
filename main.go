@@ -116,7 +116,6 @@ func init() {
 	currCat = 0
 	currY = 0
 	currStart = 0
-	listHeight = 9
 
 	currMenu = "category"
 
