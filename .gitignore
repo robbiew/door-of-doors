@@ -9,9 +9,9 @@
 *.dylib
 
 # Linux binaries with no extension
-*
-!/**/
-!*.*
+# *
+# !/**/
+# !*.*
 
 # Test binary, built with `go test -c`
 *.test
