@@ -8,8 +8,8 @@ import (
 )
 
 func catMenu(db *sql.DB, arrow string) {
-	yLoc := 13
-	scrollY := yLoc
+	yLoc := 15
+	scrollY := yLoc - 1
 	xLoc := 2
 
 	doorDescX := 46
@@ -24,7 +24,6 @@ func catMenu(db *sql.DB, arrow string) {
 	// blank out description areas before writing
 	blankDesc :=
 		"                               \r\n" +
-			"                               \r\n" +
 			"                               \r\n" +
 			"                               \r\n" +
 			"                               \r\n" +
@@ -57,9 +56,9 @@ func catMenu(db *sql.DB, arrow string) {
 	}
 
 	if doScroll {
-		listMax = listHeight
+		listMax = listHeight - 1
 	} else {
-		listMax = lenList - 1
+		listMax = lenList
 	}
 
 	// Arrow keys move the light bars
@@ -83,10 +82,14 @@ func catMenu(db *sql.DB, arrow string) {
 	}
 
 	// debug positions
-	// moveCursor(2, 24)
-	// fmt.Print("                                                    ")
-	// moveCursor(2, 24)
-	// fmt.Printf("listMax: %v, currStart: %v, lenList: %v, currY: %v", listMax, currStart, lenList, currY)
+	// moveCursor(2, 25)
+	// fmt.Print("                                                                          ")
+	// moveCursor(2, 25)
+	// fmt.Printf("DEBUG: listMax: %v, currStart: %v, lenList: %v, currY: %v", listMax, currStart, lenList, currY)
+
+	// scroll indicators
+	printAnsiLoc("art/arrow-up.ans", xLoc, scrollY)
+	printAnsiLoc("art/arrow-down.ans", xLoc, scrollY+listHeight+1)
 
 	// iterate through the  list
 	i := 0
@@ -95,7 +98,8 @@ func catMenu(db *sql.DB, arrow string) {
 			if i == currY {
 				moveCursor(xLoc, yLoc)
 				fmt.Print(blank)
-				printAnsiLoc("art/seperator.ans", xLoc, yLoc)
+				printAnsiLoc("art/seperator-on.ans", xLoc, yLoc)
+
 				moveCursor(xLoc+1, yLoc)
 				printAnsiLoc(lightbar, xLoc+1, yLoc)
 				moveCursor(xLoc+2, yLoc)
@@ -142,7 +146,9 @@ func catMenu(db *sql.DB, arrow string) {
 		for x < (listHeight - lenList) {
 			moveCursor(xLoc+1, yLoc)
 			printAnsiLoc("art/seperator.ans", xLoc, yLoc)
-			fmt.Print("\r\n")
+			if x > 0 && x < (listHeight-lenList) {
+				fmt.Print("\r\n")
+			}
 			x++
 			yLoc++
 		}
@@ -189,9 +195,5 @@ func catMenu(db *sql.DB, arrow string) {
 		printMultiStringAt(wrapped, doorDescX, doorDescY)
 
 	}
-
-	bottomY := listHeight + scrollY
-	printAnsiLoc("art/arrow-up.ans", xLoc, scrollY)
-	printAnsiLoc("art/arrow-down.ans", xLoc, bottomY)
 
 }
