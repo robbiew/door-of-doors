@@ -2,7 +2,7 @@
 
 # door-of-doors
 
-A Linux-based BBS door that aggregates 3 popular door servers into a single menu system. It has lightbar driven menus, customizable art and a built-in statistics screen. An ANSI capable terminal program (like SyncTerm, Maigterm or Netrunner), at 80x25 screen size, is required.
+A Linux-based BBS door that aggregates 3 popular door servers into a single menu system. It has lightbar driven menus, customizable ANSI art and a built-in statistics screen. An ANSI capable terminal program (like SyncTerm, Maigterm or Netrunner), at 80x25 screen size, is required.
 
 It's been tested on Linux i386, amd64, armv6 and armv7 (e.g. Raspberry Pi). Windows OS is not supported.
 
