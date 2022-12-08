@@ -15,17 +15,21 @@ It's been tested on Linux i386, amd64, armv6 and armv7 (e.g. Raspberry Pi). Wind
 
 Direct launch door codes for each server are stored in a sqlite3 database. When a user selects a door, it launches the _external connection shell script_ provided by each door server and uses standard telnet/rlogin to pass the site/user credentials to connect the user to the door server.
 
-# Installation
+# Installation options
 
-You can grab a full release -- just download the zip file for your platform from RELEASES -- or build it yourself, if you're handy with Go.
+### Option 1: Grab a release zip
 
-# Build from Go source
+Easiest way to get up and running. To download the latest, compiled release just download the zip file for your platform from RELEASES.
 
-Note, if you build yourself, the contents of /release should be added to the root of the door directory.
+### Option 2: Build from Go source
 
-The Makefile will detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6, armv7 and armv8. Simple select the version you want to used.
+If you're a Go developer and want to contribute: fork this repo, make some changes, then submit a pull request! 
 
-go-sqlite3 is cgo package. If you want to build your app using go-sqlite3, you need gcc. However, after you have built and installed go-sqlite3 with `go install github.com/mattn/go-sqlite3` (which requires gcc), you can build your app without relying on gcc in future.
+Note, if you build yourself, the contents of /release should be added to the root of the door directory, as it contains all the static files necessary to run the door.
+
+The included Makefile can detect your platform and "build down" from there -- e.g., if you are on ARM64, it'll generate 32-bit and 64-bit versions. For Pi, it can handle armv6, armv7 and armv8. Simple select the version you want to used. You don't have to use this.
+
+Important: `go-sqlite3` is cgo package and you'll need gcc installed (e.g. `sudo apt install build-essentials`). However, after you have built and installed go-sqlite3 with `go install github.com/mattn/go-sqlite3` (which requires gcc), you can build your app without relying on gcc in future.
 
 # Door Servers
 Note, Door-of-Doors requires that you are a member of each door server (e.g. you have the credentials issued by the door server owners).
