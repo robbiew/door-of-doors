@@ -19,7 +19,6 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 	// log.Println("time stopped...")
 
 	for {
-
 		if err := keyboard.Open(); err != nil {
 			panic(err)
 		}
@@ -31,7 +30,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			panic(err)
 		}
 
-		if key == keyboard.KeyEsc || string(char) == "Q" || string(char) == "q" {
+		if key == keyboard.KeyEsc || string(char) == "Q" || string(char) == "q" || key == keyboard.KeyArrowLeft {
 			if currMenu == "door" {
 				currY = 0
 				currStart = 0
@@ -51,6 +50,9 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				catMenu(db, "none")
 				continue
 			} else {
+				moveCursor(2, U.H)
+				fmt.Print(redHi + "Returning to BBS..")
+				time.Sleep(time.Second * 2)
 				cursorShow()
 				break
 			}
@@ -65,7 +67,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 			continue
 		}
 
-		if key == keyboard.KeyEnter {
+		if key == keyboard.KeyEnter || key == keyboard.KeyArrowRight {
 			if currMenu == "category" {
 				categories = nil
 				currY = 0

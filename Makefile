@@ -1,6 +1,6 @@
 BINARY_NAME=dod
-OUT=bbs
 DIR=release
+OUT=mystic
 
 # may need: sudo apt-get install gcc-multilib
 
