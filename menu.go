@@ -10,7 +10,7 @@ import (
 
 func catMenu(db *sql.DB, arrow string) {
 	listHeight = 8
-	yLoc := U.H - listHeight
+	yLoc := U.H - listHeight - 1
 
 	scrollY := yLoc - 1
 	xLoc := 2
