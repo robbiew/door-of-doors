@@ -132,6 +132,7 @@ func initIni() {
 		os.Exit(1)
 	}
 
+	bbs := cfg.Section("general").Key("bbs").String()
 	stats := cfg.Section("general").Key("stats").String()
 	adult := cfg.Section("general").Key("adult").String()
 	gm_host := cfg.Section("goldmine").Key("host").String()
@@ -144,7 +145,7 @@ func initIni() {
 	bl_script := cfg.Section("bbslink").Key("script").String()
 	bl_enabled := cfg.Section("bbslink").Key("enabled").String()
 
-	c := DoorConfig{stats, adult, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
+	c := DoorConfig{bbs, stats, adult, gm_host, gm_port, gm_tag, gm_enabled, gm_script, dp_script, dp_enabled, bl_script, bl_enabled}
 	C = &c
 
 }

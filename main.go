@@ -24,6 +24,7 @@ type User struct {
 
 type DoorConfig struct {
 	// Menu_Title string
+	Bbs        string
 	Stats      string
 	Adult      string
 	GM_Host    string

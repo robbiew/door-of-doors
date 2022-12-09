@@ -51,7 +51,7 @@ func loop(db *sql.DB, dataChan chan []byte, errorChan chan error, f *os.File, lo
 				continue
 			} else {
 				moveCursor(2, U.H)
-				fmt.Print(redHi + "Returning to BBS..")
+				fmt.Print(redHi + "Returning to " + C.Bbs + "...")
 				time.Sleep(time.Second * 2)
 				cursorShow()
 				break
