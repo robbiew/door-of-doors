@@ -68,10 +68,12 @@ var (
 
 	currCat int
 
-	currCatName string
-	currTitle   string
-	serverTitle string
-	currServer  int
+	currCatName     string
+	currTitle       string
+	serverTitle     string
+	serverDoorTitle string
+	serverDoorYear  string
+	currYear        string
 
 	currY     int
 	currStart int

@@ -9,10 +9,9 @@ import (
 )
 
 func catMenu(db *sql.DB, arrow string) {
+
 	listHeight = 8
 	yLoc := U.H - listHeight - 1
-
-	scrollY := yLoc - 1
 	xLoc := 2
 
 	lightbarLen := 48
@@ -25,9 +24,9 @@ func catMenu(db *sql.DB, arrow string) {
 	var listMax int
 
 	// blank out description areas before writing
-
 	blankDesc := strings.Repeat(" ", int(doorDescLen))
 	blankLightbar := strings.Repeat(" ", lightbarLen)
+
 	lightbar := "art/lightbar-long.ans"
 
 	if currMenu == "category" {
@@ -80,9 +79,6 @@ func catMenu(db *sql.DB, arrow string) {
 	// moveCursor(2, 25)
 	// fmt.Printf("DEBUG: listMax: %v, currStart: %v, lenList: %v, currY: %v", listMax, currStart, lenList, currY)
 
-	// scroll indicators
-	printAnsiLoc("art/arrow-up.ans", xLoc, scrollY)
-
 	// iterate through the  list
 	i := 0
 	for i <= listMax+currStart {
@@ -103,15 +99,16 @@ func catMenu(db *sql.DB, arrow string) {
 					fmt.Printf(reset + bgCyan + cyanHi + currCatName + reset)
 					moveCursor(doorDescX, yLoc)
 					fmt.Printf(reset+greenHi+"%v games ", doorCount)
-
 				}
 				if currMenu == "door" {
 					currTitle = doors[i].DoorTitle
+					currYear = doors[i].DoorYear
 					fmt.Printf(reset + bgCyan + cyanHi + currTitle + reset)
-
 				}
 				if currMenu == "server" {
+					serverDoorTitle = servers[i].DoorTitle
 					serverTitle = servers[i].ServerName
+					serverDoorYear = servers[i].Year
 					fmt.Printf(reset + bgCyan + cyanHi + serverTitle + reset)
 
 				}
@@ -137,34 +134,40 @@ func catMenu(db *sql.DB, arrow string) {
 		}
 		i++
 	}
-	printAnsiLoc("art/arrow-down.ans", xLoc, yLoc)
+
+	// scroll indicator
+	// printAnsiLoc("art/arrow-up.ans", xLoc, arrowUpLoc-1)
+
+	if doScroll {
+		printAnsiLoc("art/arrow-down.ans", xLoc, yLoc)
+	}
 
 	// print some things after the scroll area has been printed
 	if currMenu == "door" {
 		// Game Desc
 		i := 0
 		y := doorDescY
-		for i < listHeight-2 {
-			printMultiStringAt(blankDesc, doorDescX, y+1)
+		for i < listHeight-1 {
+			printMultiStringAt(blankDesc, doorDescX, y)
 			i++
 			y++
 		}
 
-		printMultiStringAt(blankDesc, doorDescX, doorDescY)
+		// printMultiStringAt(blankBreadCrumb, xLoc, scrollY)
 		moveCursor(doorDescX, doorDescY)
 		fmt.Printf(greenHi+"%v "+reset, doors[currY].DoorTitle)
-
 		if len(doors[currY].DoorYear) > 0 {
 			fmt.Printf(greenHi+"("+reset+green+"%v"+greenHi+")"+reset, doors[currY].DoorYear)
 		}
+		moveCursor(doorDescX, doorDescY+1)
+		fmt.Print(green + currCatName + reset)
 
 		wrapped := wordwrap.WrapString(doors[currY].DoorDesc, doorDescLen)
-		printMultiStringAt(green+wrapped+reset, doorDescX, doorDescY+1)
+		printMultiStringAt(white+wrapped+reset, doorDescX, doorDescY+2)
 
 	}
 
 	if currMenu == "server" {
-
 		// Server Description
 		i := 0
 		y := doorDescY
@@ -173,11 +176,12 @@ func catMenu(db *sql.DB, arrow string) {
 			i++
 			y++
 		}
+
 		moveCursor(doorDescX, doorDescY)
-		doors = doorsByCategory(db, currCat)
-		fmt.Printf(greenHi+"%v "+reset, doors[currY].DoorTitle)
-		if len(doors[currY].DoorYear) > 0 {
-			fmt.Printf(greenHi+"("+reset+green+"%v"+greenHi+") "+reset, doors[currY].DoorYear)
+		fmt.Printf(greenHi+"%v "+reset, serverDoorTitle)
+
+		if len(serverDoorYear) > 0 {
+			fmt.Printf(greenHi+"("+reset+green+"%v"+greenHi+")"+reset, serverDoorYear)
 		}
 
 		wrapped := wordwrap.WrapString(servers[currY].ServerDesc, doorDescLen)
