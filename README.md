@@ -1,6 +1,6 @@
 <!-- [![dod1.png](https://i.postimg.cc/bdXzNVQ4/dod1.png)](https://postimg.cc/4H5CW521) -->
 
-# door-of-doors
+# 🚪door-of-doors
 
 A Linux-based BBS door (for modern "old school" style BBSs like Mystic, Synchronet, ENiGMA½ or Talisman) that aggregates 3 popular door servers into a single menu system. It has lightbar driven menus, 100% customizable/replaceable ANSI art and a built-in statistics screen to show most popular doors and recent plays. An ANSI capable terminal program (like SyncTerm, Maigterm or Netrunner), at 80x25 screen size or larger, is required.
 
